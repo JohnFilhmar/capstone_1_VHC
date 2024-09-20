@@ -44,8 +44,8 @@ const PharmacyForm = ({ close, children }) => {
       data,
       logs : date_added
     };
-    console.log(payload);
-    addData('submitCSVMedicinesRecord', payload);
+    console.log('HERE ARE YOUR ROWS', payload);
+    // addData('submitCSVMedicinesRecord', payload);
     setData(null);
     close();
     fileRef.current.value = "";

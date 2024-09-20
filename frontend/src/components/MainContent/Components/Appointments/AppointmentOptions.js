@@ -6,9 +6,12 @@ import useQuery from "../../../../hooks/useQuery";
 import { Tooltip } from "flowbite-react";
 import ConfirmForm from "../../../../hooks/ConfirmForm";
 import { socket } from "../../../../socket";
+import api from "../../../../axios";
+import useCurrentTime from "../../../../hooks/useCurrentTime";
 
 const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
   const [selectedTheme] = useContext(colorTheme);
+  const { mysqlTime } = useCurrentTime();
   const { searchResults, response, isLoading, error, searchItems, editData, deleteData } = useQuery();
   const [selectedAppointment, setSelectedAppointment] = useState({
     fullname: "",
@@ -64,20 +67,44 @@ const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
     });
   };
 
-  const handleCancelAppointment = () => {
-    deleteData("handleCancelAppointment", PK);
-    setTimeout(() => {
+  const handleCancelAppointment = async () => {
+    try {
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        deleteData("/handleCancelAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
+      }
+    } catch (error) {
+      console.log(error);
+      setNotifMessage(error?.message);
+    }
+    closeModal();
+    const time = setTimeout(() => {
       socket.emit('updateAppointment');
     },[500])
-    toggle();
+    return () => {
+      clearTimeout(time);
+      toggle();
+    }
   };
 
-  const handleApproveAppointment = () => {
-    editData('handleApproveAppointment', [{}], PK);
-    setTimeout(() => {
+  const handleApproveAppointment = async () => {
+    try {
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        deleteData("/handleApproveAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
+      }
+    } catch (error) {
+      console.log(error);
+      setNotifMessage(error?.message);
+    }
+    closeModal();
+    const time = setTimeout(() => {
       socket.emit('updateAppointment');
     },[500])
-    toggle();
+    return () => {
+      clearTimeout(time);
+      toggle();
+    }
   }
 
   useEffect(() => {

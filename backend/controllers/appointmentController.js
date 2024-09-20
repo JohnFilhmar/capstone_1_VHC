@@ -28,25 +28,27 @@ class AppointmentController {
   async newAppointment(req, res) {
     let connection;
     try {
+
       connection = await dbModel.getConnection();
-      const { fullName, phoneNumber, appointedTime, description, dateTime } = req.body;
-      const query = "INSERT INTO `appointments`(`citizen_id`, `fullname`, `phone_number`, `appointed_datetime`, `description`, `status`, `created_at`, `appointment_logs`) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ";
-      const data = [
-        null,
-        payload.fullname,
-        payload.phonenumber,
-        payload.appointedTime,
-        payload.description,
-        payload.status,
-        payload.createdAt,
-        payload.logs,
-      ];
-      const response = await dbModel.query(query, data);
-      return res.status(200).json({
-        status: 200,
-        message: "Data added successfully",
-        data: response,
-      });
+      const { fullName, appointedTime, description, dateTime, staff_id } = req.body;
+      const firstName = fullName.split(' ')[0];
+      const lastName = fullName.split(' ')[1];
+      const getCitizenQuery = "SELECT `citizen_family_id`, `citizen_number` FROM `citizen` WHERE `citizen_firstname` LIKE ? OR `citizen_lastname` LIKE ?";
+      const [citizen] = await dbModel.query(getCitizenQuery, [firstName, lastName]);
+
+      if (!citizen) return res.status(404).json({ status: 404, message: 'Citizen not found!' });
+
+      const insertAppointmentQuery = "INSERT INTO `citizen_appointments` (`citizen_family_id`, `description`, `appointed_datetime`, `status`, `created_at`) VALUES (?, ?, ?, ?, ?)";
+      const insertAppointmentResponse = await dbModel.query(insertAppointmentQuery, [citizen.citizen_family_id, description, appointedTime, 'pending', dateTime]);
+
+      if (insertAppointmentResponse.affectedRows > 0) {
+        const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [citizen.citizen_family_id, 'appointment', 'requested for an appointment', staff_id, dateTime]);
+        if (insertHistoryResponse.affectedRows > 0) {
+          return res.status(200).json({ status: 200, message: "Appointment Successfully Created!" });
+        }
+      }
+
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -124,40 +126,26 @@ class AppointmentController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const retrieveQuery = "SELECT `status`, `appointment_logs` FROM `appointments` WHERE `appointment_id` = ?";
-      const retrieveResponse = await dbModel.query(retrieveQuery, req.params.id);
-      const oldLogs = JSON.parse(retrieveResponse[0].appointment_logs);
-      const newLogs = {};
-      const LKey = String(convertDate(new Date));
-      newLogs[LKey] = "Appointment Cancelled"
-      const newAppointmentLog = {
-        ...oldLogs,
-        ...newLogs
-      };
-      const updatePayload = [
-        "appointment cancelled",
-        JSON.stringify(newAppointmentLog),
-        req.params.id
-      ];
-      if (retrieveResponse[0].status === "appointment cancelled") {
-        return res.status(200).json({
-          status:200,
-          message: "Appointment already cancelled!",
-        })
-      } else if (retrieveResponse[0].status === "scheduled") {
-        return res.status(200).json({
-          status:200,
-          message: "Appointment already approved!",
-        })
-      } else {
-        const updateQuery = "UPDATE `appointments` SET `status` = ?, `appointment_logs` = ? WHERE `appointment_id` = ?";
-        const updateResponse = await dbModel.query(updateQuery, updatePayload);
-        return res.status(200).json({
-          status: 200,
-          message: "Appointment successfully cancelled!",
-          updateResponse: updateResponse
-        });
-      }
+      const appointmentId = req.params.id;
+      const { staff_id, dateTime } = req.body;
+
+      const getStatusQuery = "SELECT `status`, `citizen_family_id` FROM `citizen_appointments` WHERE `appointment_id` = ?";
+      const [getStatusResponse] = await dbModel.query(getStatusQuery, req.params.id);
+      if (getStatusResponse.status === 'rejected') return res.status(409).json({ status: 409, message: 'Appointment Already Cancelled!'});
+      if (getStatusQuery.status === 'scheduled') return res.status(409).json({ status: 409, message: 'Appointment Already Appointed!' });
+      if (getStatusQuery.status === 'dissmised') return res.status(409).json({ status: 409, message: 'Appointment Already Dismissed!' });
+
+      const updateStatusQuery = "UPDATE `citizen_appointments` SET `status` = ? WHERE `appointment_id` = ?";
+      const updateStatusResponse = await dbModel.query(updateStatusQuery, ['rejected', appointmentId]);
+      
+      if (updateStatusResponse.affectedRows > 0) {
+        const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [getStatusResponse.citizen_family_id, 'appointment rejected', 'appointment was rejected', staff_id, dateTime]);
+        if (insertHistoryResponse.affectedRows > 0) {
+          return res.status(200).json({ status: 200, message: "Appointment Successfully Cancelled!" });
+        }
+      }      
+      
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -175,40 +163,26 @@ class AppointmentController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const retrieveQuery = "SELECT `status`, `appointment_logs` FROM `appointments` WHERE `appointment_id` = ?";
-      const retrieveResponse = await dbModel.query(retrieveQuery, req.params.id);
-      const oldLogs = JSON.parse(retrieveResponse[0].appointment_logs);
-      const newLogs = {};
-      const LKey = String(convertDate(new Date));
-      newLogs[LKey] = "Appointment Approved"
-      const newAppointmentLog = {
-        ...oldLogs,
-        ...newLogs
-      };
-      const updatePayload = [
-        "scheduled",
-        JSON.stringify(newAppointmentLog),
-        req.params.id
-      ];
-      if (retrieveResponse[0].status === "scheduled") {
-        return res.status(200).json({
-          status:200,
-          message: "Appointment already approved!",
-        })
-      } else if (retrieveResponse[0].status === "appointment cancelled") {
-        return res.status(200).json({
-          status:200,
-          message: "Appointment already cancelled!",
-        })
-      } else {
-        const updateQuery = "UPDATE `appointments` SET `status` = ?, `appointment_logs` = ? WHERE `appointment_id` = ?";
-        const updateResponse = await dbModel.query(updateQuery, updatePayload);
-        return res.status(200).json({
-          status: 200,
-          message: "Appointment successfully approved!",
-          updateResponse: updateResponse
-        });
-      }
+      const appointmentId = req.params.id;
+      const { staff_id, dateTime } = req.body;
+
+      const getStatusQuery = "SELECT `status`, `citizen_family_id` FROM `citizen_appointments` WHERE `appointment_id` = ?";
+      const [getStatusResponse] = await dbModel.query(getStatusQuery, req.params.id);
+      if (getStatusResponse.status === 'rejected') return res.status(409).json({ status: 409, message: 'Appointment Already Cancelled!'});
+      if (getStatusQuery.status === 'scheduled') return res.status(409).json({ status: 409, message: 'Appointment Already Appointed!' });
+      if (getStatusQuery.status === 'dissmised') return res.status(409).json({ status: 409, message: 'Appointment Already Dismissed!' });
+
+      const updateStatusQuery = "UPDATE `citizen_appointments` SET `status` = ? WHERE `appointment_id` = ?";
+      const updateStatusResponse = await dbModel.query(updateStatusQuery, ['scheduled', appointmentId]);
+      
+      if (updateStatusResponse.affectedRows > 0) {
+        const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [getStatusResponse.citizen_family_id, 'appointment approved', 'appointment was approved', staff_id, dateTime]);
+        if (insertHistoryResponse.affectedRows > 0) {
+          return res.status(200).json({ status: 200, message: "Appointment Successfully Approved!" });
+        }
+      }      
+      
     } catch (error) {
       return res.status(500).json({
         status: 500,

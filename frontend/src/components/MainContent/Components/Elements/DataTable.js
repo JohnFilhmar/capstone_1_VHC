@@ -11,7 +11,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
   const [query, setQuery] = useState('');
   const [CurrentPage, setCurrentPage] = useState(1);
   const [Pages, setPages] = useState(0);
-  const [rowCount, setRowCount] = useState(10);
+  const [rowCount, setRowCount] = useState(15);
   const [sortedData, setSortedData] = useState([]);
   const inputRef = useRef(null);
   const formModalRef = useRef(null);
@@ -108,8 +108,12 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
       setIsFormOpen(false);
     }
   }
-
+  
   const displayedData = filteredData.slice((CurrentPage - 1) * rowCount, CurrentPage * rowCount);
+  
+  function handleExport() {
+    console.log(filteredData);
+  }
 
   const Header = ({ top }) => (
     !(data && data.length > 0) ? (
@@ -142,7 +146,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
   
   return (
     <>
-      <div className="flex justify-between items-center p-4 overflow-hidden">
+      <div className="flex justify-between items-center p-1 overflow-hidden">
         <div className="flex justify-center items-center gap-3">
           {enImport && (
             <button 
@@ -163,7 +167,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
             </button>
           )}
           <div className="flex items-center gap-1">
-            <p className={`text-xs md:text-sm lg:text-sm p-1 text-${selectedTheme}-800 font-bold`}>Entries per page:</p>
+            <p className={`text-xs md:text-sm lg:text-sm p-1 text-${selectedTheme}-800 font-bold flex flex-row gap-[0.4rem]`}>Entries <span className="hidden md:block lg:block">per page</span>:</p>
             <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-1`}>
               <MdKeyboardArrowUp />
             </button>
@@ -173,24 +177,17 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
             </button>
           </div>
         </div>
-        <div 
-          className={`flex`}
-        >
-          {enSearch && (
-            <>
+        {enSearch && (
+          <div className={`block`}>
+            <div className="flex items-center justify-start">
               <button
                 onClick={() => {
-                  setMove((prevMove) => !prevMove); 
                   setQuery(''); 
                   setSearchFocus();
                 }}
-                className={`text-${selectedTheme}-500 hover:text-${selectedTheme}-600 mr-4 md:mr-2 lg:mr-2 ${
-                  move
-                    ? 'transition-transform ease-in-out duration-200 translate-x-0'
-                    : 'transition-transform ease-in-out duration-200 translate-x-[9rem] md:translate-x-[198px] lg:translate-x-[200px]'
-                }`}
+                className={`text-${selectedTheme}-500 hover:text-${selectedTheme}-600`}
               >
-                <MdSearch className="w-6 h-6" />
+                <MdSearch className="size-6" />
               </button>
               <TextInput
                 id="tablesearch"
@@ -199,12 +196,11 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
                 placeholder="Search here"
                 value={query}
                 onChange={(e) => searchTable(e)}
-                className={`${
-                  move ? 'transition-opacity duration-100 ease-linear opacity-1 translate-x-0' : 
-                  'transition-opacity duration-100 ease-linear opacity-0 translate-x-[9rem] md:translate-x-[198px] lg:translate-x-[200px]'}`}
+                className={`w-full`}
               />
-            </>)}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
       <div className="overflow-x-auto drop-shadow-lg">
         <table 
@@ -295,7 +291,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
       <div className="flex flex-row justify-between items-center mt-1">
         <div className="flex justify-evenly items-center">
           {enExport && (
-            <button className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg text-xs md:text-sm lg:text-base hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
+            <button onClick={() => handleExport()} className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg text-xs md:text-sm lg:text-base hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
           )}
         </div>
         <div className={`flex flex-row text-md font-semibold p-1 m-1 bg-${selectedTheme}-200 rounded-lg`}>

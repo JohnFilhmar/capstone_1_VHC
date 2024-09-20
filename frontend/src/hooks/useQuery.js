@@ -68,7 +68,7 @@ const useQuery = () => {
     }
   };
 
-  const editData = async (route, payload, id) => {
+  const editData = async (route, id, payload) => {
     setIsLoading(true);
     try {
       const response = await api.post(`${route}/${id}`, payload);
@@ -82,10 +82,10 @@ const useQuery = () => {
     }
   };
 
-  const deleteData = async (route, id) => {
+  const deleteData = async (route, id, payload = {}) => {
     setIsLoading(true);
     try {
-      const response = await api.post(`${route}/${id}`);
+      const response = await api.post(`${route}/${id}`, payload);
       setResponse(response?.data);
       setNotifMessage(response.data.message);
       setIsLoading(false);
@@ -100,7 +100,7 @@ const useQuery = () => {
     setIsLoading(true);
     try {
       const response = await api.get(`${route}/${id}`);
-      setSearchResults(response.data.data[0]);
+      setSearchResults(response.data);
       setIsLoading(false);
     } catch (error) {
       handleError(error);

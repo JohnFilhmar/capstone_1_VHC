@@ -1,10 +1,12 @@
 import { Checkbox, Label, Radio, Spinner } from 'flowbite-react';
 import { useState, useEffect, useContext } from 'react';
 import jsonData from '../../../../../common_names_by_gender.json';
-import { colorTheme } from '../../../../../App';
+import { colorTheme, notificationMessage } from '../../../../../App';
 import useQuery from '../../../../../hooks/useQuery';
 import useCurrentTime from '../../../../../hooks/useCurrentTime';
 import { socket } from '../../../../../socket';
+import { GiDiceSixFacesFive, GiDiceSixFacesFour, GiDiceSixFacesOne, GiDiceSixFacesSix, GiDiceSixFacesThree, GiDiceSixFacesTwo } from "react-icons/gi";
+import api from '../../../../../axios';
 
 const RecordForm = ( { close, children } ) => {
   const [selectedTheme] = useContext(colorTheme);
@@ -17,7 +19,9 @@ const RecordForm = ( { close, children } ) => {
   const [familyId, setFamilyId] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
+  const [diceNumber, setDiceNumber] = useState(1);
   const { mysqlTime } = useCurrentTime();
+  const [notifMessage, setNotifMessage] = useContext(notificationMessage);
   const barangays = [
     'Alcate',
     'Antonino',
@@ -53,7 +57,7 @@ const RecordForm = ( { close, children } ) => {
     'Villa Cerveza',
   ];
 
-  const { response, isLoading, error, addData } = useQuery();
+  const { isLoading, addData } = useQuery();
 
   useEffect(() => {
     setFamilyId(GenerateFamId(8).toUpperCase());
@@ -97,34 +101,53 @@ const RecordForm = ( { close, children } ) => {
   };
 
   const handleSubmit = async (e) => {
-    const history = {};
-    const JKey = String(mysqlTime);
-    history[JKey] = "Record Added";
-    const payload = {
-      firstName: firstname,
-      middleName: middlename,
-      lastName: lastname,
-      gender: gender,
-      birthdate: birthdate,
-      barangay: barangay,
-      family_id: `FAMILY_ID-${familyId}`,
-      phone_number: phoneNumber,
-      date_added: mysqlTime,
-      history: JSON.stringify(history)
-    };
     e.preventDefault();
-    if(dontCloseUponSubmission) {
-      addData('addRecord',payload);
-      cleanUp();
-    } else {
-      close();
-      addData('addRecord',payload);
-      cleanUp();
+    try {
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        if (!barangays.includes(barangay)) {
+          setNotifMessage('Barangay must be inside the municipality of Victoria only!');
+          const time = setTimeout(() => {
+            setNotifMessage(null);
+          }, 5000);
+          return () => clearTimeout(time);
+        }
+        const payload = {
+          firstName: firstname,
+          middleName: middlename,
+          lastName: lastname,
+          gender: gender,
+          birthdate: birthdate,
+          barangay: barangay,
+          family_id: `FAMILY_ID-${familyId}`,
+          phone_number: phoneNumber,
+          dateTime: mysqlTime,
+          staff_id: res.data.staff_id
+        };
+        if(dontCloseUponSubmission) {
+          addData('/addRecord',payload);
+          cleanUp();
+        } else {
+          close();
+          addData('/addRecord',payload);
+          cleanUp();
+        }
+        const time = setTimeout(() => {
+          socket.emit('updateRecords');
+        },[500])
+        return () => clearTimeout(time);
+      }
+    } catch (error) {
+      setNotifMessage(error.message);
     }
-    setTimeout(() => {
-      socket.emit('updateRecords');
-    },[500])
   }
+
+  const randomizeFamilyId = (e) => {
+    e.preventDefault();
+    setDiceNumber(Math.floor(Math.random() * 6) + 1);
+    setFamilyId(GenerateFamId(8).toUpperCase());
+  };
+
 
   // THIS FORM SHOULD AUTO COMPLETE THE BARANGAY DEPENDING ON THE FAMILY NAME THAT IS ALSO WITHIN WHAT BARANGAY THE FAMILY NAME IS IN
   // SHOULD CHECK FAMILY ID FIRST BEFORE PASSING WHETHER IT ALREADY EXISTS OR NOT
@@ -259,15 +282,26 @@ const RecordForm = ( { close, children } ) => {
           <div className="mb-2 block">
             <label htmlFor="familyId" className='text-xs md:text-sm lg:text-base font-semibold'>Family ID</label>
           </div>
-          <input 
-            id="familyId" 
-            className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent text-slate-500 border-[1px] border-${selectedTheme}-800`}
-            type="text" 
-            disabled 
-            value={`FAM_ID-${familyId}`} 
-          />
+          <div className="flex gap-2">
+            <input 
+              id="familyId" 
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent text-slate-500 border-[1px] border-${selectedTheme}-800`}
+              type="text" 
+              value={`FAM_ID-${familyId}`} 
+            />
+            <button className="p-1 text-blue-800" onClick={randomizeFamilyId}>
+              {diceNumber === 1 ? <GiDiceSixFacesOne className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              diceNumber === 2 ? <GiDiceSixFacesTwo className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              diceNumber === 3 ? <GiDiceSixFacesThree className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              diceNumber === 4 ? <GiDiceSixFacesFour className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              diceNumber === 5 ? <GiDiceSixFacesFive className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              diceNumber === 6 ? <GiDiceSixFacesSix className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
+              <GiDiceSixFacesOne className="size-6 md:size-8 lg:size-9" color={selectedTheme} />
+              }
+            </button>
+          </div>
         </div>
-        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? 'Add New Record' : <Spinner/>}</p></button>
+        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Add New Record') : <Spinner/>}</p></button>
         <div className="flex items-center justify-end gap-2">
           <Checkbox
             id="accept"

@@ -178,7 +178,7 @@ const AddToQueue = ({ ATref, ATonClick }) => {
             className={`py-2 px-4 hover:shadow-md font-semibold rounded-lg transition-colors duration-200 ${barangay && gender ? `text-${selectedTheme}-100 bg-${selectedTheme}-600 hover:cursor-pointer shadow-sm` : `shadow-inner text-${selectedTheme}-100 bg-${selectedTheme}-400 hover:cursor-not-allowed`}`}
             disabled={!barangay || !gender}
           >
-            {isLoading || error ? <Spinner /> : 'Submit Edit'}
+            {isLoading || error ? <Spinner /> : 'Submit Form'}
           </button>
           <div className="flex items-center justify-end gap-2">
             <Checkbox

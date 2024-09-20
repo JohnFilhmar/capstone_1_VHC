@@ -6,27 +6,25 @@ class RecordController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const query = 'INSERT INTO `citizen`(`citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_family_id`, `date_added`,  `citizen_number`, `citizen_history`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-      const payload = req.body;
-      const data = [
-        payload.firstName,
-        payload.middleName,
-        payload.lastName,
-        payload.gender,
-        payload.birthdate,
-        payload.barangay,
-        payload.family_id,
-        payload.date_added,
-        payload.phone_number,
-        payload.history
+      const { family_id, firstName, middleName, lastName, gender, birthdate, barangay, phone_number, dateTime, staff_id } = req.body;
+
+      const checkFamilyIdQuery = 'SELECT `citizen_family_id` FROM `citizen` WHERE `citizen_family_id` = ?';
+      const [checkFamilyIdResponse] = await dbModel.query(checkFamilyIdQuery, [family_id])
+      if (checkFamilyIdResponse) return res.status(409).json({ status: 409, message: "Family Id Already Taken!" });
+      
+      const insertCitizenQuery = 'INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+      const citizenPayload = [
+        family_id, firstName, middleName, lastName, gender, birthdate, barangay, phone_number
       ];
-      const response = await dbModel.query(query, data)
-      return res.status(200).json({
-        status: 200,
-        message: 'Record added successfully',
-        response: response,
-        payload: data,
-      });
+      await dbModel.query(insertCitizenQuery, citizenPayload)
+
+      const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const insertHistoryPayload = [
+        family_id, 'record added', 'added this to records', staff_id, dateTime
+      ]
+      await dbModel.query(insertHistoryQuery, insertHistoryPayload);
+      return res.status(200).json({ status: 200, message: 'Record added successfully' });
+
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -104,14 +102,18 @@ class RecordController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const query = "SELECT `citizen_history`, `citizen_firstname`,`citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_number`, `citizen_birthdate` FROM `citizen` WHERE `citizen_family_id` = ?";
+
+      const getCitizenHistoryQuery = "SELECT c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS full_name, c.citizen_gender, c.citizen_barangay, c.citizen_number, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
       const family_id = req.params.id;
-      const response = await dbModel.query(query, family_id);
+      const getCitizenHistoryResponse = await dbModel.query(getCitizenHistoryQuery, [family_id]);
+      if (!getCitizenHistoryResponse) return res.status(404).json({ status: 404, message: "Citizen was not found!" });
+
       return res.status(200).json({
         status: 200,
         message: "Data retrieved successfully",
-        data: response,
+        data: getCitizenHistoryResponse,
       });
+      
     } catch (error) {
       return res.status(500).json({
         status: 500,

@@ -26,7 +26,7 @@ const Pharmacy = () => {
   };
 
   const { data: medicines, loading } = useSocket({ SSName: "sessionPharmacy", keyMap: keyMap, fetchUrl: "getPharmacyInventory", socketEmit: "updatePharmacy", socketUrl: "newPharmacy", socketError: "newPharmacyError" })
-
+  
   const toggleOptions = (itemId) => {
     setItemId(itemId);
     if (!isProductAuditOpen) {
@@ -44,12 +44,8 @@ const Pharmacy = () => {
         <div>
           <Header title={ title } icon={<MdLocalPharmacy/>}/>
         </div>
-        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-60 md:mb-72 lg:mb-80">
-            <div className="col-span-2 w-34 h-36 bg-gray-50 rounded-xl">
-              <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importName="pharmacyImport" importUrlDestination={"submitCSVMedicinesRecord"} />
-            </div>
-          </div>
+        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
+          <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importName="pharmacyImport" importUrlDestination={"submitCSVMedicinesRecord"} />
         </div>
       </div>
       <PharmacyAudit recordAudit={productAuditRef} toggle={toggleOptions} itemId={itemId} />

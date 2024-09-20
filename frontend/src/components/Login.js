@@ -65,7 +65,7 @@ const Login = () => {
                 value={payload.username}
                 onChange={handleChange}
                 className="bg-sky-700/90 text-sky-50 rounded-xl p-2 font-semibold drop-shadow-sm"
-                maxLength={20}
+                maxLength={255}
                 minLength={8}
                 autoComplete="off"
               />

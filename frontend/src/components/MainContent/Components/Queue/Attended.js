@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { MdClose, MdPeople } from "react-icons/md";
 import { colorTheme } from "../../../../App";
 import DataTable from "../Elements/DataTable";
@@ -19,10 +19,6 @@ const Attended = ({ ATref, ATonClick }) => {
     "current_status": "Current Status"
   };
   const { data: queue } = useSocket({ SSName: "attendedQueue", keyMap: keyMap, fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
-
-  useEffect(() => {
-    console.log(queue)
-  }, [queue]);
   
   const transformedData = queue && queue.length > 0 && queue.map(item => {
     const date = new Date(item["Time Arrived"]);

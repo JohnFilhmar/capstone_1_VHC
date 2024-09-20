@@ -4,10 +4,10 @@ import { Spinner } from "flowbite-react";
 import useQuery from "../../../../../hooks/useQuery";
 import useCurrentTime from "../../../../../hooks/useCurrentTime";
 import { socket } from "../../../../../socket";
+import api from "../../../../../axios";
 
 const NewAppointmentForm = ({ close, children }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const [appointmentID, setAppointmentID] = useState("");
   const [fullname, setFullname] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [description, setDescription] = useState("");
@@ -20,7 +20,6 @@ const NewAppointmentForm = ({ close, children }) => {
     setFullname("");
     setDescription("");
     setAppointment("");
-    setAppointmentID("");
     setPhoneNumber("");
   };
 
@@ -39,28 +38,40 @@ const NewAppointmentForm = ({ close, children }) => {
     e.preventDefault();
     const payload = {
       fullName: fullname,
-      phoneNumber: phoneNumber,
       appointedTime: appointment,
       description: description,
       dateTime: mysqlTime,
     };
-    const convertedPayload = {
-        ...payload,
-        appointedTime: convertToMySQLDateTime(payload.appointedTime),
-        appointedAt: convertToMySQLDateTime(payload.appointedAt)
-    };
-    if (new Date(appointment) > new Date()) {
-      addData("newAppointment", convertedPayload);
-      setTimeout(() => {
-        socket.emit('updateAppointment');
-      },[500]);
-      cleanUp();
-      close();
-    } else {
-      setErrorPrompt("Appointment must be after this day or any other day!");
-      setTimeout(() => {
+    try {
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        const convertedPayload = {
+            ...payload,
+            staff_id: res.data.staff_id,
+            appointedTime: convertToMySQLDateTime(payload.appointedTime)
+        };
+        if (new Date(appointment) > new Date()) {
+          addData("newAppointment", convertedPayload);
+          setTimeout(() => {
+            socket.emit('updateAppointment');
+          },[500]);
+          cleanUp();
+          close();
+        } else {
+          setErrorPrompt("Appointment must be after this day or any other day!");
+          const time = setTimeout(() => {
+            setErrorPrompt("");
+          }, 3000);
+          return () => clearTimeout(time);
+        }
+      }
+    } catch (error) {
+      console.error(error.message);
+      setErrorPrompt(error.message);
+      const time = setTimeout(() => {
         setErrorPrompt("");
       }, 3000);
+      return () => clearTimeout(time);
     }
   };
 
@@ -91,8 +102,8 @@ const NewAppointmentForm = ({ close, children }) => {
 
   useEffect(() => {
     if (response?.status === 200) {
-      setFullname(response?.citizen?.full_name);
-      setPhoneNumber(response?.citizen?.citizen_number);
+      setFullname(response?.citizen?.full_name || '');
+      setPhoneNumber(response?.citizen?.citizen_number || '');
     }
   }, [response]);
   useEffect(() => {
@@ -105,7 +116,7 @@ const NewAppointmentForm = ({ close, children }) => {
     <>
       {children}
       <div className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24">
-        <form className="flex flex-col gap-4 max-h-[500px] min-h-[500px] overflow-y-auto" onSubmit={handleSubmit}>
+        <form className="flex flex-col gap-4 max-h-[450px] min-h-[450px] overflow-y-auto" onSubmit={handleSubmit}>
           <div>
             <label htmlFor={'fullname'} className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>{'Name'}:<span className="text-red-600 font-bold">*</span></label>
             <input
