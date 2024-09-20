@@ -1,12 +1,12 @@
-import RecordForm from './Forms/RecordForm';
-import PharmacyForm from './Forms/PharmacyForm';
-import DonorForm from './Forms/DonorForm';
 import { MdClose, MdCreate } from "react-icons/md";
 import { createContext, useContext, useRef, useState } from 'react';
 import { colorTheme } from '../../../../App';
+import RecordForm from './Forms/RecordForm';
+import PharmacyForm from './Forms/PharmacyForm';
+import DonorForm from './Forms/DonorForm';
 import NewAppointmentForm from './Forms/NewAppointmentForm';
-import ConfirmForm from '../../../../hooks/ConfirmForm';
 import NewAccountForm from './Forms/NewAccountForm';
+import ConfirmForm from '../../../../hooks/ConfirmForm';
 import ImportFileForm from './Forms/ImportFileForm';
 
 const SelectedForm = ({ formType, toggle, importUrl }) => {
@@ -23,6 +23,8 @@ const SelectedForm = ({ formType, toggle, importUrl }) => {
         return <NewAppointmentForm close={toggle} />;
       case 'accounts':
         return <NewAccountForm close={toggle} />;
+      case 'import':
+        return <ImportFileForm close={toggle} />;
       default:
         return null;
     }

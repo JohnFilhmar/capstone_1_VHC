@@ -45,7 +45,7 @@ const Pharmacy = () => {
           <Header title={ title } icon={<MdLocalPharmacy/>}/>
         </div>
         <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
-          <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importName="pharmacyImport" importUrlDestination={"submitCSVMedicinesRecord"} />
+          <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} />
         </div>
       </div>
       <PharmacyAudit recordAudit={productAuditRef} toggle={toggleOptions} itemId={itemId} />

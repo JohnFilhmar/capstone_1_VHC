@@ -93,7 +93,7 @@ const App = () => {
           return () => clearTimeout(time);
         }
       } catch (error) {
-        if (error.response.data.status === 401) {
+        if (error?.response?.data.status === 401) {
           await clearStore('tokens');
         }
         console.error('Verification error:', error);

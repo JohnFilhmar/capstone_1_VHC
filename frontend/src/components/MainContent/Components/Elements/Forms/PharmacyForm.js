@@ -54,23 +54,19 @@ const PharmacyForm = ({ close, children }) => {
   return (
     <>
     {children}
-      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24" onSubmit={handleSubmit}>
-        <div>
-          <div className="mb-2 block">
-            <label htmlFor="firstname" className='text-xs md:text-sm lg:text-base font-semibold'>First Name</label>
+      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24 w-[50vw]" onSubmit={handleSubmit}>
+        <div className="flex flex-col">
+          <div className={`p-2`}>
+            <label htmlFor="philhealthnum" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Number:</label>
+            <input
+              type="text"
+              id="philhealthnum"
+              name="philhealthnum"
+              placeholder="Enter your philheath number. . . . ."
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+            />
           </div>
-          <input
-            ref={fileRef}
-            type="file" 
-            required 
-            className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-            maxLength={50} 
-            id="xlsxfile" 
-            name='xlsxfile'
-            onChange={handleFileUpload}
-          />
         </div>
-        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? 'Add New Record' : <Spinner/>}</p></button>
       </form>
     </>
   );

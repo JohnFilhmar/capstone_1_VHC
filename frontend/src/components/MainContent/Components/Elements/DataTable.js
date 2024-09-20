@@ -16,6 +16,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
   const inputRef = useRef(null);
   const formModalRef = useRef(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formType, setFormType] = useState('');
   const [sortState, setSortState] = useState(
     data && data.length && Object.keys(data[0]).reduce((acc, field) => {
       acc[field] = false;
@@ -99,8 +100,9 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
     setPages(NumOfPages);
   }, [query, filteredData, rowCount]);
 
-  const toggleForm = () => {
+  const toggleForm = ( type ) => {
     if (!isFormOpen) {
+      setFormType(type);
       formModalRef.current.showModal();
       setIsFormOpen(true);
     } else {
@@ -151,7 +153,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
           {enImport && (
             <button 
               className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-2`}
-              onClick={() => toggleForm()}
+              onClick={() => toggleForm("import")}
               disabled={error}
             >
               <p className={`font-bold text-${selectedTheme}-100`}>Import File</p>
@@ -160,7 +162,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
           {enAdd && (
             <button 
               className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-2`}
-              onClick={() => toggleForm()}
+              onClick={() => toggleForm(modalForm)}
               disabled={error}
             >
               <p className={`font-bold text-${selectedTheme}-100`}>Add</p>
@@ -312,7 +314,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
           </button>
         </div>
       </div>
-      <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={modalForm} />
+      <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={formType} />
     </>
   );
 };
