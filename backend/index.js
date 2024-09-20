@@ -46,3 +46,5 @@ initializeWebSocket(server);
 server.listen(port, () => {
   console.log(`Server is running on port https://localhost:${port}`);
 });
+
+module.exports = app;
