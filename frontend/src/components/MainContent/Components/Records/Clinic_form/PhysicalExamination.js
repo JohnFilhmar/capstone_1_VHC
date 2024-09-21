@@ -42,14 +42,15 @@ const PhysicalExamination = ({ selectedTheme }) => {
             )}
         </button>
       </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      <div className={`${isVisible ? 'block' : 'hidden'}`}>
         <div className="grid grid-cols-2 gap-10">
           <div className="flex flex-col gap-1 p-2">
             <p className={`text-${selectedTheme}-600 font-bold`}>Skin or extremities description:</p>
+            <div className="grid grid-cols-2">
             {skinDescriptions.map((skin, i) => (
-            <div key={i} className="p-2 grid grid-cols-5 gap-1">
-              <label htmlFor="philhealthstatustype" className={`col-span-4 block text-${selectedTheme}-600 font-semibold`}>{skin}:</label>
-              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm`}>
+            <div key={i} className="p-2 flex justify-between items-center">
+              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>{skin}:</label>
+              <label className={`flex items-center space-x-2`}>
                 <input
                   type="checkbox"
                   className={`form-checkbox size-5 text-${selectedTheme}-600`}
@@ -57,9 +58,23 @@ const PhysicalExamination = ({ selectedTheme }) => {
               </label>
             </div>
             ))}
+            </div>
           </div>
           <div className="flex flex-col gap-1 p-2">
-
+            <p className={`text-${selectedTheme}-600 font-bold`}>Heent description:</p>
+            <div className="grid grid-cols-2">
+            {skinDescriptions.map((skin, i) => (
+            <div key={i} className="p-2 flex justify-between items-center">
+              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>{skin}:</label>
+              <label className={`flex items-center space-x-2`}>
+                <input
+                  type="checkbox"
+                  className={`form-checkbox size-5 text-${selectedTheme}-600`}
+                />
+              </label>
+            </div>
+            ))}
+            </div>
           </div>
         </div>
       </div>

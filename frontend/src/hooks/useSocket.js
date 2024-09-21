@@ -4,7 +4,7 @@ import useQuery from "./useQuery";
 import { socket } from "../socket";
 import useCurrentTime from "./useCurrentTime";
 
-const useSocket = ({ keyMap, fetchUrl, socketUrl, socketEmit, socketError }) => {
+const useSocket = ({ fetchUrl, socketUrl, socketEmit, socketError }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [SockError, setSockError] = useState(null);
@@ -12,15 +12,18 @@ const useSocket = ({ keyMap, fetchUrl, socketUrl, socketEmit, socketError }) => 
   const [storedRecords, setStoredRecords] = useState([]);
   const { mysqlTime } = useCurrentTime();
 
+  function convertKey(word) {
+    const data = word.split('_');
+    const newKey = data.map(dat => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase());
+    return newKey.join(' ');
+  };
+  
   function convertData(data) {
     const newData = data && data.map(obj => {
       const newObj = {};
       Object.keys(obj).forEach(key => {
-        if (keyMap[key]) {
-          newObj[keyMap[key]] = obj[key];
-        } else {
-          newObj[key] = obj[key];
-        }
+        const newKey = convertKey(key);
+        newObj[newKey] = obj[key];
       });
       return newObj;
     });

@@ -5,7 +5,7 @@ import { TbFileExport } from "react-icons/tb";
 import FormModal from "./FormModal";
 import { colorTheme } from "../../../../App";
 
-const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName, importUrlDestination, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
+const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, importName, importUrlDestination, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
   const [selectedTheme] = useContext(colorTheme);
   const [move, setMove] = useState(false);
   const [query, setQuery] = useState('');
@@ -314,7 +314,7 @@ const DataTable = ({ data, modalForm, enAdd = true, enImport = false, importName
           </button>
         </div>
       </div>
-      <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={formType} />
+      <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={formType} importTableName={importTableName} />
     </>
   );
 };

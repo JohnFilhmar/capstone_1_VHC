@@ -10,13 +10,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
   const [selectedTheme] = useContext(colorTheme);
   const [data, setData] = useState(null);
   const [history, setHistory] = useState([]);
-  const keyMap = {
-    "history_id": "History ID", 
-    "action": "Action", 
-    "action_details": "Action Details", 
-    "username": "Staff Attendee", 
-    "action_datetime": "Date & Time"
-  };
+  
   const { searchResults, isLoading, error, searchData } = useQuery();
   const [formVisibility, setFormVisibility] = useState(false);
 
@@ -56,15 +50,18 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     }
   }, [error, searchResults]);
   
+  function convertKey(word) {
+    const data = word.split('_');
+    const newKey = data.map(dat => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase());
+    return newKey.join(' ');
+  };
+  
   function convertData(data) {
     const newData = data && data.map(obj => {
       const newObj = {};
       Object.keys(obj).forEach(key => {
-        if (keyMap[key]) {
-          newObj[keyMap[key]] = obj[key];
-        } else {
-          newObj[key] = obj[key];
-        }
+        const newKey = convertKey(key);
+        newObj[newKey] = obj[key];
       });
       return newObj;
     });
@@ -120,7 +117,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
             {!formVisibility ? (
               <DataTable data={convertData(history)}  enAdd={false} enExport={true} enOptions={false} enImport={false} isLoading={isLoading} error={error} />
             ):(
-              <CitizenForm />
+              <CitizenForm userData={data[0]} />
             )}
           </div>
         </div>

@@ -31,17 +31,9 @@ const Queue = () => {
   const { mysqlTime } = useCurrentTime();
   const [accessToken, setAccessToken] = useState(null);
   const { getAllItems } = useIndexedDB();
-  const keyMap = {
-    "queue_number": "queue_number",
-    "patient_name": "patient_name",
-    "patient_gender": "patient_gender",
-    "barangay_from": "barangay_from",
-    "time_arrived": "time_arrived",
-    "current_status" : "current_status",
-    "patient_status_history": "patient_status_history"
-  }
-  const { data: queue } = useSocket({ keyMap: keyMap, fetchUrl: "getQueue", socketUrl: "newQueue", socketEmit: "updateQueue", socketError: "newQueueError" });
-
+  
+  const { data: queue } = useSocket({ fetchUrl: "getQueue", socketUrl: "newQueue", socketEmit: "updateQueue", socketError: "newQueueError" });
+  
   useEffect(() => {
     const setToken = async () => {
       const token = await getAllItems('tokens');
@@ -55,7 +47,7 @@ const Queue = () => {
   
   useEffect(() => {
     setWaiting(queue.reduce((acc, curr) => {
-      if(curr.current_status === 'waiting') {
+      if(Object.values(curr).includes('waiting')) {
         acc.push(curr);
       }
       return acc;
@@ -97,7 +89,7 @@ const Queue = () => {
   };
 
   const handleDismiss = async (i) => {
-    const family_id = queue.find(prev => parseInt(prev.queue_number) === i ).family_id;
+    const family_id = queue.find(prev => parseInt(prev["Queue Number"]) === i )["Family Id"];
     const res = await api.get('/getStaffId');
     if (res?.status === 200) {
       const payload = {
@@ -105,7 +97,7 @@ const Queue = () => {
         family_id: family_id, 
         staff_id: res.data.staff_id
       }
-      editData('dismissQueue', payload, i);
+      editData('dismissQueue', i, payload);
       setTimeout(() => {
         socket.emit('updateQueue', {dateTime: String(mysqlTime)});
         socket.emit('updateAttended');
@@ -138,23 +130,6 @@ const Queue = () => {
         <div onClick={() => socket.emit("updateQueue", {dateTime: String(mysqlTime)})}>
           <Header title={ title } icon={<MdPeople />}/>
         </div>
-        {isLoading && !queue[0] ? (
-          <>
-            <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 animate-pulse ease-linear">
-              <div className="flex items-center justify-end gap-3 m-1 my-2">
-                {Array.from({ length: 3 }).map((_, index) => (
-                  <div key={index} className={`p-2 rounded-lg bg-${selectedTheme}-400 text-xs md:text-sm lg:text-base font-semibold w-16`}> </div>
-                ))}
-              </div>
-              <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 place-items-center gap-4 mb-60 md:mb-72 lg:mb-80`}>
-                <div className={`flex flex-col w-full h-[21rem] col-span-4 row-span-2 bg-${selectedTheme}-400 rounded-lg text-xs md:text-sm lg:text-base drop-shadow-md`}></div>
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className={`relative w-full md:w-full lg:grow flex flex-col h-[10rem] bg-${selectedTheme}-400 rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base`}></div>
-                ))}
-              </div>
-            </div>
-          </>
-        ):(
         <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex items-center justify-end gap-3 m-1 my-2">
             {role && (role !== 'user') && (
@@ -183,15 +158,15 @@ const Queue = () => {
               </div>
               <div className="h-72 min-h-72 overflow-y-auto">
               {queue.length >= 0 && queue.map((q, i) => {
-                if (q.current_status === displayedData[viewStateIndex]) {
+                if (Object.values(q).includes(displayedData[viewStateIndex])) {
                   return (
-                    <div key={i} className="flex flex-col gap-3 mx-2 my-3">
-                      <div className={`flex justify-between items-center px-10 bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
-                        <p>{q.queue_number}</p>
-                        <p>{q.citizen_fullname}</p>
-                        <button onClick={() => handleDismiss(q.queue_number)} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
+                      <div key={i} className="flex flex-col gap-3 mx-2 my-3">
+                        <div className={`flex justify-between items-center px-10 border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
+                          <p>{q["Queue Number"]}</p>
+                          <p>{q["Citizen Fullname"]}</p>
+                          <button onClick={() => handleDismiss(parseInt(q["Queue Number"]))} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
+                        </div>
                       </div>
-                    </div>
                   )
                 } else {
                   return null;
@@ -199,14 +174,8 @@ const Queue = () => {
               })}
               </div>
             </div>
-
-            {(isLoading || error) && Array.from({ length: 3 }).map((_, i) => (
-              <div key={i}>
-
-              </div>
-            ))}
             
-            {!isLoading && !error && displayedData.map(item => (
+            {displayedData.map(item => (
               <div className={`hidden md:hidden lg:block w-full h-full col-span-2 row-span-2 bg-${selectedTheme}-50 rounded-lg text-xs md:text-sm lg:text-base drop-shadow-md`}>
                 <div className={`text-center border-b-[1px] border-${selectedTheme}-800 shadow-md`}>
                   <p className={`flex items-center justify-center gap-2 p-2 text-base md:text-lg lg:text-xl text-${selectedTheme}-600 font-bold`}>
@@ -215,13 +184,13 @@ const Queue = () => {
                 </div>
                 <div className="h-72 min-h-72 overflow-y-auto">
                 {queue.length >= 0 && queue.map((q, i) => {
-                  if (q.current_status === item) {
+                  if (Object.values(q).includes(item)) {
                     return (
                       <div key={i} className="flex flex-col gap-3 mx-2 my-3">
                         <div className={`flex justify-between items-center px-10 border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
-                          <p>{q.queue_number}</p>
-                          <p>{q.citizen_fullname}</p>
-                          <button onClick={() => handleDismiss(q.queue_number)} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
+                          <p>{q["Queue Number"]}</p>
+                          <p className="truncate">{q["Citizen Fullname"]}</p>
+                          <button onClick={() => handleDismiss(parseInt(q["Queue Number"]))} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
                         </div>
                       </div>
                     )
@@ -231,24 +200,24 @@ const Queue = () => {
                 })}
                 </div>
               </div>
-              ))}
+            ))}
             
-            {queue && queue.length > 0 && queue.map((q, i) => {
+            {/* {queue && queue.length > 0 && queue.map((q, i) => {
               if (q.patient_status_history === 'emergency') {
                 return (
                   <div key={i} className={`relative w-full md:w-full lg:grow flex flex-col h-auto bg-red-300 animate-pulse rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base`}>
                     <div className={`text-center border-b-[1px] border-red-800 shadow-md`}>
-                      <p className={`flex items-center justify-center gap-2 text-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl`}>NO.{q.queue_number}<IoMdAlert /></p>
+                      <p className={`flex items-center justify-center gap-2 text-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl`}>NO.{q["Queue Number"]}<IoMdAlert /></p>
                     </div>
                     <div className="flex flex-col gap-2 p-2 my-3">
                       <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p className="truncate">{q.citizen_fullname}</p>
+                        <p className="truncate">{q["Citizen Fullname"]}</p>
                       </div>
                       <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p>{q.citizen_barangay}</p>
+                        <p>{q["Citizen Barangay"]}</p>
                       </div>  
                       <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p>{q.citizen_gender}</p>
+                        <p>{q["Citizen Gender"]}</p>
                       </div>
                     </div>
                     <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(q.time_arrived)}</p>
@@ -257,27 +226,35 @@ const Queue = () => {
               } else {
                 return null;
               }
-            })}
-
-            {waiting && waiting.length !== 0 && waiting.map((w, i) => (
+            })} */}
+            
+            {waiting.length === 0 ? (
+              <div className={`relative w-full md:w-full lg:grow flex flex-col col-span-2 md:col-span-4 lg:col-span-6 h-auto bg-red-100 rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base animate-pulse`}>
+                <div className="flex flex-col gap-2 p-2 my-3">
+                  <div className={`flex justify-center items-center text-center gap-2 text-red-800 font-semibold`}>
+                    <p>Add a new person to the queue by using the Add button.</p>
+                  </div>
+                </div>
+              </div>
+            ) : (waiting.map((w, i) => (
               <div key={i} className={`relative w-full md:w-full lg:grow flex flex-col h-auto bg-${selectedTheme}-50 rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base`}>
                 <div className={`text-center border-b-[1px] border-${selectedTheme}-800 shadow-md`}>
-                  <p className={`text-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl`}>NO.{w.queue_number}</p>
+                  <p className={`text-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl`}>NO.{w["Queue Number"]}</p>
                 </div>
                 <div className="flex flex-col gap-2 p-2 my-3">
                   <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                    <p className="truncate">{w.citizen_fullname}</p>
+                    <p className="truncate">{w["Citizen Fullname"]}</p>
                   </div>
                   <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                    <p>{w.citizen_barangay}</p>
+                    <p>{w["Citizen Barangay"]}</p>
                   </div>
                   <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                    <p>{w.citizen_gender}</p>
+                    <p>{w["Citizen Gender"]}</p>
                   </div>
                 </div>
-                <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(w.time_arrived)}</p>
+                <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(w["Time Arrived"])}</p>
               </div>
-            ))}
+            )))}
 
           </div>
 
@@ -285,7 +262,6 @@ const Queue = () => {
           <Attended ATref={attendedRef} ATonClick={toggleAttended} queue={queue}/>
 
         </div>
-        )}
       </div>
     </div>
   );

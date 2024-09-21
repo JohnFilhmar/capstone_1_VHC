@@ -10,7 +10,23 @@ const PharmacyForm = ({ close, children }) => {
   const { mysqlTime } = useCurrentTime();
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
+  const [payload, setPayload] = useState({
+    itemName: '',
+    quantity: '',
+    container: '',
+    lotNo: '',
+    expiry: '',
+    stockroom: ''
+  });
 
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setPayload(prev => ({
+      ...prev,
+      [name]: value 
+    }));
+  }
+  
   function handleSubmit(e) {
     e.preventDefault();
     if(!dontCloseUponSubmission) {
@@ -21,47 +37,105 @@ const PharmacyForm = ({ close, children }) => {
   return (
     <>
     {children}
-      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24 w-[50vw]" onSubmit={handleSubmit}>
-        <div>
+      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24 w-[30vw]" onSubmit={handleSubmit}>
+        <div className='p-2'>
           <div className="mb-2 block">
-            <label htmlFor="firstname" className='text-xs md:text-sm lg:text-base font-semibold'>First Name</label>
+            <label htmlFor="itemName" className='text-xs md:text-sm lg:text-base font-semibold'>Item Name:</label>
           </div>
           <input 
             type="text" 
-            required 
+            id="itemName" 
+            name="itemName"
+            placeholder="Enter item name. . . . ." 
             className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-            maxLength={50} 
-            id="firstname" 
-            placeholder="Enter first name. . . . ." 
+            value={payload.itemName}
+            onChange={handleChange}
+            required
+            maxLength={100}
           />
         </div>
-        <div>
-          <div className="mb-2 block">
-            <label htmlFor="middlename" className='text-xs md:text-sm lg:text-base font-semibold'>Middle Name</label>
+        <div className='p-2 flex gap-1 w-full'>
+          <div>
+            <div className="mb-2 block">
+              <label htmlFor="quantity" className='text-xs md:text-sm lg:text-base font-semibold'>Quantity:</label>
+            </div>
+            <input 
+              type="number" 
+              id="quantity" 
+              name="quantity"
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              value={payload.quantity}
+              onChange={handleChange}
+              required
+              maxLength={100}
+            />
           </div>
-          <input 
-            required 
-            className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-            maxLength={50} 
-            id="middlename"
-            type="text" 
-            placeholder="Enter middle name. . . . ."
-          />
-        </div>
-        <div>
-          <div className="mb-2 block">
-            <label htmlFor="lastname" className='text-xs md:text-sm lg:text-base font-semibold'>Last Name</label>
+          <div>
+            <div className="mb-2 block">
+              <label htmlFor="container" className='text-xs md:text-sm lg:text-base font-semibold'>Container Type:</label>
+            </div>
+            <input 
+              type="text" 
+              id="container" 
+              name="container"
+              placeholder="Enter container type. . . . ."
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              value={payload.container}
+              onChange={handleChange}
+              required
+              maxLength={100}
+            />
           </div>
-          <input 
-            required 
-            className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-            maxLength={50} 
-            id="lastname" 
-            type="text" 
-            placeholder="Enter last name. . . . ." 
-          />
+          <div className='grow'>
+            <div className="mb-2 block">
+              <label htmlFor="lotNo" className='text-xs md:text-sm lg:text-base font-semibold'>Lot. No:</label>
+            </div>
+            <input 
+              type="text" 
+              id="lotNo" 
+              name="lotNo"
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              value={payload.lotNo}
+              onChange={handleChange}
+              required
+              maxLength={100}
+            />
+          </div>
         </div>
-        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Add New Record') : <Spinner/>}</p></button>
+        <div className="p-2 flex gap-1 w-full">
+          <div>
+            <div className="mb-2 block">
+              <label htmlFor="expiry" className='text-xs md:text-sm lg:text-base font-semibold'>Expiry Date:</label>
+            </div>
+            <input 
+              type="date" 
+              id="expiry" 
+              name="expiry"
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              value={payload.expiry}
+              onChange={handleChange}
+              required
+              maxLength={100}
+            />
+          </div>
+          <div className='grow'>
+            <div className="mb-2 block">
+              <label htmlFor="stockroom" className='text-xs md:text-sm lg:text-base font-semibold'>Quantity Stockroom:</label>
+            </div>
+            <input 
+              type="text" 
+              id="stockroom" 
+              name="stockroom"
+              placeholder="Enter quantity stockroom. . . . ."
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              value={payload.stockroom}
+              onChange={handleChange}
+              required
+              maxLength={100}
+            />
+          </div>
+        </div>
+        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Import File') : <Spinner/>}</p></button>
         <div className="flex items-center justify-end gap-2">
           <Checkbox
             id="accept"

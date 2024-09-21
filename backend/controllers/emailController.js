@@ -1,43 +1,38 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-class emailController {
+class EmailController {
   async sendEmail(req, res) {
     let transporter;
+
     try {
-      // Set up the transporter with your SMTP credentials
       transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com', // e.g., smtp.gmail.com for Gmail
+        host: 'smtp.gmail.com',
         port: 587,
-        secure: false, // true for 465, false for other ports
+        secure: false,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASSWORD
         }
       });
 
-      // Extract data from the request body
       const { to, subject, text, html } = req.body;
 
-      // Mail options
       const mailOptions = {
-        from: '"This system" <your-email@example.com>', // Sender address
-        to, // Recipient(s)
-        subject, // Subject line
-        text, // Plain text body
-        html // HTML body (optional)
+        from: 'This system <olalalongisipmacapia.capstone@gmail.com>',
+        to:'ad.lalongisip.45@gmail.com',
+        subject:'hello world',
+        text:'hi pogi',
+        html
       };
 
-      // Send email
       const info = await transporter.sendMail(mailOptions);
 
-      // Respond with success message
       return res.status(200).json({
         status: 200,
         message: 'Email sent successfully',
         messageId: info.messageId
       });
-
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -52,4 +47,4 @@ class emailController {
   }
 }
 
-module.exports = new emailController();
+module.exports = new EmailController();

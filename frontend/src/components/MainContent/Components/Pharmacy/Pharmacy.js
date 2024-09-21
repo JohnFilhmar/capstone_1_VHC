@@ -15,17 +15,8 @@ const Pharmacy = () => {
   const productAuditRef = useRef(null);
   const [itemId, setItemId] = useState(null);
   const { isLoading, error } = useQuery();
-  const keyMap = {
-    "item_id": "ItemID",
-    "item_name": "ItemName",
-    "unit_size": "Unit",
-    "lot_no": "LotNO",
-    "exp_date": "Expiry",
-    "quantity_stockroom": "Quantity",
-    "item_logs": "Logs"
-  };
 
-  const { data: medicines, loading } = useSocket({ SSName: "sessionPharmacy", keyMap: keyMap, fetchUrl: "getPharmacyInventory", socketEmit: "updatePharmacy", socketUrl: "newPharmacy", socketError: "newPharmacyError" })
+  const { data: medicines, loading } = useSocket({ SSName: "sessionPharmacy", fetchUrl: "getPharmacyInventory", socketEmit: "updatePharmacy", socketUrl: "newPharmacy", socketError: "newPharmacyError" })
   
   const toggleOptions = (itemId) => {
     setItemId(itemId);
@@ -45,7 +36,7 @@ const Pharmacy = () => {
           <Header title={ title } icon={<MdLocalPharmacy/>}/>
         </div>
         <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
-          <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} />
+          <DataTable data={medicines} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} />
         </div>
       </div>
       <PharmacyAudit recordAudit={productAuditRef} toggle={toggleOptions} itemId={itemId} />

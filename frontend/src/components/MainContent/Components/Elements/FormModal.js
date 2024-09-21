@@ -9,7 +9,7 @@ import NewAccountForm from './Forms/NewAccountForm';
 import ConfirmForm from '../../../../hooks/ConfirmForm';
 import ImportFileForm from './Forms/ImportFileForm';
 
-const SelectedForm = ({ formType, toggle, importUrl }) => {
+const SelectedForm = ({ formType, toggle, tableName }) => {
   const [selectedTheme] = useContext(colorTheme);
   const renderFormContent = () => {
     switch (formType) {
@@ -24,7 +24,7 @@ const SelectedForm = ({ formType, toggle, importUrl }) => {
       case 'accounts':
         return <NewAccountForm close={toggle} />;
       case 'import':
-        return <ImportFileForm close={toggle} />;
+        return <ImportFileForm close={toggle} tableName={tableName} />;
       default:
         return null;
     }
@@ -55,7 +55,7 @@ const SelectedForm = ({ formType, toggle, importUrl }) => {
 
 export const confirmationContext = createContext();
 
-const FormModal = ({ formRef, toggleForm, formType }) => {
+const FormModal = ({ formRef, toggleForm, formType, importTableName }) => {
   const confirmDialog = useRef(null);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -95,7 +95,7 @@ const FormModal = ({ formRef, toggleForm, formType }) => {
     <>
       <dialog ref={formRef} className='relative text-xs md:text-sm lg:text-base rounded-lg drop-shadow-lg z-52'>
         <confirmationContext.Provider value={[message, setMessage, confirmMessage, setConfirmMessage, cancelMessage, setCancelMessage, backMessage, setBackMessage, toggleConfirmDialog, selectedOption]}>
-          <SelectedForm formType={formType} toggle={toggleForm} />
+          <SelectedForm formType={formType} toggle={toggleForm} tableName={importTableName} />
         </confirmationContext.Provider>
       </dialog>
       <ConfirmForm

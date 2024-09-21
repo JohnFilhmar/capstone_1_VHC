@@ -131,9 +131,7 @@ class AppointmentController {
 
       const getStatusQuery = "SELECT `status`, `citizen_family_id` FROM `citizen_appointments` WHERE `appointment_id` = ?";
       const [getStatusResponse] = await dbModel.query(getStatusQuery, req.params.id);
-      if (getStatusResponse.status === 'rejected') return res.status(409).json({ status: 409, message: 'Appointment Already Cancelled!'});
-      if (getStatusQuery.status === 'scheduled') return res.status(409).json({ status: 409, message: 'Appointment Already Appointed!' });
-      if (getStatusQuery.status === 'dissmised') return res.status(409).json({ status: 409, message: 'Appointment Already Dismissed!' });
+      if (getStatusResponse.status !== 'pending') return res.status(200).json({ status: 200, message: 'Appointment Already Cancelled!'});
 
       const updateStatusQuery = "UPDATE `citizen_appointments` SET `status` = ? WHERE `appointment_id` = ?";
       const updateStatusResponse = await dbModel.query(updateStatusQuery, ['rejected', appointmentId]);
@@ -168,9 +166,7 @@ class AppointmentController {
 
       const getStatusQuery = "SELECT `status`, `citizen_family_id` FROM `citizen_appointments` WHERE `appointment_id` = ?";
       const [getStatusResponse] = await dbModel.query(getStatusQuery, req.params.id);
-      if (getStatusResponse.status === 'rejected') return res.status(409).json({ status: 409, message: 'Appointment Already Cancelled!'});
-      if (getStatusQuery.status === 'scheduled') return res.status(409).json({ status: 409, message: 'Appointment Already Appointed!' });
-      if (getStatusQuery.status === 'dissmised') return res.status(409).json({ status: 409, message: 'Appointment Already Dismissed!' });
+      if (getStatusResponse.status !== 'pending') return res.status(200).json({ status: 200, message: 'Appointment Already Cancelled!'});
 
       const updateStatusQuery = "UPDATE `citizen_appointments` SET `status` = ? WHERE `appointment_id` = ?";
       const updateStatusResponse = await dbModel.query(updateStatusQuery, ['scheduled', appointmentId]);

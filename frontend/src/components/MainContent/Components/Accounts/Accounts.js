@@ -15,14 +15,8 @@ const Accounts = () => {
   const AccountOptionRef = useRef(null);
   const [isAccountOptionsOpen, setIsAccountOptionsOpen] = useState(false);
   const { isLoading, error } = useQuery();
-  const keyMap = {
-    "staff_id" : "Staff-ID",
-    "username" : "Username",
-    "email" : "Email",
-    "isVerified" : "Verified?",
-    "staff_role" : "Role"
-  };
-  const { data: records } = useSocket({ SSName: "sessionStaff", keyMap: keyMap, fetchUrl: "getStaff", socketEmit: "updateStaff", socketUrl: "newStaff", socketError: "newStaffError" })
+
+  const { data: records } = useSocket({ SSName: "sessionStaff", fetchUrl: "getStaff", socketEmit: "updateStaff", socketUrl: "newStaff", socketError: "newStaffError" })
 
   const toggleOptions = () => {
     if (!isAccountOptionsOpen) {
@@ -48,7 +42,7 @@ const Accounts = () => {
             </div>
             
             <div className={`w-full`}>
-              <DataTable data={records} modalForm={pathname} isLoading={isLoading} error={error} enImport={false} enExport={false} toggleOption={toggleOptions} optionPK={"Staff-ID"} />
+              <DataTable data={records} modalForm={pathname} isLoading={isLoading} error={error} enImport={false} enExport={false} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} />
             </div>
 
             <AccountOptions AOref={AccountOptionRef} close={toggleOptions} />

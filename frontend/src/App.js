@@ -70,7 +70,8 @@ const App = () => {
       try {
         const res = await api.get('/verifyToken', {
           headers: { Authorization: `Bearer ${tokens}` },
-          withCredentials: true
+          withCredentials: true,
+          secure: true
         });  
         if (res?.status === 401) {
           setNotifMessage(res.data.message);

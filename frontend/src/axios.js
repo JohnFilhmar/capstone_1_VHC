@@ -2,7 +2,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import useIndexedDB from './hooks/useIndexedDb';
 
-const baseUrl = process.env.REACT_APP_PROJECT_STATE === 'production' ? process.env.REACT_APP_BACKEND_BASE_URL : 'https://localhost:5000/api';
+const baseUrl = process.env.REACT_APP_PROJECT_STATE === 'production' ? process.env.REACT_APP_DEVELOPMENT_BACKEND_BASE_URL : process.env.REACT_APP_PRODUCTION_BACKEND_BASE_URL;
 const api = axios.create({
   baseURL: baseUrl,
   withCredentials: true,
@@ -21,7 +21,6 @@ const createCancelToken = () => {
 const RefreshAccessToken = async (accessToken) => {
   const { updateItem } = useIndexedDB();
   try {
-    console.log(baseUrl);
     const decodedToken = jwtDecode(accessToken);
     const response = await axios.post(`${baseUrl}/authToken`, { username: decodedToken.username }, {
       headers: { Authorization: `Bearer ${accessToken}`},
@@ -52,7 +51,7 @@ api.interceptors.response.use(
           });
           originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
         }
-        return axios(originalRequest);
+        return axios(originalRequest);  
       } catch (err) {
         return Promise.reject(err);
       }

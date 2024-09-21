@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BsPersonBoundingBox } from "react-icons/bs";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
-const PatientInfo = ({ selectedTheme }) => {
+const PatientInfo = ({ selectedTheme, userData }) => {
   const [isVisible, setIsVisible] = useState(false);
   
   return (
@@ -22,78 +22,33 @@ const PatientInfo = ({ selectedTheme }) => {
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
         <div className="grid grid-cols-2 md:grid-cols-4">
-          <div className={`p-2`}>
-            <label htmlFor="lastname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Last Name:<span className="text-red-600 font-bold">*</span></label>
+          <div className={`p-2 col-span-2`}>
+            <label htmlFor="fullname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Fulll Name:</label>
             <input
               type="text"
-              id="lastname"
-              name="lastname"
-              placeholder="Enter your last name. . . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              maxLength={60}
-              minLength={3}
+              id="fullname"
+              name="fullname"
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              autoComplete="off"
+              value={userData.full_name}
+              disabled
             />
           </div>
-          <div className={`p-2`}>
-            <label htmlFor="firstname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>First Name:<span className="text-red-600 font-bold">*</span></label>
+          <div className={`p-2 col-span-2`}>
+            <label htmlFor="barangay" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Barangay:<span className="text-red-600 font-bold">*</span></label>
             <input
               type="text"
-              id="firstname"
-              name="firstname"
-              placeholder="Enter your first name. . . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              maxLength={60}
-              minLength={3}
+              id="barangay"
+              name="barangay"
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              autoComplete="off"
-            />
-          </div>
-          <div className={`p-2`}>
-            <label htmlFor="middlename" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Middle Name: <span className="text-red-600 font-bold">*</span></label>
-            <input
-              type="text"
-              id="middlename"
-              name="middlename"
-              placeholder="Enter your middle name. . . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              maxLength={60}
-              minLength={3}
-              required
-              autoComplete="off"
-            />
-          </div>
-          <div className={`p-2`}>
-            <label htmlFor="extname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Ext. Name:</label>
-            <input
-              type="text"
-              id="extname"
-              name="extname"
-              placeholder="Enter your name extension. . . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              maxLength={60}
-              minLength={3}
-              autoComplete="off"
+              value={userData.citizen_barangay}
+              disabled
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-8">
-          <div className={`p-2 col-span-3`}>
-            <label htmlFor="address" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Address:<span className="text-red-600 font-bold">*</span></label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              placeholder="Enter your address. . . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              maxLength={60}
-              minLength={3}
-              required
-              autoComplete="off"
-            />
-          </div>
-          <div className={`p-2`}>
+        <div className="flex justify-between items-center">
+          <div className={`p-2 grow`}>
             <label htmlFor="age" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Age:<span className="text-red-600 font-bold">*</span></label>
             <input
               type="number"
@@ -104,14 +59,14 @@ const PatientInfo = ({ selectedTheme }) => {
               required
             />
           </div>
-          <div className="p-2">
+          <div className="p-2 grow">
             <label htmlFor="sex" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Sex:<span className="text-red-600 font-bold">*</span></label>
             <select id="sex" className="w-full rounded-lg text-xs md:text-sm lg:text-base">
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
           </div>
-          <div className="p-2">
+          <div className="p-2 grow">
             <label htmlFor="birthdate" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Birthdate:<span className="text-red-600 font-bold">*</span></label>
             <input
               type="date"
@@ -121,7 +76,7 @@ const PatientInfo = ({ selectedTheme }) => {
               required
             />
           </div>
-          <div className="p-2 col-span-2">
+          <div className="p-2 grow col-span-2">
             <label htmlFor="civilstatus" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Civil Status:<span className="text-red-600 font-bold">*</span></label>
             <select id="civilstatus" className="w-full rounded-lg text-xs md:text-sm lg:text-base">
               <option value="married" className="w-full rounded-lg text-xs md:text-sm lg:text-base">Married</option>
@@ -197,92 +152,92 @@ const PatientInfo = ({ selectedTheme }) => {
           <div className="flex flex-col">
             <div className="grid grid-cols-4 gap-2 p-1 pt-3">
               <p className={`block text-${selectedTheme}-600 font-semibold col-span-4 justify-self-start self-start`}>Vital Signs:</p>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="bloodpressure"
                   name="bloodpressure"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="bloodpressure" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>BP</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="temperature"
                   name="temperature"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="temperature" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>TMP</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="heartrate"
                   name="heartrate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="heartrate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>HR</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="weight"
                   name="weight"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>WT</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="height"
                   name="height"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>HT</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="pulserate"
                   name="pulserate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="pulserate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>PR</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="respiratoryrate"
                   name="respiratoryrate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="respiratoryrate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>RR</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="bmi"
                   name="bmi"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="bmi" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>BMI</label>
               </div>
-              <div className="flex gap-1 items-center justify-start">
+              <div className="flex gap-1 items-center justify-between">
                 <input
                   type="text"
                   id="oxygensaturation"
                   name="oxygensaturation"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
                 />
                 <label htmlFor="oxygensaturation" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>O2Sat</label>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-2">
               <p className={`block text-${selectedTheme}-600 font-semibold col-span-4 p-3 justify-self-start self-start`}>Pediatric Client(1-2 years old):</p>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="length" className={`block text-${selectedTheme}-600 font-semibold`}>Lenght:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="length" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Lenght:</label>
                 <input
                   type="text"
                   id="length"
@@ -294,8 +249,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="waist" className={`block text-${selectedTheme}-600 font-semibold`}>Waist:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="waist" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Waist:</label>
                 <input
                   type="text"
                   id="waist"
@@ -307,8 +262,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="head" className={`block text-${selectedTheme}-600 font-semibold`}>Head:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="head" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Head:</label>
                 <input
                   type="text"
                   id="head"
@@ -320,8 +275,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="hip" className={`block text-${selectedTheme}-600 font-semibold`}>Hip:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="hip" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Hip:</label>
                 <input
                   type="text"
                   id="hip"
@@ -333,8 +288,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="limb" className={`block text-${selectedTheme}-600 font-semibold`}>Limb:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="limb" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Limb:</label>
                 <input
                   type="text"
                   id="limb"
@@ -346,8 +301,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="muac" className={`block text-${selectedTheme}-600 font-semibold`}>MUAC:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="muac" className={`block text-${selectedTheme}-600 font-semibold self-center`}>MUAC:</label>
                 <input
                   type="text"
                   id="muac"
@@ -359,8 +314,8 @@ const PatientInfo = ({ selectedTheme }) => {
                   autoComplete="off"
                 />
               </div>
-              <div className="flex justify-center items-center gap-1">
-                <label htmlFor="skinfold" className={`block text-${selectedTheme}-600 font-semibold`}>Skinfold:</label>
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="skinfold" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Skinfold:</label>
                 <input
                   type="text"
                   id="skinfold"

@@ -61,7 +61,7 @@ class AuthController {
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: 'Strict',
+        sameSite: process.env.PROJECT_STATE === 'production' ? 'Strict' : 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000 // persistent cookie with expiration
       });
       return res.status(200).json({ status: 200, accessToken, message: "Login Successful!" });

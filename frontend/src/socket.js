@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const URL = process.env.REACT_APP_PROJECT_STATE === 'production' ? undefined : 'https://localhost:5000';
+const URL = process.env.REACT_APP_PROJECT_STATE === 'production' ? undefined : window.location.hostname !== '192.168.1.2' ? 'https://localhost:5000' : 'https://192.168.1.2:5000';
 
 const initializeSocket = () => {
   const socket = io(URL, {

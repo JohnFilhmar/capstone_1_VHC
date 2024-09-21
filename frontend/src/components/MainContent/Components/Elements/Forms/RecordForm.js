@@ -287,7 +287,10 @@ const RecordForm = ( { close, children } ) => {
               id="familyId" 
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent text-slate-500 border-[1px] border-${selectedTheme}-800`}
               type="text" 
-              value={`FAM_ID-${familyId}`} 
+              value={familyId}
+              onChange={(e) => setFamilyId(e.target.value)}
+              maxLength={20}
+              required
             />
             <button className="p-1 text-blue-800" onClick={randomizeFamilyId}>
               {diceNumber === 1 ? <GiDiceSixFacesOne className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :

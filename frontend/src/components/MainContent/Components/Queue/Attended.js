@@ -8,17 +8,8 @@ import useSocket from "../../../../hooks/useSocket";
 const Attended = ({ ATref, ATonClick }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { isLoading, error } = useQuery();
-  const keyMap = {
-    "queue_number": "Queue Number",
-    "family_id": "Family ID",
-    "citizen_fullname": "Full Name",
-    "citizen_barangay": "Barangay",
-    "citizen_number": "Number",
-    "citizen_gender": "Gender",
-    "time_arrived": "Time Arrived",
-    "current_status": "Current Status"
-  };
-  const { data: queue } = useSocket({ SSName: "attendedQueue", keyMap: keyMap, fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
+
+  const { data: queue } = useSocket({ SSName: "attendedQueue", fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
   
   const transformedData = queue && queue.length > 0 && queue.map(item => {
     const date = new Date(item["Time Arrived"]);

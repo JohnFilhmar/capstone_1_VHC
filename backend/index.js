@@ -11,12 +11,13 @@ const bodyParser = require('body-parser');
 const routeAuth = require('./middlewares/routeAuth');
 const authController = require('./controllers/authController');
 const emailController = require('./controllers/emailController');
+const roleAuth = require('./middlewares/roleAuth');
 
 const app = express();
 const port = 5000;
 
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGIN,
+  origin: [process.env.ALLOWED_ORIGIN, 'https://localhost:3000', 'https://192.168.1.2:3000'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -36,7 +37,7 @@ app.use(express.static('public'));
 app.use('/api/authStaff', authController.authStaff);
 app.use('/api/authToken', authController.authToken);
 app.post('/api/sendEmail', emailController.sendEmail);
-app.use('/api', routeAuth, routes);
+app.use('/api', routeAuth, roleAuth, routes);
 
 const server = https.createServer(serverOptions, app);
 // const server = https.createServer(app);
@@ -44,7 +45,7 @@ const server = https.createServer(serverOptions, app);
 initializeWebSocket(server);
 
 server.listen(port, () => {
-  console.log(`Server is running on port https://localhost:${port}`);
+  console.log(`Server is running on port https://localhost:${port} or https://192.168.1.2:${port}`);
 });
 
 module.exports = app;

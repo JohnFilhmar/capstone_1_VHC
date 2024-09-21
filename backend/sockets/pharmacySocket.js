@@ -6,7 +6,7 @@ module.exports = function(io) {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const response = await dbModel.query('SELECT `item_id`, `item_name`, `unit_size`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory`');
+        const response = await dbModel.query('SELECT `item_id`, `item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory`');
         const newResponse = response.map((res) => {
           const date = new Date(res.exp_date);
           const year = date.getFullYear();

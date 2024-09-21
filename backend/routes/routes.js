@@ -21,11 +21,13 @@ router.get('/getRecords', recordController.getRecords);
 router.get('/findRecord/:id', recordController.findRecord);
 router.post('/addRecordHistory/:id', recordController.addRecordHistory);
 router.post('/findCitizen', recordController.findCitizen);
+router.get('/describeRecords', recordController.describeRecords);
 
 // PHARMACY
 router.post('/submitCSVMedicinesRecord', pharmacyController.handleFile);
 router.get('/getPharmacyInventory', pharmacyController.getPharmacyInventory);
 router.get('/searchPharmacyInventory/:id', pharmacyController.searchPharmacyInventory);
+router.get('/describePharmacy', pharmacyController.describePharmacy);
 
 // QUEUE
 router.post('/addToQueue', queueController.addToQueue);

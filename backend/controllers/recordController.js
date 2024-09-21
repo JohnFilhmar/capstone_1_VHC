@@ -1,6 +1,31 @@
 const dbModel = require('../models/database_model');
 
 class RecordController {
+
+  async describeRecords(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+
+      const getDescribeQuery = "DESCRIBE `citizen`";
+      const getDescribeResponse = await dbModel.query(getDescribeQuery);
+      
+      if (!getDescribeResponse) return res.status(404).json({ status: 404, message: "Table not found!" });
+
+      return res.status(200).json({ status: 200, data: getDescribeResponse, message: "Table successfully described!" });
+      
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
   
   async addRecord(req, res) {
     let connection;

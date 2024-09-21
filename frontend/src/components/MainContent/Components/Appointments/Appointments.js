@@ -52,17 +52,8 @@ const Appointments = () => {
     setToken();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  const keyMap = {
-    "appointment_id": "Number",
-    "full_name": "Full Name",
-    "citizen_number": "Phone Number",
-    "status": "Status",
-    "created_at": "Created At",
-    "appointed_datetime": "Appointed Time",
-  };
 
-  const { data: appointments } = useSocket({ SSName: "sessionAppointments", keyMap: keyMap, fetchUrl: "getAppointments", socketUrl: "newAppointments", socketEmit: "updateAppointment", socketError: "newAppointmentsError" })
+  const { data: appointments } = useSocket({ SSName: "sessionAppointments", fetchUrl: "getAppointments", socketUrl: "newAppointments", socketEmit: "updateAppointment", socketError: "newAppointmentsError" })
   
   const toggleAppointmentOption = (primaryKey) => {
     setPK(primaryKey);
@@ -99,7 +90,7 @@ const Appointments = () => {
     setFilteredAppointments(appointments?.filter(prev => {
       const SDate = new Date(startDate);
       const EDate = new Date(endDate);
-      const ODate = new Date(prev["Appointed Time"]);
+      const ODate = new Date(prev["Appointed Datetime"]);
       return ODate >= SDate && ODate <= EDate;
     }));
     setScheduledAppointments(appointments.filter(prev => {
@@ -119,7 +110,7 @@ const Appointments = () => {
       let count = 0;
       const currentDate = `${formatDatePart(selectedDate.getMonth() + 1)}-${formatDatePart(index + 1)}-${selectedDate.getFullYear()}`;
       scheduledAppointments.forEach((app) => {
-          const appTime = app["Appointed Time"].split(" ");
+          const appTime = app["Appointed Datetime"].split(" ");
           const appDate = new Date(appTime[0]);
           const formattedAppDate = `${formatDatePart(appDate.getMonth() + 1)}-${formatDatePart(appDate.getDate())}-${appDate.getFullYear()}`;
           if (formattedAppDate === currentDate) {
@@ -145,7 +136,7 @@ const Appointments = () => {
 
   const selectedDateUpcoming = (date) => {
     setUpcomingAppointments(appointments.filter(prev => {
-      const appointedDateTime = prev["Appointed Time"];
+      const appointedDateTime = prev["Appointed Datetime"];
       const month = new Date(appointedDateTime).getMonth() + 1;
       const day = new Date(appointedDateTime).getDate();
       const year = new Date(appointedDateTime).getFullYear();
@@ -214,7 +205,7 @@ const Appointments = () => {
                       </p>
                       <div className={`hidden md:hidden lg:block min-h-16 max-h-16 overflow-y-auto m-2 p-1 overflow-x-hidden`}>
                         {scheduledAppointments.map((app, i) => {  
-                          const dateTime = new Date(app["Appointed Time"]);
+                          const dateTime = new Date(app["Appointed Datetime"]);
                           let hour = dateTime.getHours().toString() % 12 || 12;
                           const minute = dateTime.getMinutes().toString().padStart(2, '0');
                           const meridian = hour % 2 ? 'pm' : 'am';
@@ -260,7 +251,7 @@ const Appointments = () => {
             </div>
           
             <div className={`z-0 w-full`}>
-              <DataTable data={filteredAppointments} enAdd={role && role !== 'user'} enOptions={role && role !== 'user'} modalForm={pathname} toggleOption={toggleAppointmentOption} enImport={false} enExport={false} isLoading={isLoading} error={error} optionPK={"Number"}/>
+              <DataTable data={filteredAppointments} enAdd={role && role !== 'user'} enOptions={role && role !== 'user'} modalForm={pathname} toggleOption={toggleAppointmentOption} enImport={false} enExport={false} isLoading={isLoading} error={error} optionPK={appointments.length > 0 && Object.keys(appointments[0])[0]}/>
             </div>
           </div>
         </div>

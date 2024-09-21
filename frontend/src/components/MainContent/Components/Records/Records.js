@@ -17,18 +17,8 @@ const Records = () => {
   const [famID, setFamID] = useState(null);
   
   const { isLoading, error } = useQuery();
-  const keyMap = {
-    "citizen_family_id": "Family-ID",
-    "citizen_firstname": "Firstname",
-    "citizen_middlename": "Middlename",
-    "citizen_lastname": "Lastname",
-    "citizen_gender": "Gender",
-    "citizen_birthdate": "Birthdate",
-    "citizen_barangay": "Barangay",
-    "citizen_number": "Number"
-  };
 
-  const { data: records, loading } = useSocket({ SSName: "sessionRecords", keyMap: keyMap, fetchUrl: "getRecords", socketEmit: "updateRecords", socketUrl: "newRecords", socketError: "newRecordsError" })
+  const { data: records, loading } = useSocket({ SSName: "sessionRecords", fetchUrl: "getRecords", socketEmit: "updateRecords", socketUrl: "newRecords", socketError: "newRecordsError" })
 
   const toggleOptions = (familyId) => {
     setFamID(familyId);
@@ -48,7 +38,7 @@ const Records = () => {
           <Header title={ title } icon={ <MdFolder /> }/>
         </div>
         <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
-          <DataTable data={records} enImport={true} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} optionPK={"Family-ID"} error={error} enImport={false} enExport={false} />
+          <DataTable data={records} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} error={error} enImport={true} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} enExport={false} />
         </div>
       </div>
       <RecordAudit recordAudit={recordAuditRef} toggle={toggleOptions} family_id={famID} />
