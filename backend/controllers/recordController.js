@@ -123,12 +123,57 @@ class RecordController {
     }
   }
 
+  async handleFileUploadRecords(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const payload = req.body.data;
+      for (const item of payload) {
+        if (!item.item_name) {
+          continue;
+        }
+        const data = {
+          item_name: item.item_name,
+          quantity: item.quantity,
+          container_type: item.container_type,
+          lot_no: item.lot_no,
+          exp_date: item.exp_date,
+          quantity_stockroom: item.quantity_stockroom
+        };
+        await dbModel.query(
+          'INSERT INTO `pharmacy_inventory` (`item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom`) VALUES (?, ?, ?, ?, ?, ?)',
+          [data.item_name, data.quantity, data.container_type, data.lot_no, data.exp_date, data.quantity_stockroom]
+        );
+      }
+      
+      const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+      const staffHistoryValues = [req.body.staff_id, 'upload pharmacy', 'uploaded a file to the inventory of pharmacy', null, req.body.dateTime];
+      await dbModel.query(createStaffHistoryQuery, staffHistoryValues);
+
+      return res.status(200).json({
+        status: 200,
+        message: "Data inserted successfully",
+      });
+    } catch (error) {
+      console.error("Error inserting data:", error);
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error,
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
+
   async findRecord(req, res) {
     let connection;
     try {
       connection = await dbModel.getConnection();
 
-      const getCitizenHistoryQuery = "SELECT c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS full_name, c.citizen_gender, c.citizen_barangay, c.citizen_number, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
+      const getCitizenHistoryQuery = "SELECT c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS full_name, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
       const family_id = req.params.id;
       const getCitizenHistoryResponse = await dbModel.query(getCitizenHistoryQuery, [family_id]);
       if (!getCitizenHistoryResponse) return res.status(404).json({ status: 404, message: "Citizen was not found!" });
@@ -139,35 +184,6 @@ class RecordController {
         data: getCitizenHistoryResponse,
       });
       
-    } catch (error) {
-      return res.status(500).json({
-        status: 500,
-        message: error.message,
-        error: error.message
-      });
-    } finally {
-      if (connection) {
-        dbModel.releaseConnection(connection);
-      }
-    }
-  }
-
-  async addRecordHistory(req, res) {
-    let connection;
-    try {
-      connection = await dbModel.getConnection();
-      const payload = req.body;
-      const family_id = req.params.id;
-      const data = await dbModel.query('SELECT `citizen_history` FROM `citizen` WHERE `citizen_family_id` = ?', family_id);
-      const oldHistory = JSON.parse(data[0].citizen_history);
-      const newHistory = {...oldHistory, ...payload};
-      const query = 'UPDATE `citizen` SET `citizen_history` = ? WHERE `citizen_family_id` = ?';
-      const response = await dbModel.query(query, [JSON.stringify(newHistory), family_id]);
-      return res.status(200).json({
-        status: 200,
-        message: "Data updated successfully",
-        response: response
-      });
     } catch (error) {
       return res.status(500).json({
         status: 500,

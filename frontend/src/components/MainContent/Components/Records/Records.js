@@ -16,7 +16,7 @@ const Records = () => {
   const [isRecordAuditOpen, setIsRecordAuditOpen] = useState(false);
   const [famID, setFamID] = useState(null);
   
-  const { isLoading, error } = useQuery();
+  const { error } = useQuery();
 
   const { data: records, loading } = useSocket({ SSName: "sessionRecords", fetchUrl: "getRecords", socketEmit: "updateRecords", socketUrl: "newRecords", socketError: "newRecordsError" })
 
@@ -38,7 +38,7 @@ const Records = () => {
           <Header title={ title } icon={ <MdFolder /> }/>
         </div>
         <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
-          <DataTable data={records} modalForm={pathname} isLoading={loading || isLoading} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} error={error} enImport={true} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} enExport={false} />
+          <DataTable data={records} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} error={error} enImport={true} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} enExport={false} />
         </div>
       </div>
       <RecordAudit recordAudit={recordAuditRef} toggle={toggleOptions} family_id={famID} />

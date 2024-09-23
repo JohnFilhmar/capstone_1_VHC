@@ -14,9 +14,9 @@ const Accounts = () => {
   const title = pathname.charAt(0).toUpperCase() + pathname.slice(1);
   const AccountOptionRef = useRef(null);
   const [isAccountOptionsOpen, setIsAccountOptionsOpen] = useState(false);
-  const { isLoading, error } = useQuery();
+  const { error } = useQuery();
 
-  const { data: records } = useSocket({ SSName: "sessionStaff", fetchUrl: "getStaff", socketEmit: "updateStaff", socketUrl: "newStaff", socketError: "newStaffError" })
+  const { data: records, loading } = useSocket({ SSName: "sessionStaff", fetchUrl: "getStaff", socketEmit: "updateStaff", socketUrl: "newStaff", socketError: "newStaffError" })
 
   const toggleOptions = () => {
     if (!isAccountOptionsOpen) {
@@ -42,7 +42,7 @@ const Accounts = () => {
             </div>
             
             <div className={`w-full`}>
-              <DataTable data={records} modalForm={pathname} isLoading={isLoading} error={error} enImport={false} enExport={false} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} />
+              <DataTable data={records} modalForm={pathname} isLoading={loading} error={error} enImport={false} enExport={false} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} />
             </div>
 
             <AccountOptions AOref={AccountOptionRef} close={toggleOptions} />

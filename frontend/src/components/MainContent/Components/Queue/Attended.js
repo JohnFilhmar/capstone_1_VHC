@@ -7,9 +7,9 @@ import useSocket from "../../../../hooks/useSocket";
 
 const Attended = ({ ATref, ATonClick }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { isLoading, error } = useQuery();
+  const { error } = useQuery();
 
-  const { data: queue } = useSocket({ SSName: "attendedQueue", fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
+  const { data: queue, loading } = useSocket({ SSName: "attendedQueue", fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
   
   const transformedData = queue && queue.length > 0 && queue.map(item => {
     const date = new Date(item["Time Arrived"]);
@@ -65,7 +65,7 @@ const Attended = ({ ATref, ATonClick }) => {
         </div>
       </div> */}
       <div className="p-2">
-        <DataTable data={transformedData} enAdd={false} isLoading={isLoading} error={error} enImport={false} enExport={false} enOptions={false} />
+        <DataTable data={transformedData} enAdd={false} isLoading={loading} error={error} enImport={false} enExport={false} enOptions={false} />
       </div>
     </dialog>
   );

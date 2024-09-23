@@ -3,10 +3,12 @@ import { useContext, useState } from 'react';
 import { colorTheme, notificationMessage } from '../../../../../App';
 import useQuery from '../../../../../hooks/useQuery';
 import useCurrentTime from '../../../../../hooks/useCurrentTime';
+import api from '../../../../../axios';
+import { socket } from '../../../../../socket';
 
 const PharmacyForm = ({ close, children }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { isLoading, error, addData } = useQuery();
+  const { isLoading, addData } = useQuery();
   const { mysqlTime } = useCurrentTime();
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
@@ -27,10 +29,35 @@ const PharmacyForm = ({ close, children }) => {
     }));
   }
   
-  function handleSubmit(e) {
-    e.preventDefault();
-    if(!dontCloseUponSubmission) {
-      close();
+  async function handleSubmit(e) {
+    try {
+      e.preventDefault();
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        const newPayload = {
+          ...payload,
+          dateTime: mysqlTime,
+          staff_id: res.data.staff_id
+        }
+        console.log(newPayload);
+        addData('/addMedicine', newPayload);
+        setPayload({
+          itemName: '',
+          quantity: '',
+          container: '',
+          lotNo: '',
+          expiry: '',
+          stockroom: ''
+        });
+        if (!dontCloseUponSubmission) close();
+        const time = setTimeout(() => {
+          socket.emit('updatePharmacy');
+        }, 1000);
+        return () => clearTimeout(time);
+      }
+    } catch (error) {
+      console.error(error);
+      setNotifMessage(error?.message)
     }
   }
   
@@ -135,7 +162,7 @@ const PharmacyForm = ({ close, children }) => {
             />
           </div>
         </div>
-        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Import File') : <Spinner/>}</p></button>
+        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Add New Medicine') : <Spinner/>}</p></button>
         <div className="flex items-center justify-end gap-2">
           <Checkbox
             id="accept"

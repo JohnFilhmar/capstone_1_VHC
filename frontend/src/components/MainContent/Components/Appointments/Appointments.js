@@ -28,7 +28,7 @@ const Appointments = () => {
   const datepickerRef = useRef(null);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [filteredAppointments, setFilteredAppointments] = useState([{}]);
-  const { isLoading, error } = useQuery();
+  const { error } = useQuery();
   const { startDate:newStartDate, endDate:newEndDate } = useCurrentTime();
   const [startDate, setStartDate] = useState(newStartDate);
   const [endDate, setEndDate] = useState(newEndDate);
@@ -53,7 +53,7 @@ const Appointments = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: appointments } = useSocket({ SSName: "sessionAppointments", fetchUrl: "getAppointments", socketUrl: "newAppointments", socketEmit: "updateAppointment", socketError: "newAppointmentsError" })
+  const { data: appointments, loading } = useSocket({ SSName: "sessionAppointments", fetchUrl: "getAppointments", socketUrl: "newAppointments", socketEmit: "updateAppointment", socketError: "newAppointmentsError" })
   
   const toggleAppointmentOption = (primaryKey) => {
     setPK(primaryKey);
@@ -251,7 +251,7 @@ const Appointments = () => {
             </div>
           
             <div className={`z-0 w-full`}>
-              <DataTable data={filteredAppointments} enAdd={role && role !== 'user'} enOptions={role && role !== 'user'} modalForm={pathname} toggleOption={toggleAppointmentOption} enImport={false} enExport={false} isLoading={isLoading} error={error} optionPK={appointments.length > 0 && Object.keys(appointments[0])[0]}/>
+              <DataTable data={filteredAppointments} enAdd={role && role !== 'user'} enOptions={role && role !== 'user'} modalForm={pathname} toggleOption={toggleAppointmentOption} enImport={false} enExport={false} isLoading={loading} error={error} optionPK={appointments.length > 0 && Object.keys(appointments[0])[0]}/>
             </div>
           </div>
         </div>

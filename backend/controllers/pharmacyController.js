@@ -27,29 +27,26 @@ class PharmacyController {
     }
   }
 
-  async handleFile(req, res) {
+  async handleFileUploadPharmacy(req, res) {
     let connection;
     try {
       connection = await dbModel.getConnection();
       const payload = req.body.data;
-      const log = req.body.logs;
       for (const item of payload) {
         if (!item.item_name) {
           continue;
         }
-        const data = {
-          item_name: item.item_name,
-          unit_size: item.unit_size,
-          lot_no: item.lot_no || null,
-          exp_date: item.exp_date || null,
-          quantity_stockroom: item.quantity_stockroom || null,
-          item_logs: log,
-        };
-        await dbModel.query(
-          'INSERT INTO `pharmacy_inventory` (`item_name`, `unit_size`, `lot_no`, `exp_date`, `quantity_stockroom`, `item_logs`) VALUES (?, ?, ?, ?, ?, ?)',
-          [data.item_name, data.unit_size, data.lot_no, data.exp_date, data.quantity_stockroom, JSON.stringify(data.item_logs)]
-        );
+
+        const insertPharmacyQuery = 'INSERT INTO `pharmacy_inventory` (`item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom`) VALUES (?, ?, ?, ?, ?, ?)';
+        const insertPharmacyPayload = [item.item_name, item.quantity, item.container_type, item.lot_no, item.exp_date, item.quantity_stockroom];
+        await dbModel.query(insertPharmacyQuery, insertPharmacyPayload);
+        
       }
+      
+      const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+      const staffHistoryValues = [req.body.staff_id, 'upload pharmacy', 'uploaded a file to the inventory of pharmacy', null, req.body.dateTime];
+      await dbModel.query(createStaffHistoryQuery, staffHistoryValues);
+
       return res.status(200).json({
         status: 200,
         message: "Data inserted successfully",
@@ -75,6 +72,12 @@ class PharmacyController {
       const query = 'SELECT `item_id`, `item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory`';
       const response = await dbModel.query(query);
       const formattedResponse = response.map((row) => {
+          if (!row.exp_date || isNaN(new Date(row.exp_date).getTime())) {
+            return {
+              ...row,
+              exp_date: null,
+            };
+          }
         const expDate = row.exp_date ? new Date(row.exp_date) : null;
         const formattedExpDate = expDate ? expDate.toLocaleDateString() : null;
         return {
@@ -130,6 +133,63 @@ class PharmacyController {
     } finally {
       if (connection) {
         dbModel.releaseConnection(connection);
+      }
+    }
+  }
+
+  async findMedicine(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      
+      const searchTerms = (req.body.medicine).split(' ');
+      const getMedicineQuery = `
+        SELECT item_id, item_name 
+        FROM pharmacy_inventory 
+        WHERE ${searchTerms.map(() => "`item_name` LIKE CONCAT('%', ?, '%')").join(' AND ')}`;
+      const getMedicineResponse = await dbModel.query(getMedicineQuery, searchTerms);
+
+      if (!getMedicineResponse) return res.status(404).json({ status: 404, message: "Medicine not found!" });
+      return res.status(200).json({ status: 200, message: "Medicine found successfully!", medicine: getMedicineResponse });
+      
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      })
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
+
+  async addMedicine(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const { staff_id, itemName, quantity, container, lotNo, expiry, stockroom, dateTime } = req.body;
+
+      const addMedicineQuery = "INSERT INTO `pharmacy_inventory` (`item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom`) VALUES (?, ?, ?, ?, ?, ?)";
+      const addmedicinePayload = [itemName, quantity, container, lotNo, expiry, stockroom];
+      await dbModel.query(addMedicineQuery, addmedicinePayload);
+
+      const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+      const staffHistoryValues = [staff_id, 'added a medicine', 'added a new medicine data to the inventory', null, dateTime];
+      await dbModel.query(createStaffHistoryQuery, staffHistoryValues);
+      
+      return res.status(200).json({ status: 200, message: "Medicine added successfully!" });
+      
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      })
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection)
       }
     }
   }

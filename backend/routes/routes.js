@@ -6,6 +6,7 @@ const recordController = require('../controllers/recordController');
 const pharmacyController = require('../controllers/pharmacyController');
 const queueController = require('../controllers/queueController');
 const appointmentController = require('../controllers/appointmentController');
+const clinicRecordController = require('../controllers/clinicRecordController');
 
 // USER AUTHENTICATION/REGISTRATION
 router.post('/verifyEmail', staffController.verifyEmail);
@@ -16,18 +17,20 @@ router.post('/logoutUser', staffController.logoutUser);
 router.get('/verifyToken', staffController.verifyAccessToken);
 
 // RECORDS
+router.post('/handleFileUploadRecords', recordController.handleFileUploadRecords);
 router.post('/addRecord', recordController.addRecord);
 router.get('/getRecords', recordController.getRecords);
 router.get('/findRecord/:id', recordController.findRecord);
-router.post('/addRecordHistory/:id', recordController.addRecordHistory);
 router.post('/findCitizen', recordController.findCitizen);
 router.get('/describeRecords', recordController.describeRecords);
 
 // PHARMACY
-router.post('/submitCSVMedicinesRecord', pharmacyController.handleFile);
+router.post('/handleFileUploadPharmacy', pharmacyController.handleFileUploadPharmacy);
 router.get('/getPharmacyInventory', pharmacyController.getPharmacyInventory);
 router.get('/searchPharmacyInventory/:id', pharmacyController.searchPharmacyInventory);
 router.get('/describePharmacy', pharmacyController.describePharmacy);
+router.post('/findMedicine', pharmacyController.findMedicine);
+router.post('/addMedicine', pharmacyController.addMedicine);
 
 // QUEUE
 router.post('/addToQueue', queueController.addToQueue);
@@ -43,5 +46,8 @@ router.get('/findAppointmentByNumber/:id', appointmentController.findAppointment
 router.post('/editAppointment', appointmentController.editAppointment);
 router.post('/handleCancelAppointment/:id', appointmentController.handleCancelAppointment);
 router.post('/handleApproveAppointment/:id', appointmentController.handleApproveAppointment);
+
+// CLINIC 
+router.post('/addClinicRecord', clinicRecordController.addCinicRecord);
 
 module.exports = router;

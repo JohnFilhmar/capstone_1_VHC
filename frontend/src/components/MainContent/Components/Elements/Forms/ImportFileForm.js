@@ -5,6 +5,7 @@ import useQuery from '../../../../../hooks/useQuery';
 import * as XLSX from 'xlsx';
 import useCurrentTime from '../../../../../hooks/useCurrentTime';
 import api from '../../../../../axios';
+import { socket } from '../../../../../socket';
 
 const ImportFileForm = ({ close, children, tableName }) => {
   const [selectedTheme] = useContext(colorTheme);
@@ -17,10 +18,6 @@ const ImportFileForm = ({ close, children, tableName }) => {
     fetchData(`/describe${tableName}`);
   // eslint-disable-next-line
   }, []);
-
-  useEffect(() => {
-    console.log(response && response);
-  }, [response]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -42,17 +39,28 @@ const ImportFileForm = ({ close, children, tableName }) => {
     reader.readAsBinaryString(file);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = {
-      data,
-      dateTime: mysqlTime,
-    };
-    console.log(payload);
-    // addData(`/handleFileUpload${tableName}`, payload);
-    setData(null);
-    close();
-    fileRef.current.value = "";
+    try {
+      const res = await api.get('/getStaffId');
+      if (res?.status === 200) {
+        const payload = {
+          data,
+          dateTime: mysqlTime,
+          staff_id: res.data.staff_id
+        };
+        addData(`/handleFileUpload${tableName}`, payload);
+        setData(null);
+        close();
+        fileRef.current.value = "";
+        const time = setTimeout(() => {
+          socket.emit('updatePharmacy')
+        }, 5000);
+        return () => clearTimeout(time);
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
   
   return (
@@ -72,7 +80,7 @@ const ImportFileForm = ({ close, children, tableName }) => {
             </div>
             <p>Please ensure that your file includes the following columns:</p>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2 font-semibold'>
-              {response?.data.map((dat, i) => (
+              {response?.data?.map((dat, i) => (
                 <div key={i} className="p-2 bg-white border rounded-lg shadow-md">
                   <p className="text-gray-700">{dat.Field}</p>
                   <p className="text-gray-500">{dat.Type}</p>

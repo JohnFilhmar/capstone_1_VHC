@@ -4,9 +4,12 @@ import { MdSearch, MdOutlineChevronLeft, MdOutlineChevronRight, MdOutlineKeyboar
 import { TbFileExport } from "react-icons/tb";
 import FormModal from "./FormModal";
 import { colorTheme } from "../../../../App";
+import useIndexedDB from "../../../../hooks/useIndexedDb";
 
 const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, importName, importUrlDestination, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
   const [selectedTheme] = useContext(colorTheme);
+  const { getAllItems } = useIndexedDB();
+  const [token, setToken] = useState(null);
   const [move, setMove] = useState(false);
   const [query, setQuery] = useState('');
   const [CurrentPage, setCurrentPage] = useState(1);
@@ -23,6 +26,11 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
       return acc;
     }, {})
   );
+
+  async function getIdbTokens() {
+    const idb = await getAllItems('tokens');
+    setToken(idb?.accessToken);
+  }
 
   useEffect(() => {
     if (data && !isLoading) {
@@ -45,6 +53,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     setCurrentPage(1);
   }
   useEffect(() => {
+    getIdbTokens();
     const handleKeyDown = (event) => {
       if (event.code === 'KeyK' && event.ctrlKey) {
         event.preventDefault();
@@ -52,7 +61,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
         setMove((prev) => !prev);
         setSearchFocus();
       }
-    };
+    }; 
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -146,177 +155,180 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     )
   );
   
-  return (
-    <>
-      <div className="flex justify-between items-center p-1 overflow-hidden">
-        <div className="flex justify-center items-center gap-3">
-          {enImport && (
-            <button 
-              className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-2`}
-              onClick={() => toggleForm("import")}
-              disabled={error}
-            >
-              <p className={`font-bold text-${selectedTheme}-100`}>Import File</p>
-            </button>
-          )}
-          {enAdd && (
-            <button 
-              className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-2`}
-              onClick={() => toggleForm(modalForm)}
-              disabled={error}
-            >
-              <p className={`font-bold text-${selectedTheme}-100`}>Add</p>
-            </button>
-          )}
-          <div className="flex items-center gap-1">
-            <p className={`text-xs md:text-sm lg:text-sm p-1 text-${selectedTheme}-800 font-bold flex flex-row gap-[0.4rem]`}>Entries <span className="hidden md:block lg:block">per page</span>:</p>
-            <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-1`}>
-              <MdKeyboardArrowUp />
-            </button>
-            <p className={`text-xs md:text-sm lg:text-sm p-1 text-${selectedTheme}-800 font-bold`}>{rowCount}</p>
-            <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && --prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-1`}>
-              <MdKeyboardArrowUp className="rotate-180" />
-            </button>
+  if (isLoading) {
+    return (
+      <div className={`flex flex-col gap-3 w-full animate-pulse ease-linear drop-shadow-md`}>
+        <div className="flex justify-between m-2 md:m-3 lg:m-4">
+          <div className="flex justify-between items-center gap-3">
+            <div className={`bg-${selectedTheme}-400 rounded-lg h-6 md:h-8 lg:h-10 w-24 md:w-26 lg:w-28`}></div>
           </div>
+          <div className={`bg-${selectedTheme}-400 rounded-lg h-6 md:h-8 lg:h-10 w-24 md:w-26 lg:w-28`}></div>
         </div>
-        {enSearch && (
-          <div className={`block`}>
-            <div className="flex items-center justify-start">
-              <button
-                onClick={() => {
-                  setQuery(''); 
-                  setSearchFocus();
-                }}
-                className={`text-${selectedTheme}-500 hover:text-${selectedTheme}-600`}
+        <div className={`bg-${selectedTheme}-400 rounded-lg h-[600px]`}></div>
+        <div className="flex justify-between items-center">
+          <div className={`bg-${selectedTheme}-400 rounded-lg w-16 md:w-18 lg:w-20 h-6 md:h-8 lg:h-10`}></div>
+          <div className={`bg-${selectedTheme}-400 rounded-lg w-26 md:w-28 lg:w-32 h-6 md:h-8 lg:h-10`}></div>
+        </div>
+      </div>
+    )
+  } else {
+    return (
+      <>
+        <div className="flex justify-between items-center p-1 overflow-hidden">
+          <div className="flex justify-start items-center gap-3">
+            {enImport && (
+              <button 
+                className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
+                onClick={() => toggleForm("import")}
+                disabled={error}
               >
-                <MdSearch className="size-6" />
+                <p className={`font-bold text-${selectedTheme}-100 flex items-center`}>Import <span className="hidden md:block lg:block">File</span></p>
               </button>
-              <TextInput
-                id="tablesearch"
-                ref={inputRef}
-                type="text"
-                placeholder="Search here"
-                value={query}
-                onChange={(e) => searchTable(e)}
-                className={`w-full`}
-              />
+            )}
+            {enAdd && (
+              <button 
+                className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
+                onClick={() => toggleForm(modalForm)}
+                disabled={error}
+              >
+                <p className={`font-bold text-${selectedTheme}-100`}>Add</p>
+              </button>
+            )}
+            <div className="flex items-center gap-1">
+              <p className={`block text-xs md:text-sm lg:text-sm text-${selectedTheme}-800 font-bold flex flex-row gap-[0.4rem]`}>Entries <span className="hidden md:block lg:block">per page</span></p>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-0 md:p-1 lg:p-1`}>
+                <MdKeyboardArrowUp />
+              </button>
+              <p className={`text-xs md:text-sm lg:text-sm text-${selectedTheme}-800 font-bold`}>{rowCount}</p>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && --prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-0 md:p-1 lg:p-1`}>
+                <MdKeyboardArrowUp className="rotate-180" />
+              </button>
             </div>
           </div>
-        )}
-      </div>
-      <div className="overflow-x-auto drop-shadow-lg">
-        <table 
-          className="font-table table-auto w-full rounded-lg text-sm text-slate-700" 
-        >
-          <thead className="text-sm font-bold">
-          {data && (
-            <Header top={true} />
-          )}
-          </thead>
-          <tbody className={`divide-y-2 divide-transparent text-xs md:text-sm lg:text-md`}>
-            {isLoading && data?.length > 0 &&(
-              <div className={`flex flex-col gap-3 w-full animate-pulse ease-linear drop-shadow-md`}>
-                <div className="flex justify-between m-2 md:m-3 lg:m-4">
-                  <div className="flex justify-between items-center gap-3">
-                    <div className={`bg-${selectedTheme}-400 rounded-lg h-6 md:h-8 lg:h-10 w-24 md:w-26 lg:w-28`}></div>
-                  </div>
-                  <div className={`bg-${selectedTheme}-400 rounded-lg h-6 md:h-8 lg:h-10 w-24 md:w-26 lg:w-28`}></div>
-                </div>
-                <div className={`bg-${selectedTheme}-400 rounded-lg h-96`}></div>
-                <div className="flex justify-between items-center">
-                  <div className={`bg-${selectedTheme}-400 rounded-lg w-16 md:w-18 lg:w-20 h-6 md:h-8 lg:h-10`}></div>
-                  <div className={`bg-${selectedTheme}-400 rounded-lg w-26 md:w-28 lg:w-32 h-6 md:h-8 lg:h-10`}></div>
-                </div>
+          {enSearch && (
+            <div className={`block`}>
+              <div className="flex items-center justify-start">
+                <button
+                  onClick={() => {
+                    setQuery(''); 
+                    setSearchFocus();
+                  }}
+                  className={`text-${selectedTheme}-500 hover:text-${selectedTheme}-600`}
+                >
+                  <MdSearch className="size-6" />
+                </button>
+                <TextInput
+                  id="tablesearch"
+                  ref={inputRef}
+                  type="text"
+                  placeholder="Search here"
+                  value={query}
+                  onChange={(e) => searchTable(e)}
+                  className={`w-full`}
+                />
               </div>
-            )}
-            {data && data.length > 0 && (
-              <>
-                {displayedData.map((row, rowi) => (
-                  <tr
-                    key={rowi}
-                    className={`flex flex-row justify-between items-center bg-${selectedTheme}-200 divide-x-2 divide-transparent`}
-                  >
-                    {Object.values(row).map((col, coli) => (
-                      <td key={coli} className={`w-full p-2 font-semibold whitespace-nowrap overflow-hidden hover:overflow-visible hover:bg-${selectedTheme}-50 hover:text-gray-900 hover:drop-shadow-md hover:rounded-md transition-colors duration-300 hover:px-2`}>
-                        {col}
-                      </td>
-                    ))}
-                    {enOptions && (
-                    <td className="w-full p-2 flex items-center justify-center">
-                      <button 
-                        className={`font-semibold text-${selectedTheme}-500 hover:text-${selectedTheme}-600 hover:underline`}
-                        onClick={() => toggleOption(row[`${optionPK}`]) }
-                      >
-                        Options
-                      </button>
-                    </td>
-                    )}
-                  </tr>
-                ))}
-                {Array.from({ length: Math.max(rowCount - displayedData.length, 0) }).map((_, rowIndex) => (
-                  <tr
-                    key={`empty-row-${rowIndex}`}
-                    className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 divide-x-2 divide-transparent`}
-                  >
-                    {Object.keys(data[0]).map((_, colIndex) => (
-                      <td key={`empty-col-${colIndex}`} className="w-full p-2 text-transparent"> </td>
-                    ))}
-                  </tr>
-                ))}
-              </>
-            )}
-            {data && data.length === 0 && (
-             <tr>
-               <td className={`flex justify-center items-center text-center bg-blue-300 rounded-md h-96 p-2 font-bold`}>
-                 <MdInfo className="size-6 md:size-7 lg:size-8"/>
-                 <p>Table is empty. Add new data.</p>
-               </td>
-             </tr>
-            )}
-            {error && (
-              <>
-                {Array.from({ length: rowCount }).map((_, rowIndex) => (
-                  <tr
-                    key={`empty-row-${rowIndex}`}
-                    className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 divide-x-2 divide-transparent`}
-                  >
-                    {Array.from({ length: rowCount }).map((_, colIndex) => (
-                      <td key={`empty-col-${colIndex}`} className="w-full p-2 text-transparent"> </td>
-                    ))}
-                  </tr>
-                ))}
-              </>
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex flex-row justify-between items-center mt-1">
-        <div className="flex justify-evenly items-center">
-          {enExport && (
-            <button onClick={() => handleExport()} className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg text-xs md:text-sm lg:text-base hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
+            </div>
           )}
         </div>
-        <div className={`flex flex-row text-md font-semibold p-1 m-1 bg-${selectedTheme}-200 rounded-lg`}>
-          <button disabled={CurrentPage <= 2} onClick={() => setCurrentPage((prev) => prev - 2)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
-            <MdOutlineKeyboardDoubleArrowLeft />
-          </button>
-          <button disabled={CurrentPage <= 1} onClick={() => setCurrentPage((prev) => prev - 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
-            <MdOutlineChevronLeft />
-          </button>
-          <p className="flex text-xs md:text-sm lg:text-base mx-1">
-            {CurrentPage} <span className="hidden md:block lg:block"> of{Pages}</span>
-          </p>
-          <button disabled={CurrentPage >= Pages} onClick={() => setCurrentPage((prev) => prev + 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
-            <MdOutlineChevronRight />
-          </button>
-          <button disabled={CurrentPage >= Pages - 1} onClick={() => setCurrentPage((prev) => prev + 2)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
-            <MdOutlineKeyboardDoubleArrowRight />
-          </button>
+        <div className="overflow-x-auto drop-shadow-lg">
+          <table 
+            className="font-table table-auto w-full rounded-lg text-sm text-slate-700" 
+          >
+            <thead className="text-sm font-bold">
+            {data && (
+              <Header top={true} />
+            )}
+            </thead>
+            <tbody className={`divide-y-2 divide-transparent text-xs md:text-sm lg:text-md`}>
+              {data && data.length > 0 && (
+                <>
+                  {displayedData.map((row, rowi) => (
+                    <tr
+                      key={rowi}
+                      className={`flex flex-row justify-between items-center bg-${selectedTheme}-200 divide-x-2 divide-transparent`}
+                    >
+                      {Object.values(row).map((col, coli) => (
+                        <td key={coli} className={`w-full p-2 font-semibold whitespace-nowrap overflow-hidden hover:overflow-visible hover:bg-${selectedTheme}-50 hover:text-gray-900 hover:drop-shadow-md hover:rounded-md transition-colors duration-300 hover:px-2`}>
+                          {col}
+                        </td>
+                      ))}
+                      {enOptions && (
+                      <td className="w-full p-2 flex items-center justify-center">
+                        <button 
+                          className={`font-semibold text-${selectedTheme}-500 hover:text-${selectedTheme}-600 hover:underline`}
+                          onClick={() => toggleOption(row[`${optionPK}`]) }
+                        >
+                          Options
+                        </button>
+                      </td>
+                      )}
+                    </tr>
+                  ))}
+                  {Array.from({ length: Math.max(rowCount - displayedData.length, 0) }).map((_, rowIndex) => (
+                    <tr
+                      key={`empty-row-${rowIndex}`}
+                      className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 divide-x-2 divide-transparent`}
+                    >
+                      {Object.keys(data[0]).map((_, colIndex) => (
+                        <td key={`empty-col-${colIndex}`} className="w-full p-2 text-transparent"> </td>
+                      ))}
+                    </tr>
+                  ))}
+                </>
+              )}
+              {data && data.length === 0 && (
+               <tr>
+                 <td className={`flex justify-center items-center text-center bg-blue-300 rounded-md h-96 p-2 font-bold`}>
+                   <MdInfo className="size-6 md:size-7 lg:size-8"/>
+                   <p>Table is empty. Add new data.</p>
+                 </td>
+               </tr>
+              )}
+              {error && (
+                <>
+                  {Array.from({ length: rowCount }).map((_, rowIndex) => (
+                    <tr
+                      key={`empty-row-${rowIndex}`}
+                      className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 divide-x-2 divide-transparent`}
+                    >
+                      {Array.from({ length: rowCount }).map((_, colIndex) => (
+                        <td key={`empty-col-${colIndex}`} className="w-full p-2 text-transparent"> </td>
+                      ))}
+                    </tr>
+                  ))}
+                </>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
-      <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={formType} importTableName={importTableName} />
-    </>
-  );
+        <div className="flex flex-row justify-between items-center mt-1">
+          <div className="flex justify-evenly items-center">
+            {enExport && (
+              <button onClick={() => handleExport()} className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg text-xs md:text-sm lg:text-base hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
+            )}
+          </div>
+          <div className={`flex flex-row text-md font-semibold p-1 m-1 bg-${selectedTheme}-200 rounded-lg`}>
+            <button disabled={CurrentPage <= 2} onClick={() => setCurrentPage((prev) => prev - 2)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
+              <MdOutlineKeyboardDoubleArrowLeft />
+            </button>
+            <button disabled={CurrentPage <= 1} onClick={() => setCurrentPage((prev) => prev - 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
+              <MdOutlineChevronLeft />
+            </button>
+            <p className="flex text-xs md:text-sm lg:text-base mx-1">
+              {CurrentPage} <span className="hidden md:block lg:block"> of{Pages}</span>
+            </p>
+            <button disabled={CurrentPage >= Pages} onClick={() => setCurrentPage((prev) => prev + 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
+              <MdOutlineChevronRight />
+            </button>
+            <button disabled={CurrentPage >= Pages - 1} onClick={() => setCurrentPage((prev) => prev + 2)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
+              <MdOutlineKeyboardDoubleArrowRight />
+            </button>
+          </div>
+        </div>
+        <FormModal formRef={formModalRef} toggleForm={toggleForm} formType={formType} importTableName={importTableName} />
+      </>
+    );
+  }
 };
 
 export default DataTable;

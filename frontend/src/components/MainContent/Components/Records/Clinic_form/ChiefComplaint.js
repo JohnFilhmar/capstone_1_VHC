@@ -1,9 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiFileHistoryFill } from "react-icons/ri";
 
 const ChiefCompaint = ({ selectedTheme }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [chiefOfComplaint, setChiefOfComplaint] = useState('');
+  const [presentIllnessHistory, setPresentIllnessHistory] = useState('');
+
+  useEffect(() => {
+    const time = setTimeout(() => {
+      const oldClinicForm = sessionStorage.getItem('clinicForm') 
+        ? JSON.parse(sessionStorage.getItem('clinicForm')) 
+        : {};
+      const updatedClinicForm = {
+        ...oldClinicForm,
+        chief_of_complaint: chiefOfComplaint,
+        history_of_present_illness: presentIllnessHistory,
+      };
+      sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
+    }, 1000);
+    return () => clearTimeout(time);
+  }, [chiefOfComplaint, presentIllnessHistory]);
+  
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
@@ -28,8 +46,9 @@ const ChiefCompaint = ({ selectedTheme }) => {
               id="chiefofcomplaint"
               name="chiefofcomplaint"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              required
               autoComplete="off"
+              value={chiefOfComplaint}
+              onChange={(e) => setChiefOfComplaint(e.target.value)}
             />
           </div>
           <div className={`p-2`}>
@@ -38,8 +57,9 @@ const ChiefCompaint = ({ selectedTheme }) => {
               id="presentillnesshistory"
               name="presentillnesshistory"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              required
               autoComplete="off"
+              value={presentIllnessHistory}
+              onChange={(e) => setPresentIllnessHistory(e.target.value)}
             />
           </div>
         </div>

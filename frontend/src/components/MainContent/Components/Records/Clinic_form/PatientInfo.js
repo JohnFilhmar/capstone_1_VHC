@@ -1,10 +1,140 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BsPersonBoundingBox } from "react-icons/bs";
 import { FaMinus, FaPlus } from "react-icons/fa";
 
 const PatientInfo = ({ selectedTheme, userData }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [civilStatus, setCivilStatus] = useState('');
+  const [phNumber, setPhNumber] = useState('');
+  const [philhealthStatusType, setPhilhealthStatusType] = useState('dependent');
+  const [dpin, setDpin] = useState('');
+  const [phCategory, setPhCategory] = useState('');
+  const [vitalSigns, setVitalSigns] = useState({
+    blood_pressure: '120/80 mmHg',      // Normal BP
+    temperature: '98.6°F',              // Normal Temperature
+    heart_rate: '75 bpm',               // Normal Heart Rate
+    weight: '',                         // Variable based on individual, no fixed range
+    height: '',                         // Variable based on individual, no fixed range
+    pulse_rate: '75 bpm',               // Same as heart rate
+    respiratory_rate: '14 breaths/min', // Normal Respiratory Rate
+    bmi: '22',                          // Normal BMI (18.5 - 24.9)
+    oxygen_saturation: '98%'            // Normal O2 Saturation
+  }); 
+  const [isPediatric, setIsPediatric] = useState(false);
+  const [pediatricClient, setPediatricClient] = useState({
+    length: '70-90 cm',     // Length range for 1–2 years old
+    waist: '18-19 inches',  // Waist range for 1–2 years old
+    head: '18-19 inches',   // Head circumference for 1–2 years old
+    hip: 'n/a',             // No fixed value for hip
+    limb: 'n/a',            // Varies with growth
+    muac: '12.5-13.5 cm',   // Mid-upper arm circumference
+    skinfold: '6-10 mm'     // Skinfold thickness at triceps
+  });
+
+  const getAge = (birthdate) => {
+    const today = new Date();
+    const birthDate = new Date(birthdate);
+    if (isNaN(birthDate)) {
+      console.error("Invalid birthdate format");
+      return "Invalid date";
+    }
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age;
+  };
+  const formatBirthdate = () => {
+    if (!userData?.citizen_birthdate) return '';
+    const date = new Date(userData.citizen_birthdate);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
+  function handleVitalSignsChange(e) {
+    const { name, value } = e.target;
+    setVitalSigns(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }
+
+  function handlePediatricChange(e) {
+    const { name, value } = e.target;
+    setPediatricClient(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
   
+  useEffect(() => {
+    if (phNumber.length === 0) {
+      setPhilhealthStatusType('dependent');
+      setDpin('');
+      setPhCategory('');
+    }
+  }, [phNumber]);
+
+  useEffect(() => {
+    const age = getAge(userData.citizen_birthdate);
+    if (age < 2) {
+      setPediatricClient({
+        length: '70-90 cm',     // Length range for 1–2 years old
+        waist: '18-19 inches',  // Waist range for 1–2 years old
+        head: '18-19 inches',   // Head circumference for 1–2 years old
+        hip: 'n/a',             // No fixed value for hip
+        limb: 'n/a',            // Varies with growth
+        muac: '12.5-13.5 cm',   // Mid-upper arm circumference
+        skinfold: '6-10 mm'     // Skinfold thickness at triceps
+      })
+      setIsPediatric(true);
+    } else {
+      setPediatricClient({
+        length: '',
+        waist: '',
+        head: '',
+        hip: '',
+        limb: '',
+        muac: '',
+        skinfold: ''
+      })
+      setIsPediatric(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const time = setTimeout(() => {
+      const oldClinicForm = sessionStorage.getItem('clinicForm') 
+        ? JSON.parse(sessionStorage.getItem('clinicForm')) 
+        : {};
+      const updatedClinicForm = {
+        ...oldClinicForm,
+        civil_status: civilStatus,
+        philhealth_number: phNumber,
+        philhealth_dpin: dpin,
+        philhealth_category: phCategory,
+        vital_signs: vitalSigns,
+        pediatric_client: pediatricClient,
+        isPediatric: isPediatric
+      };
+      sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
+    }, 1000);
+    return () => clearTimeout(time);
+  }, [
+    civilStatus,
+    phNumber,
+    philhealthStatusType,
+    dpin,
+    phCategory,
+    vitalSigns,
+    pediatricClient,
+    isPediatric
+  ]);
+
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
       <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
@@ -21,6 +151,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
+        {/* CITIZEN INFORMATION */}
         <div className="grid grid-cols-2 md:grid-cols-4">
           <div className={`p-2 col-span-2`}>
             <label htmlFor="fullname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Fulll Name:</label>
@@ -35,7 +166,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
             />
           </div>
           <div className={`p-2 col-span-2`}>
-            <label htmlFor="barangay" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Barangay:<span className="text-red-600 font-bold">*</span></label>
+            <label htmlFor="barangay" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Barangay:</label>
             <input
               type="text"
               id="barangay"
@@ -49,36 +180,44 @@ const PatientInfo = ({ selectedTheme, userData }) => {
         </div>
         <div className="flex justify-between items-center">
           <div className={`p-2 grow`}>
-            <label htmlFor="age" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Age:<span className="text-red-600 font-bold">*</span></label>
+            <label htmlFor="age" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Age:</label>
             <input
-              type="number"
+              type="text"
               id="age"
               name="age"
-              placeholder="Enter your age. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               required
+              value={getAge(userData.citizen_birthdate)}
+              disabled
             />
           </div>
           <div className="p-2 grow">
-            <label htmlFor="sex" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Sex:<span className="text-red-600 font-bold">*</span></label>
-            <select id="sex" className="w-full rounded-lg text-xs md:text-sm lg:text-base">
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+            <label htmlFor="sex" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Sex:</label>
+            <input
+              type="text"
+              id="sex"
+              name="sex"
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              required
+              value={(userData.citizen_gender).charAt(0).toUpperCase() + (userData.citizen_gender).slice(1)}
+              disabled
+            />
           </div>
           <div className="p-2 grow">
-            <label htmlFor="birthdate" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Birthdate:<span className="text-red-600 font-bold">*</span></label>
+            <label htmlFor="birthdate" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Birthdate:</label>
             <input
               type="date"
               id="birthdate"
               name="birthdate"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              value={formatBirthdate()}
               required
+              disabled
             />
           </div>
           <div className="p-2 grow col-span-2">
             <label htmlFor="civilstatus" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Civil Status:<span className="text-red-600 font-bold">*</span></label>
-            <select id="civilstatus" className="w-full rounded-lg text-xs md:text-sm lg:text-base">
+            <select id="civilstatus" value={civilStatus} onChange={(e) => setCivilStatus(e.target.value)} className="w-full rounded-lg text-xs md:text-sm lg:text-base">
               <option value="married" className="w-full rounded-lg text-xs md:text-sm lg:text-base">Married</option>
               <option value="single" className="w-full rounded-lg text-xs md:text-sm lg:text-base">Single</option>
               <option value="divorced" className="w-full rounded-lg text-xs md:text-sm lg:text-base">Divorced</option>
@@ -90,6 +229,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
           </div>
         </div>
         <div className="grid grid-cols-2">
+          {/* PHILHEALTH STATUS */}
           <div className="flex flex-col">
             <div className={`p-2`}>
               <label htmlFor="philhealthnum" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Number:</label>
@@ -99,43 +239,69 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 name="philhealthnum"
                 placeholder="Enter your philheath number. . . . ."
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                value={phNumber}
+                onChange={(e) => setPhNumber(e.target.value)}
               />
             </div>
             <div className="p-2 flex items-center justify-start gap-3">
-              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>Philhealth Status Type:</label>
-              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                <input
-                  type="checkbox"
-                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                />
-                <span className={`text-${selectedTheme}-600`}>Member</span>
+              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
+                Philhealth Status Type:
               </label>
-              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                <input
-                  type="checkbox"
-                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                />
-                <span className={`text-${selectedTheme}-600`}>Dependent</span>
-              </label>
+              <div className="flex items-center space-x-4">
+                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                  <input
+                    disabled={!phNumber}
+                    type="checkbox"
+                    checked={philhealthStatusType === 'member'}
+                    onChange={() => setPhilhealthStatusType(prev => (prev === 'member' ? 'dependent' : 'member'))}
+                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                  />
+                  <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'member' ? 'font-bold' : ''}`}>
+                    Member
+                  </span>
+                </label>
+
+                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                  <input
+                    disabled={!phNumber}
+                    type="checkbox"
+                    checked={philhealthStatusType === 'dependent'}
+                    onChange={() => (prev => (prev === 'member' ? 'dependent' : 'member'))}
+                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                  />
+                  <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'dependent' ? 'font-bold' : ''}`}>
+                    Dependent
+                  </span>
+                </label>
+              </div>
             </div>
             <div className={`p-2`}>
               <label htmlFor="dpin" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>DPIN:</label>
               <input
+                disabled={!phNumber}
                 type="text"
                 id="dpin"
                 name="dpin"
                 placeholder="Enter your Philhealth DPIN. . . . ."
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                maxLength={50}
+                value={dpin}
+                onChange={(e) => setDpin(e.target.value)}
+                required={phNumber}
               />
             </div>
             <div className={`p-2`}>
-              <label htmlFor="philhealthcategory" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Category:</label>
+              <label htmlFor="philhealth_category" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Category:</label>
               <input
+                disabled={!phNumber}
                 type="text"
-                id="philhealthcategory"
-                name="philhealthcategory"
+                id="philhealth_category"
+                name="philhealth_category"
                 placeholder="Enter your Philhealth category. . . . ."
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                value={phCategory}
+                onChange={(e) => setPhCategory(e.target.value)}
+                required={phNumber}
               />
             </div>
             <div className={`p-2`}>
@@ -144,109 +310,136 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 type="text"
                 id="contactnumber"
                 name="contactnumber"
-                placeholder="Enter your contact number. . . . ."
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+                value={userData.citizen_number}
+                disabled
               />
             </div>
           </div>
           <div className="flex flex-col">
+            {/* VITAL SIGNS */}
             <div className="grid grid-cols-4 gap-2 p-1 pt-3">
               <p className={`block text-${selectedTheme}-600 font-semibold col-span-4 justify-self-start self-start`}>Vital Signs:</p>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="blood_pressure" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>BP</label>
                 <input
                   type="text"
-                  id="bloodpressure"
-                  name="bloodpressure"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  id="blood_pressure"
+                  name="blood_pressure"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.blood_pressure}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="bloodpressure" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>BP</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="temperature" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>TMP</label>
                 <input
                   type="text"
                   id="temperature"
                   name="temperature"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.temperature}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="temperature" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>TMP</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="heart_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HR</label>
                 <input
                   type="text"
-                  id="heartrate"
-                  name="heartrate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  id="heart_rate"
+                  name="heart_rate"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.heart_rate}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="heartrate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>HR</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>WT</label>
                 <input
                   type="text"
                   id="weight"
                   name="weight"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.weight}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>WT</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HT</label>
                 <input
                   type="text"
                   id="height"
                   name="height"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.height}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>HT</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="pulse_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>PR</label>
                 <input
                   type="text"
-                  id="pulserate"
-                  name="pulserate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  id="pulse_rate"
+                  name="pulse_rate"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.pulse_rate}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="pulserate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>PR</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="respiratory_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>RR</label>
                 <input
                   type="text"
-                  id="respiratoryrate"
-                  name="respiratoryrate"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  id="respiratory_rate"
+                  name="respiratory_rate"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.respiratory_rate}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="respiratoryrate" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>RR</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="bmi" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>BMI</label>
                 <input
                   type="text"
                   id="bmi"
                   name="bmi"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.bmi}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="bmi" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>BMI</label>
               </div>
-              <div className="flex gap-1 items-center justify-between">
+              <div className="grid grid-cols-2 gap-1">
+                <label htmlFor="oxygen_saturation" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>O2Sat</label>
                 <input
                   type="text"
-                  id="oxygensaturation"
-                  name="oxygensaturation"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base grow"
+                  id="oxygen_saturation"
+                  name="oxygen_saturation"
+                  className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
+                  value={vitalSigns.oxygen_saturation}
+                  onChange={handleVitalSignsChange}
                 />
-                <label htmlFor="oxygensaturation" className={`block text-${selectedTheme}-600 font-semibold col-span-2 justify-self-center`}>O2Sat</label>
               </div>
             </div>
+            {/* PEDIATRIC CLIENT */}
             <div className="grid grid-cols-4 gap-2">
-              <p className={`block text-${selectedTheme}-600 font-semibold col-span-4 p-3 justify-self-start self-start`}>Pediatric Client(1-2 years old):</p>
+              <div className="col-span-4 flex p-3 justify-self-start self-start gap-1">
+                <label htmlFor="isPediatric" className={`text-${selectedTheme}-600 font-semibold`}>Pediatric Client(1-2 years old):</label>
+                {/* <input type="checkbox" name="isPediatric" id="isPediatric" checked={isPediatric} onChange={() => setIsPediatric(prev => !prev)}/> */}
+              </div>
               <div className="grid grid-cols-2 gap-1">
                 <label htmlFor="length" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Lenght:</label>
                 <input
                   type="text"
                   id="length"
                   name="length"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.length}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -255,11 +448,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="waist"
                   name="waist"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.waist}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -268,11 +464,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="head"
                   name="head"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.head}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -281,11 +480,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="hip"
                   name="hip"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.hip}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -294,11 +496,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="limb"
                   name="limb"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.limb}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -307,11 +512,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="muac"
                   name="muac"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.muac}
+                  onChange={handlePediatricChange}
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
@@ -320,11 +528,14 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   type="text"
                   id="skinfold"
                   name="skinfold"
-                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  className="w-full rounded-lg text-xxs md:text-xs lg:text-sm"
                   maxLength={60}
                   minLength={3}
                   required
                   autoComplete="off"
+                  disabled={!isPediatric}
+                  value={pediatricClient.skinfold}
+                  onChange={handlePediatricChange}
                 />
               </div>
             </div>

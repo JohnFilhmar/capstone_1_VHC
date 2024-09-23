@@ -1,26 +1,195 @@
-import { useState } from "react";
-import { FaMinus } from "react-icons/fa";
-import { RiFileHistoryFill } from "react-icons/ri";
+import { useEffect, useState } from "react";
+import { FaMinus, FaPlus, FaStethoscope } from "react-icons/fa";
 
-const ChiefCompaint = ({ selectedTheme }) => {
+const DiagnosisPlan = ({ selectedTheme }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [symptoms, setSymptoms] = useState([]);
+  const [diagnosisPlan, setDiagnosisPlan] = useState({
+    primary_diagnosis: '',
+    secondary_diagnosis: '',
+    severity: 'moderate',
+    symptoms: '',
+    tests_conducted: '',
+    diagnosis_details: '',
+    follow_up_recommendations: '',
+  });
 
+  function handleAddSymptom(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setSymptoms(prev => ([
+        ...prev,
+        diagnosisPlan.symptoms.trim()
+      ]));
+      setDiagnosisPlan(prev => ({
+        ...prev,
+        symptoms: ''
+      }));
+    }
+  };
+
+  const removeTag = (index) => {
+    setSymptoms(symptoms.filter((_, i) => i !== index));
+  };
+  
+  useEffect(() => {
+    const time = setTimeout(() => {
+      const oldClinicForm = sessionStorage.getItem('clinicForm') 
+        ? JSON.parse(sessionStorage.getItem('clinicForm')) 
+        : {};
+      const updatedClinicForm = {
+        ...oldClinicForm,
+        diagnosis_plan: {
+          ...diagnosisPlan,
+          symptoms: symptoms.map(s => `${s}`).join(','),
+        }
+      };
+      sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
+    }, 1000);
+    return () => clearTimeout(time);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diagnosisPlan]);
+  
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
       <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
-          <RiFileHistoryFill className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Chief of Complaint and History</span>
+          <FaStethoscope className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
+          <span>Diagnostics and Recommendations</span>
         </div>
         <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          <FaMinus className="size-4 md:size-5 lg:size-6"/>
+          {isVisible ? (
+            <FaMinus className="size-4 md:size-5 lg:size-6"/>
+          ) : (
+            <FaPlus className="size-4 md:size-5 lg:size-6"/>
+          )}
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-2">
+            <label htmlFor="primary_diagnosis" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Primary Diagnosis:</label>
+            <textarea 
+              name="primary_diagnosis" 
+              id="primary_diagnosis" 
+              placeholder="Enter your primary diagnosis for the patient. . . . ."
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              rows={4}
+            />
+          </div>
+          <div className="p-2">
+            <label htmlFor="secondary_diagnosis" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Secondary Diagnosis:</label>
+            <textarea 
+              name="secondary_diagnosis" 
+              id="secondary_diagnosis" 
+              placeholder="Enter your secondary diagnosis for the patient. . . . ."
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              rows={4}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+            <label htmlFor="severity" className={`block text-${selectedTheme}-600 font-semibold`}>
+              Severity of the issue:
+            </label>
+            <div className="flex items-center space-x-4">
+              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                <input
+                  type="checkbox"
+                  checked={diagnosisPlan.severity === 'mild'}
+                  onChange={() => setDiagnosisPlan(prev => ({ ...prev, severity: 'mild' }))}
+                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                />
+                <span className={`text-${selectedTheme}-600`}>
+                  Mild
+                </span>
+              </label>
+              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                <input
+                  type="checkbox"
+                  checked={diagnosisPlan.severity === 'moderate'}
+                  onChange={() => setDiagnosisPlan(prev => ({ ...prev, severity: 'moderate' }))}
+                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                />
+                <span className={`text-${selectedTheme}-600`}>
+                  Moderate
+                </span>
+              </label>
+              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                <input
+                  type="checkbox"
+                  checked={diagnosisPlan.severity === 'severe'}
+                  onChange={() => setDiagnosisPlan(prev => ({ ...prev, severity: 'severe' }))}
+                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                />
+                <span className={`text-${selectedTheme}-600`}>
+                  Severe
+                </span>
+              </label>
+            </div>
+          </div>
+          <div className="p-2">
+            <label htmlFor="symptoms" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Symptoms:</label>
+            <div className="flex tag-input">
+              {symptoms.map((symptom, i) => (
+                <div key={i} className="tag">
+                  {symptom}
+                  <button type="button" onClick={() => removeTag(i)}>&times;</button>
+                </div>
+              ))}
+              <input
+                type="text"
+                id="symptoms"
+                name="symptoms"
+                placeholder="Type a symptom and press 'Enter'"
+                value={diagnosisPlan.symptoms}
+                onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, symptoms: e.target.value }))}
+                className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
+                onKeyDown={handleAddSymptom}
+              />
+            </div>
+          </div>
+          <div className="p-2">
+            <label htmlFor="tests_conducted" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Tests Conducted:</label>
+            <textarea
+              name="tests_conducted" 
+              id="tests_conducted" 
+              value={diagnosisPlan.tests_conducted}
+              onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, tests_conducted: e.target.value }))}
+              placeholder="Enter the tests conducted on the patient. . . . ."
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              rows={1}
+            />
+          </div>
+          <div className="p-2">
+            <label htmlFor="diagnosis_details" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Diagnosis Details:</label>
+            <textarea
+              name="diagnosis_details" 
+              id="diagnosis_details" 
+              value={diagnosisPlan.diagnosis_details}
+              onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, diagnosis_details: e.target.value }))}
+              placeholder="Enter the details of the diagnosis. . . . ."
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              rows={1}
+            />
+          </div>
+        </div>
+        <div className="p-2">
+          <label htmlFor="follow_up_recommendations" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Follow-up Recommendations:</label>
+          <textarea
+            name="follow_up_recommendations" 
+            id="follow_up_recommendations" 
+            value={diagnosisPlan.follow_up_recommendations}
+            onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, follow_up_recommendations: e.target.value }))}
+            placeholder="Enter the tests conducted on the patient. . . . ."
+            className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+            rows={1}
+          />
+        </div>
       </div>
     </div>
   );
 }
  
-export default ChiefCompaint;
+export default DiagnosisPlan;
