@@ -1,6 +1,7 @@
 const dbModel = require('../models/database_model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 class StaffController {
   
@@ -23,7 +24,7 @@ class StaffController {
       
       const authHeader = req.headers['authorization'];
       const accessToken = authHeader.split(' ')[1]; 
-      jwt.verify( accessToken , process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {
+      jwt.verify( accessToken , config.ACCESS_TOKEN_SECRET, async (err, decoded) => {
 
         connection = await dbModel.getConnection();
         const getStaffIdQuery = 'SELECT `staff_id` FROM `medicalstaff` WHERE `username` = ?';
@@ -73,8 +74,8 @@ class StaffController {
   async addStaff(req, res) {
     let connection;
     try {
-      const saltRounds = process.env.PASSWORD_SALT_ROUNDS;
-      const access_token = process.env.ACCESS_TOKEN_SECRET;
+      const saltRounds = config.PASSWORD_SALT_ROUNDS;
+      const access_token = config.ACCESS_TOKEN_SECRET;
 
       connection = await dbModel.getConnection();
       const payload = req.body;
@@ -111,7 +112,7 @@ class StaffController {
           const insertPayload = [
             payload.username, 
             hash,
-            generateToken(payload.role, process.env.REFRESH_TOKEN_SECRET, "15s"),
+            generateToken(payload.role, config.REFRESH_TOKEN_SECRET, "15s"),
             String(payload.email).toLowerCase(),
             payload.role
           ];
@@ -190,7 +191,7 @@ class StaffController {
     let connection;
     try {
       const {username, dateTime} = req.body;
-      if (username && username === process.env.DEVELOPER_USERNAME) {
+      if (username && username === config.DEVELOPER_USERNAME) {
         return res.status(200).json({
           status: 200,
           message: "Logout Successfully"
@@ -241,7 +242,7 @@ class StaffController {
         return res.status(401).json({ message: "No refresh token provided" });
       }
   
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+      jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, (err, decoded) => {
         if (err) {
           if (err.name === 'TokenExpiredError') {
             res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: true });
@@ -255,7 +256,7 @@ class StaffController {
           username: decoded.username,
           role: decoded.role
         };
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
+        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET, { expiresIn: '5m' });
         return res.status(200).json({ status: 200, accessToken: accessToken, message: "Session is still valid" });
       });
     

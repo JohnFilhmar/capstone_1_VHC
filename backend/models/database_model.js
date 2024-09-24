@@ -1,13 +1,13 @@
 const mysql = require('mysql');
-require('dotenv').config();
+const config = require('../config');
 
 class Database {
   constructor() {
     this.pool = mysql.createPool({
-      host: process.env.MYSQL_HOST,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASS,
-      database: process.env.MYSQL_DATABASE
+      host: config.PROJECT_STATE === 'production' ? config.MYSQL_HOST : 'localhost',
+      user: config.PROJECT_STATE === 'production' ? config.MYSQL_USER : 'root',
+      password: config.PROJECT_STATE === 'production' ? config.MYSQL_PASS : '',
+      database: config.PROJECT_STATE === 'production' ? config.MYSQL_DATABASE : 'capstone'
     });
   }
 

@@ -50,7 +50,7 @@ const DashIcon = ({ Icon, title, value, isLoading }) => {
 const Dashboard = () => {
   // eslint-disable-next-line no-unused-vars
   const [selectedTheme, setSelectedTheme] = useContext(colorTheme);
-  const { response, error, isLoading, fetchData } = useQuery();
+  const { response, isLoading, fetchData } = useQuery();
   const [data, setData] = useState({
     patient_count: 0,
     staff_count: 0,

@@ -6,7 +6,7 @@ const cors = require('cors');
 const routes = require('./routes/routes');
 const initializeWebSocket = require('./sockets/eventDispatcher');
 const cookieParser = require('cookie-parser');
-require('dotenv').config();
+const config = require('./config.js');
 const bodyParser = require('body-parser');
 const routeAuth = require('./middlewares/routeAuth');
 const authController = require('./controllers/authController');
@@ -17,7 +17,7 @@ const app = express();
 const port = 5000;
 
 const corsOptions = {
-  origin: [process.env.ALLOWED_ORIGIN, 'https://kalusogapp.vercel.app/', 'https://localhost:3000', 'https://192.168.1.2:3000'],
+  origin: [config.ALLOWED_ORIGIN, 'https://localhost:3000', 'https://192.168.1.2:3000'],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

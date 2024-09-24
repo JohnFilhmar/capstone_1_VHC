@@ -18,7 +18,7 @@ const Mapping = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-60 md:mb-72 lg:mb-80">
             <div className="w-34 h-[40rem] bg-sky-50 rounded-xl col-span-2">
               <Map
-                mapboxAccessToken={process.env.REACT_APP_MAPBOX_KEY}
+                mapboxAccessToken={"pk.eyJ1IjoiYW1wZWwtMjMiLCJhIjoiY2x2Z2NidzVjMHVjMDJpbnZtMThmNm51MCJ9.xce_TB3zt17jZYgYVG3new"}
                 initialViewState={{
                   longitude: 121.27920815012033,
                   latitude: 13.173153995662611,

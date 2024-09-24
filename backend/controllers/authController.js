@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const dbModel = require('../models/database_model');
 const bcrypt = require('bcryptjs');
-require('dotenv').config();
+const config = require('../config');
 
 class AuthController {
   
@@ -10,8 +10,8 @@ class AuthController {
     try {
       connection = await dbModel.getConnection();
       const developer = {
-        username: process.env.DEVELOPER_USERNAME,
-        password: process.env.DEVELOPER_PASSWORD
+        username: config.DEVELOPER_USERNAME,
+        password: config.DEVELOPER_PASSWORD
       };
   
       const { username, password, dateTime } = req.body;
@@ -22,8 +22,8 @@ class AuthController {
   
       if (username === developer.username && password === developer.password) {
         const user = { username: developer.username, role: "developer" };
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET);
+        const refreshToken = jwt.sign(user, config.REFRESH_TOKEN_SECRET);
         return res.status(200).json({ accessToken, refreshToken, message: "Welcome back Mr. Developer!" });
       }
   
@@ -48,8 +48,8 @@ class AuthController {
         const data = { username, role}
         return jwt.sign( data, secret, { expiresIn } );
       };
-      const refreshToken = generateToken(process.env.REFRESH_TOKEN_SECRET, '7d');
-      const accessToken = generateToken(process.env.ACCESS_TOKEN_SECRET, '5m');
+      const refreshToken = generateToken(config.REFRESH_TOKEN_SECRET, '7d');
+      const accessToken = generateToken(config.ACCESS_TOKEN_SECRET, '5m');
   
       const updateRefreshTokenQuery = "UPDATE `medicalstaff` SET `refresh_token` = ? WHERE `staff_id` = ?";
       const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
@@ -61,7 +61,7 @@ class AuthController {
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: process.env.PROJECT_STATE === 'production' ? 'Strict' : 'None',
+        sameSite: config.PROJECT_STATE === 'production' ? 'Strict' : 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000 // persistent cookie with expiration
       });
       return res.status(200).json({ status: 200, accessToken, message: "Login Successful!" });
@@ -86,12 +86,12 @@ class AuthController {
       }
       const accessToken = authHeader.split(' ')[1]; 
 
-      if (username === process.env.DEVELOPER_USERNAME) {
-        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (username === config.DEVELOPER_USERNAME) {
+        jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET, (err, decoded) => {
           if (err) return res.status(403).json({ status: 403, err });
           const accessToken = jwt.sign(
             { username: decoded.username, role: decoded.role },
-            process.env.ACCESS_TOKEN_SECRET,
+            config.ACCESS_TOKEN_SECRET,
             { expiresIn: '5m' }
           );
           return res.status(200).json({ accessToken });
@@ -104,14 +104,14 @@ class AuthController {
         return res.status(401).json({ status: 401, message: "Unauthorized or malformed token!" });
       }
   
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+      jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, (err, decoded) => {
         if (err) {
           res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
           return res.status(403).json({ status: 403, err });
         }
         const newAccessToken = jwt.sign(
           { username: decoded.username, role: decoded.role },
-          process.env.ACCESS_TOKEN_SECRET,
+          config.ACCESS_TOKEN_SECRET,
           { expiresIn: '5m' }
         );
         return res.status(200).json({ accessToken: newAccessToken });
@@ -136,7 +136,7 @@ class AuthController {
         return res.status(401).json({ message: 'Refresh token missing' });
       }
 
-      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+      jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
           res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
           const message = err.message;
@@ -159,7 +159,7 @@ class AuthController {
 
         const newRefreshToken = jwt.sign(
           { username: user.username, role: user.role },
-          process.env.REFRESH_TOKEN_SECRET,
+          config.REFRESH_TOKEN_SECRET,
           { expiresIn: '7d' }
         );
 

@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client';
+import config from './config';
 
-const URL = process.env.REACT_APP_PROJECT_STATE === 'production' ? process.env.REACT_APP_PRODUCTION_BACKEND_BASE_URL : window.location.hostname !== '192.168.1.2' ? 'https://localhost:5000' : 'https://192.168.1.2:5000';
+const URL = config.REACT_APP_PROJECT_STATE === 'production' ? config.REACT_APP_PRODUCTION_BACKEND_BASE_URL : window.location.hostname !== '192.168.1.2' ? 'https://localhost:5000' : 'https://192.168.1.2:5000';
 
 const initializeSocket = () => {
   const socket = io(URL, {
