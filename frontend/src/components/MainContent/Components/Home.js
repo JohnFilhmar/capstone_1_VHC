@@ -13,10 +13,10 @@ const Home = () => {
         <div>
           <Header title={ title } icon={<MdHome />}/>
         </div>
-        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-full h-full overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-60 md:mb-72 lg:mb-80">
             <div className="w-34 h-36 bg-sky-50 rounded-xl">
-              
+              asdf
             </div>
           </div>
         </div>

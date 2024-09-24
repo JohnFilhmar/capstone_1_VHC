@@ -14,6 +14,7 @@ const AddToQueue = ({ ATref, ATonClick }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [name, setName] = useState('');
   const [barangay, setBarangay] = useState('');
+  const [reason, setReason] = useState('');
   const [gender, setGender] = useState('');
   const [status, setStatus] = useState('waiting');
   const [isChecked, setIsChecked] = useState(true);
@@ -25,9 +26,9 @@ const AddToQueue = ({ ATref, ATonClick }) => {
       if (res?.status === 200) {
         const staff_id = res.data.staff_id;
         if (isChecked) {
-          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id });
+          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id, reason: reason });
         } else {
-          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id });
+          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id, reason: reason });
           ATonClick();
         }
       } else {
@@ -121,6 +122,21 @@ const AddToQueue = ({ ATref, ATonClick }) => {
               value={barangay} 
               className={`text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-200 text-${selectedTheme}-800 border-transparent focus:ring-0 focus:border-transparent`} 
               autoComplete="off"
+            />
+          </div>
+          <div className="flex gap-3 items-center justify-start">
+            <label htmlFor="reason">Reason for Queuing:</label>
+            <input 
+              required 
+              maxLength={50} 
+              type="text" 
+              name="reason" 
+              id="reason"
+              value={reason} 
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter the patient's reason. . . ."
+              className={`text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-50 text-${selectedTheme}-800 border-transparent focus:ring-0 focus:border-transparent`} 
+              autoComplete="on"
             />
           </div>
           <div className="flex gap-3 items-center justify-start">

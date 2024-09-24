@@ -6,7 +6,7 @@ import FormModal from "./FormModal";
 import { colorTheme } from "../../../../App";
 import useIndexedDB from "../../../../hooks/useIndexedDb";
 
-const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, importName, importUrlDestination, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
+const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { getAllItems } = useIndexedDB();
   const [token, setToken] = useState(null);

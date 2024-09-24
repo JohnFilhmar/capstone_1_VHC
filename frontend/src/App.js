@@ -79,8 +79,8 @@ const App = () => {
         } else if (res?.status === 200) {
           await updateItem('tokens', 'accessToken', res.data.accessToken);
           setIsLoggedIn(true);
-          if (location.pathname !== '/home') {
-            navigate('/home');
+          if (location.pathname !== '/dashboard') {
+            navigate('/dashboard');
           }
         } else {
           setNotifMessage('Something went wrong checking your session');
@@ -133,8 +133,8 @@ const App = () => {
               <messaging.Provider value={[ currentChat, setCurrentChats ]}>
                 <TopNav />
               </messaging.Provider>
-              <div className="flex">
-                <div className={`w-auto h-full bg-${selectedTheme}-300`}>
+              <div className="flex h-full">
+                <div className={`w-auto bg-${selectedTheme}-300`}>
                   <SideMenu />
                 </div>
                 <div className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}>

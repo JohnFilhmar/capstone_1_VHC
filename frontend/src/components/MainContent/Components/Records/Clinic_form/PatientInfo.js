@@ -135,6 +135,38 @@ const PatientInfo = ({ selectedTheme, userData }) => {
     isPediatric
   ]);
 
+  const convertHeightToMeters = (height) => {
+    if (height.includes('cm')) {
+      const cm = parseFloat(height.replace('cm', ''));
+      return cm / 100;
+    } else if (height.includes('ft') || height.includes("'")) {
+      const [feet, inches] = height.includes("'")
+        ? height.split("'").map(Number)
+        : height.replace('ft', '').split('.').map(Number);
+      const totalInches = feet * 12 + (inches || 0);
+      return totalInches * 0.0254;
+    }
+    return null;
+  };
+  
+  const convertWeightToKg = (weight) => {
+    if (weight.includes('lbs')) {
+      const lbs = parseFloat(weight.replace('lbs', ''));
+      return lbs * 0.453592; 
+    } else {
+      return parseFloat(weight.replace('kg', ''));
+    }
+  };
+  
+  useEffect(() => {
+    const weightInKg = convertWeightToKg(vitalSigns.weight);
+    const heightInMeters = convertHeightToMeters(vitalSigns.height);
+    if (weightInKg && heightInMeters) {
+      const bmi = weightInKg / (heightInMeters ** 2);
+      setVitalSigns(prev => ({ ...prev, bmi: bmi.toFixed(2) })); 
+    }
+  }, [vitalSigns.weight, vitalSigns.height]);
+
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
       <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
@@ -354,7 +386,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>WT</label>
+                <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>WT(kg/lbs)</label>
                 <input
                   type="text"
                   id="weight"
@@ -365,7 +397,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">
-                <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HT</label>
+                <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HT(ft/cm)</label>
                 <input
                   type="text"
                   id="height"
@@ -406,6 +438,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
                   value={vitalSigns.bmi}
                   onChange={handleVitalSignsChange}
+                  disabled
                 />
               </div>
               <div className="grid grid-cols-2 gap-1">

@@ -8,14 +8,14 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
   const date = new Date();
   const firstDayOfTheMonth = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,0)}-01`;
   const [menstrualHistory, setMenstrualHistory] = useState({
-    menarchy: '',
+    menarche: '',
     last_menstrual_date: firstDayOfTheMonth,
     menstrual_duration: '',
     cycle_length: '',
     pads_per_day: '',
     sexual_intercourse_age: '',
     birth_control_method: '',
-    is_menopause: '',
+    is_menopause: false,
   });
 
   const contraceptiveMethods = [
@@ -73,12 +73,13 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
         : {};
       const updatedClinicForm = {
         ...oldClinicForm,
-        menstrual_history: menstrualHistory
+        menstrual_history: menstrualHistory,
+        isMenstrual: mensApplicable
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
     }, 1000);
     return () => clearTimeout(time);
-  }, [menstrualHistory]);
+  }, [menstrualHistory, mensApplicable]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
@@ -133,8 +134,8 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
                 type="text"
                 id="menarche"
                 name="menarche"
-                value={menstrualHistory.menarchy}
-                onChange={(e) => setMenstrualHistory(prev => ({ ...prev, menarchy: e.target.value }))}
+                value={menstrualHistory.menarche}
+                onChange={(e) => setMenstrualHistory(prev => ({ ...prev, menarche: e.target.value }))}
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
                 disabled={!mensApplicable}
               />

@@ -24,12 +24,13 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
         : {};
       const updatedClinicForm = {
         ...oldClinicForm,
-        pregnancy_history: pregnancyHistory
+        pregnancy_history: pregnancyHistory,
+        isPregnancy: applicablePregnancy
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
     }, 1000);
     return () => clearTimeout(time);
-  }, [pregnancyHistory]);
+  }, [pregnancyHistory, applicablePregnancy]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>

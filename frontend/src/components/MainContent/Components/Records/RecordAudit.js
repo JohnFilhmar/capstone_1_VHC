@@ -25,6 +25,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
 
   useEffect(() => {
     if (searchResults) {
+      console.log(searchResults.data);
       setData(searchResults.data);
       const data = () => {
         return searchResults.data.map(({ history_id, action, action_details, action_datetime, username }) => {
@@ -89,7 +90,6 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
           staff_id: res.data.staff_id,
           dateTime: mysqlTime
         }
-        console.log(newPayload);
         addData('/addClinicRecord', newPayload);
       }
     } catch (error) {
@@ -121,7 +121,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
                 </span>
               ) : (
                 <span className="underline underline-offset-4">
-                  {data[0].full_name}
+                  {data[0]?.full_name}
                 </span>
               )}
             </p>
@@ -145,7 +145,9 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
           </button>
           <div className="mx-4 flex justify-between items-center">
             <p className={`text-left text-${selectedTheme}-700 font-bold text-base md:text-lg lg:text-xl`}>{formVisibility ? 'Clinic Form' : 'Patient History'}</p>
-            <button onClick={handleSubmitClinicForm} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>Submit Clinic Form</button>
+            {formVisibility && (
+              <button onClick={handleSubmitClinicForm} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>Submit Clinic Form</button>
+            )}
           </div>
           <div className="m-3 overflow-y-auto min-h-full rounded-lg">
             {!formVisibility ? (

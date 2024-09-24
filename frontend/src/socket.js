@@ -7,7 +7,7 @@ const initializeSocket = () => {
     reconnection: true,
     reconnectionDelay: 2000,
     reconnectionDelayMax: 5000,
-    reconnectionAttempts: 3,
+    reconnectionAttempts: Infinity,
     secure: true,
     autoConnect: true,
   });

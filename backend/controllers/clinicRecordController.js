@@ -6,7 +6,7 @@ class ClinicRecordController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const { citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, vital_signs, isPediatric, pediatric_client, chief_of_complaint, history_of_present_illness,past_medical_history, family_medical_history, smoking_status, alcohol_status, illicit_drug_status, sexually_active, physical_examination, diagnosis_plan, prescriptions, staff_id, dateTime } = req.body;
+      const { citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, vital_signs, isPediatric, pediatric_client, chief_of_complaint, history_of_present_illness,past_medical_history, family_medical_history, smoking_status, alcohol_status, illicit_drug_status, sexually_active, physical_examination, menstrual_history, isMenstrual, pregnancy_history, isPregnancy, diagnosis_plan, prescriptions, staff_id, dateTime } = req.body;
       
       const insertClinicRecordQuery = "INSERT INTO `citizen_clinical_record`(`staff_id`, `citizen_family_id`, `civil_status`, `philhealth_number`, `philhealth_dpin`, `philhealth_category`, `chief_of_complaint`, `history_of_present_illness`, `smoking_status`, `alcohol_status`, `illicit_drug_status`, `sexually_active`, `datetime_issued`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const insertCitizenRecordPayload = [staff_id, citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, chief_of_complaint, history_of_present_illness, smoking_status, alcohol_status, illicit_drug_status, sexually_active, dateTime]
@@ -55,6 +55,20 @@ class ClinicRecordController {
       const insertPeHeentQuery = "INSERT INTO `ccr_physical_examination_heent_descriptions`(`physical_examination_id`, `abnormal_pupillary_reaction`, `essentially_normal`, `sunken_eyeballs`, `cervical_lymphadenopathy`, `icteric_sclerae`, `sunken_fontanelle`, `dry_mucous_membrane`, `pale_conjunctivae`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const insertPeHeentPayload = [physical_examination_id, abnormal_pupillary_reaction, heent_essentially_normal, sunken_eyeballs, cervical_lymphadenopathy, icteric_sclerae, sunken_fontanelle, dry_mucous_membrane, pale_conjunctivae];
       await dbModel.query(insertPeHeentQuery, insertPeHeentPayload);
+
+      if (isMenstrual) {
+        const { menarche, last_menstrual_date, menstrual_duration, cycle_length, pads_per_day, onset_sexual_intercourse, birth_control_method, is_menopause } = menstrual_history;
+        const insertMenstrualHistoryQuery = "INSERT INTO `ccr_menstrual_history`(`record_id`, `menarche`, `last_menstrual_date`, `menstrual_duration`, `cycle_length`, `pads_per_day`, `onset_sexual_intercourse`, `birth_control_use`, `birth_control_method`, `is_menopause`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const insertMenstrualHistoryPayload = [record_id, menarche, last_menstrual_date, menstrual_duration, cycle_length, pads_per_day, onset_sexual_intercourse, birth_control_method !== null, birth_control_method, is_menopause];
+        await dbModel.query(insertMenstrualHistoryQuery, insertMenstrualHistoryPayload);
+      }
+
+      if (isPregnancy) {
+        const { gravidity, parity, delivery_types, full_term_pregnancies, premature_pregnancies, abortions, living_children, pre_eclampsia, family_planning_access } = pregnancy_history;
+        const insertPregnancyHistoryQuery = "INSERT INTO `ccr_pregnancy_history`(`record_id`, `gravidity`, `parity`, `delivery_types`, `full_term_pregnancies`, `premature_pregnancies`, `abortions`, `living_children`, `pre_eclampsia`, `family_planning_access`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const insertPregnancyHistoryPayload = [record_id, gravidity, parity, delivery_types, full_term_pregnancies, premature_pregnancies, abortions, living_children, pre_eclampsia, family_planning_access];
+        await dbModel.query(insertPregnancyHistoryQuery, insertPregnancyHistoryPayload);
+      }
       
       const { primary_diagnosis, secondary_diagnosis, severity, symptoms, tests_conducted, diagnosis_details, follow_up_recommendations } = diagnosis_plan;
       const insertDiagnosisQuery = "INSERT INTO `ccr_diagnosis`(`record_id`, `primary_diagnosis`, `secondary_diagnosis`, `severity`, `symptoms`, `tests_conducted`, `diagnosis_details`, `follow_up_recommendations`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -69,6 +83,16 @@ class ClinicRecordController {
         await dbModel.query(insertPrescriptionsQuery, insertPrescriptionsPayload);
         
       }
+
+      const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const historyPayload = [
+        citizen_family_id,
+        'clinic form',
+        `clinic form filled`,
+        staff_id,
+        dateTime
+      ];
+      await dbModel.query(insertHistoryQuery, historyPayload);
 
       const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
       const staffHistoryValues = [staff_id, 'created a clinic form', 'filled up a clinic form', null, dateTime];

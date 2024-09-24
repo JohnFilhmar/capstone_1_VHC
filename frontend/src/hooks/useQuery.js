@@ -24,8 +24,8 @@ const useQuery = () => {
   }, []);
 
   const fetchData = async (route) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.get(`${route}`);
       setResponse(response?.data);
       setIsLoading(false);
@@ -40,8 +40,8 @@ const useQuery = () => {
   };
 
   const postData = async (route, payload) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post(`${route}`, payload);
       setResponse(response?.data);
       setNotifMessage(response.data.message);
@@ -55,8 +55,8 @@ const useQuery = () => {
   };
 
   const addData = async (route, payload) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post(`${route}`, payload);
       setResponse(response?.data);
       setNotifMessage(response.data.message);
@@ -69,8 +69,8 @@ const useQuery = () => {
   };
 
   const editData = async (route, id, payload) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post(`${route}/${id}`, payload);
       setResponse(response?.data);
       setNotifMessage(response.data.message);
@@ -83,8 +83,8 @@ const useQuery = () => {
   };
 
   const deleteData = async (route, id, payload = {}) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post(`${route}/${id}`, payload);
       setResponse(response?.data);
       setNotifMessage(response.data.message);
@@ -97,8 +97,8 @@ const useQuery = () => {
   };
 
   const searchData = async (route, id) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.get(`${route}/${id}`);
       setSearchResults(response.data);
       setIsLoading(false);
@@ -110,8 +110,8 @@ const useQuery = () => {
   };
 
   const searchItems = async (route, id) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.get(`${route}/${id}`);
       setSearchResults(response.data);
       setIsLoading(false);
@@ -123,8 +123,8 @@ const useQuery = () => {
   };
 
   const userAuth = async (payload) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post(`/authStaff`, payload, {
         headers: { Authorization: `Bearer ${accessToken}`},
         withCredentials: true
@@ -135,7 +135,7 @@ const useQuery = () => {
           await clearStore('tokens');
         }
         await addItem('tokens', response.data.accessToken, 'accessToken');
-        window.location.href = "/home";
+        window.location.href = "/dashboard";
       }
     } catch (error) {
       handleError(error);
@@ -145,8 +145,8 @@ const useQuery = () => {
   };  
   
   const verifyToken = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post('/authToken', { username: jwtDecode(accessToken).username }, {
         headers: { Authorization: `Bearer ${accessToken}`},
         withCredentials: true
@@ -163,8 +163,8 @@ const useQuery = () => {
   };
   
   const logoutUser = async (payload) => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.post('/logoutUser', payload, {
         headers: { Authorization: `Bearer ${accessToken}`},
         withCredentials: true

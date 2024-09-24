@@ -7,6 +7,7 @@ const pharmacyController = require('../controllers/pharmacyController');
 const queueController = require('../controllers/queueController');
 const appointmentController = require('../controllers/appointmentController');
 const clinicRecordController = require('../controllers/clinicRecordController');
+const dashboardController = require('../controllers/dashboardController');
 
 // USER AUTHENTICATION/REGISTRATION
 router.post('/verifyEmail', staffController.verifyEmail);
@@ -49,5 +50,8 @@ router.post('/handleApproveAppointment/:id', appointmentController.handleApprove
 
 // CLINIC 
 router.post('/addClinicRecord', clinicRecordController.addCinicRecord);
+
+// DASHBOARD
+router.get('/getDashBoardData', dashboardController.getDashboardData);
 
 module.exports = router;

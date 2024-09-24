@@ -37,12 +37,12 @@ const Pharmacy = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div onClick={() => socket.emit('updatePharmacy')}>
           <Header title={ title } icon={<MdLocalPharmacy/>}/>
         </div>
-        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
+        <div className="min-h-full h-full overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
           <DataTable data={medicines} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} />
         </div>
       </div>

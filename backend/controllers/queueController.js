@@ -5,24 +5,23 @@ class QueueController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const { name, dateTime, status, staff_id } = req.body;
-      const getFamilyIdQuery = 'SELECT `citizen_family_id` FROM `citizen` WHERE `citizen_firstname` LIKE ? OR `citizen_lastname` LIKE ?';
-      const firstName = name.split(' ')[0];
-      const lastName = name.split(' ')[1];
-      const [citizen] = await dbModel.query(getFamilyIdQuery, [firstName, lastName]);
+      const { name, dateTime, status, staff_id, reason } = req.body;
+      const getFamilyIdQuery = "SELECT `citizen_family_id` FROM `citizen` WHERE CONCAT(LOWER(TRIM(`citizen_firstname`)), ' ', LOWER(TRIM(`citizen_lastname`))) = LOWER(TRIM(?))";
+      const [citizen] = await dbModel.query(getFamilyIdQuery, [name]);
       if (!citizen) return res.status(404).json({ status: 404, message: 'Citizen not found!' });
 
-      const insertQueueQuery = 'INSERT INTO `citizen_queue`(`citizen_family_id`,`time_arrived`,`current_status`) VALUES (?, ?, ?)';
+      const insertQueueQuery = 'INSERT INTO `citizen_queue`(`citizen_family_id`,`time_arrived`,`current_status`, `reason`) VALUES (?, ?, ?, ?)';
       const data = [
         citizen.citizen_family_id,
         dateTime,
-        status
+        status,
+        reason
       ];
 
       const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const historyPayload = [
         citizen.citizen_family_id,
-        'waiting',
+        `queued for ${status}`,
         `added to queue as ${status}`,
         staff_id,
         dateTime

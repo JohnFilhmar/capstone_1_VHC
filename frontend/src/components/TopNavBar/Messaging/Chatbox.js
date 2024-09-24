@@ -128,7 +128,7 @@ const Chatbox = ({ chatbox, toggle }) => {
             </button>
           </div>
         </div>
-        <div className={`w-64 md:w-72 lg:w-80`}>
+        <div className={`w-full`}>
           {
             size && currentChat && (
               <>
