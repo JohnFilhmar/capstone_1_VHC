@@ -25,7 +25,6 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
 
   useEffect(() => {
     if (searchResults) {
-      console.log(searchResults.data);
       setData(searchResults.data);
       const data = () => {
         return searchResults.data.map(({ history_id, action, action_details, action_datetime, username }) => {

@@ -71,13 +71,15 @@ class DashboardController {
       `;
       const getDeliveriesResponse = await dbModel.query(getDeliveriesQuery);
 
+      const total_deliveries = getDeliveriesResponse.reduce((total, current) => total + current.delivery_count, 0);
+      
       return res.status(200).json({
         status: 200,
         message: "Successfully Retrieved Data!",
         data: {
           ...getPatientCountResponse,
           ...getStaffCountResponse,
-          total_deliveries: 0,
+          total_deliveries: total_deliveries,
           annual_deliveries: getDeliveriesResponse
         }
       })

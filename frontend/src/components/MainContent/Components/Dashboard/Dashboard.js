@@ -9,7 +9,7 @@ import DonorChart from './DonorChart';
 import { colorTheme } from '../../../../App';
 import useQuery from '../../../../hooks/useQuery';
 import { FaBaby } from 'react-icons/fa';
-import DeliveriesChart from './DeliveriesChart';
+import MultiLineChart from './MultiLineChart';
 
 const DashIcon = ({ Icon, title, value, isLoading }) => {
   // eslint-disable-next-line no-unused-vars
@@ -69,6 +69,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (response?.status === 200) {
       setData(response.data);
+      console.log(response.data.total_deliveries)
     }
   }, [response]);
   
@@ -80,16 +81,16 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-60 md:mb-72 lg:mb-80">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 col-span-2 gap-2 justify-between items-start">
 
-              <DashIcon Icon={MdPeopleAlt} isLoading={isLoading} title="Patients" value={data.patient_count}/>
-              <DashIcon Icon={RiNurseFill} isLoading={isLoading} title="Staff" value={data.staff_count}/>
-              <DashIcon Icon={FaBaby} isLoading={isLoading} title="Deliveries" value={data.total_deliveries}/>
+              <DashIcon Icon={MdPeopleAlt} isLoading={isLoading} title="Patients" value={data?.patient_count || 0}/>
+              <DashIcon Icon={RiNurseFill} isLoading={isLoading} title="Staff" value={data?.staff_count || 0}/>
+              <DashIcon Icon={FaBaby} isLoading={isLoading} title="Deliveries" value={data?.total_deliveries || 0}/>
               <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="Donated" value={faker.datatype.number({ min: 0, max: 500 })}/>
 
             </div>
 
             <PatientChart title="Patient Frequency"/>
             <DonorChart title="Most Frequent Donor"/>
-            <DeliveriesChart title="Annual Deliveries" data={data.annual_deliveries}/>
+            <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
 
           </div>
         </div>

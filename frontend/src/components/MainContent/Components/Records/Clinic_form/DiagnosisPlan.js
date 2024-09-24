@@ -4,15 +4,28 @@ import { FaMinus, FaPlus, FaStethoscope } from "react-icons/fa";
 const DiagnosisPlan = ({ selectedTheme }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [symptoms, setSymptoms] = useState([]);
+  const [illnesses, setIllnesses] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
   const [diagnosisPlan, setDiagnosisPlan] = useState({
     primary_diagnosis: '',
     secondary_diagnosis: '',
+    illnesses: '',
     severity: 'moderate',
     symptoms: '',
     tests_conducted: '',
     diagnosis_details: '',
     follow_up_recommendations: '',
   });
+
+  const fetchIllnessSuggestions = async (query) => {
+    try {
+      const response = await fetch(`https://clinicaltables.nlm.nih.gov/api/conditions/v3/search?terms=${query}`);
+      const data = await response.json();
+      setSuggestions(data[3]);
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+    }
+  };
 
   function handleAddSymptom(e) {
     if (e.key === 'Enter') {
@@ -27,9 +40,30 @@ const DiagnosisPlan = ({ selectedTheme }) => {
       }));
     }
   };
+  const handleIllnessChange = (e) => {
+    const input = e.target.value;
+    setDiagnosisPlan((prev) => ({ ...prev, illnesses: input }));
 
-  const removeTag = (index) => {
+    if (input.length > 2) {
+      const time = setTimeout(() => {
+        fetchIllnessSuggestions(input);
+      }, 1000);
+      return () => clearTimeout(time);
+    } else {
+      setSuggestions([]);
+    }
+  };
+  const handleIllnessSelect = (illness) => {
+    setIllnesses((prev) => [...prev, illness]);
+    setDiagnosisPlan((prev) => ({ ...prev, illnesses: '' }));
+    setSuggestions([]);
+  };
+
+  const removeSymptom = (index) => {
     setSymptoms(symptoms.filter((_, i) => i !== index));
+  };
+  const removeIllness = (index) => {
+    setIllnesses(illnesses.filter((_, i) => i !== index));
   };
   
   useEffect(() => {
@@ -41,6 +75,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
         ...oldClinicForm,
         diagnosis_plan: {
           ...diagnosisPlan,
+          illnesses: illnesses.map(s => `${s}`).join(','),
           symptoms: symptoms.map(s => `${s}`).join(','),
         }
       };
@@ -88,10 +123,50 @@ const DiagnosisPlan = ({ selectedTheme }) => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-2 relative">
+            <label htmlFor="illnesses" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>
+              Illness/es:
+            </label>
+            <div className="flex tag-input">
+              {illnesses.map((illness, i) => (
+                <div key={i} className="tag">
+                  {illness}
+                  <button type="button" onClick={() => removeIllness(i)}>
+                    &times;
+                  </button>
+                </div>
+              ))}
+              <input
+                type="text"
+                id="illnesses-input"
+                name="illnesses"
+                placeholder="Type an illness or disease"
+                value={diagnosisPlan.illnesses}
+                onChange={handleIllnessChange}
+                className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
+              />
+            </div>
+            {suggestions.length > 0 && (
+              <ul
+                className="absolute z-10 bg-white shadow-lg border border-gray-300 max-h-40 overflow-auto rounded-md mt-1 w-full"
+                style={{ top: '100%' }}
+              >
+                {suggestions.map((suggestion, i) => (
+                  <li
+                    key={i}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={() => handleIllnessSelect(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
             <label htmlFor="severity" className={`block text-${selectedTheme}-600 font-semibold`}>
-              Severity of the issue:
+              Severity of the Illness/es:
             </label>
             <div className="flex items-center space-x-4">
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
@@ -130,12 +205,12 @@ const DiagnosisPlan = ({ selectedTheme }) => {
             </div>
           </div>
           <div className="p-2">
-            <label htmlFor="symptoms" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Symptoms:</label>
+            <label htmlFor="symptoms" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Symptom/s:</label>
             <div className="flex tag-input">
               {symptoms.map((symptom, i) => (
                 <div key={i} className="tag">
                   {symptom}
-                  <button type="button" onClick={() => removeTag(i)}>&times;</button>
+                  <button type="button" onClick={() => removeSymptom(i)}>&times;</button>
                 </div>
               ))}
               <input
@@ -150,6 +225,8 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               />
             </div>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
           <div className="p-2">
             <label htmlFor="tests_conducted" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Tests Conducted:</label>
             <textarea

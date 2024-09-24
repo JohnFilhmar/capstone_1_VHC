@@ -9,7 +9,7 @@
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
-SET time_zone = "+00:00";
+SET time_zone = "+08:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `capstone`
+-- Database: `u807685206_kalusugapp`
 --
 
 -- --------------------------------------------------------
@@ -30,14 +30,14 @@ SET time_zone = "+00:00";
 CREATE TABLE `ccr_diagnosis` (
   `diagnosis_id` int NOT NULL,
   `record_id` int NOT NULL,
-  `primary_diagnosis` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `secondary_diagnosis` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `primary_diagnosis` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `secondary_diagnosis` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `severity` enum('mild','moderate','sever') NOT NULL DEFAULT 'moderate',
   `symptoms` text,
   `tests_conducted` text,
   `diagnosis_details` text,
   `follow_up_recommendations` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -67,7 +67,7 @@ CREATE TABLE `ccr_family_medical_history` (
   `pulmonary_tuberculosis` varchar(255) DEFAULT NULL,
   `none` tinyint(1) DEFAULT '0',
   `others` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -87,7 +87,7 @@ CREATE TABLE `ccr_menstrual_history` (
   `birth_control_use` tinyint(1) NOT NULL,
   `birth_control_method` varchar(100) NOT NULL,
   `is_menopause` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -117,7 +117,7 @@ CREATE TABLE `ccr_past_medical_history` (
   `pulmonary_tuberculosis` varchar(255) DEFAULT NULL,
   `none` tinyint(1) DEFAULT '0',
   `others` text
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -135,7 +135,7 @@ CREATE TABLE `ccr_pediatric_client` (
   `head_circumference` int NOT NULL,
   `skinfold` int NOT NULL,
   `hip` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -146,7 +146,7 @@ CREATE TABLE `ccr_pediatric_client` (
 CREATE TABLE `ccr_physical_examination` (
   `physical_examination_id` int NOT NULL,
   `record_id` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -165,7 +165,7 @@ CREATE TABLE `ccr_physical_examination_heent_descriptions` (
   `sunken_fontanelle` tinyint(1) NOT NULL,
   `dry_mucous_membrane` tinyint(1) NOT NULL,
   `pale_conjunctivae` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -186,7 +186,7 @@ CREATE TABLE `ccr_physical_examination_skin_descriptions` (
   `cyanosis_mottled_skin` tinyint(1) NOT NULL,
   `essentially_normal` tinyint(1) NOT NULL,
   `rash_or_itching` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -206,7 +206,7 @@ CREATE TABLE `ccr_pregnancy_history` (
   `living_children` int NOT NULL,
   `pre_eclampsia` tinyint(1) NOT NULL,
   `family_planning_access` enum('yes','no') DEFAULT 'yes'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -225,7 +225,7 @@ CREATE TABLE `ccr_prescriptions` (
   `instructions` text NOT NULL,
   `refill_allowed` tinyint(1) NOT NULL DEFAULT '0',
   `quantity_prescribed` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -245,7 +245,7 @@ CREATE TABLE `ccr_vital_signs` (
   `respiratory_rate` varchar(50) NOT NULL,
   `bmi` varchar(50) NOT NULL,
   `oxygen_saturation` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -254,7 +254,7 @@ CREATE TABLE `ccr_vital_signs` (
 --
 
 CREATE TABLE `citizen` (
-  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `citizen_firstname` varchar(255) NOT NULL,
   `citizen_middlename` varchar(255) NOT NULL,
   `citizen_lastname` varchar(255) NOT NULL,
@@ -262,7 +262,7 @@ CREATE TABLE `citizen` (
   `citizen_birthdate` date NOT NULL,
   `citizen_barangay` varchar(255) NOT NULL,
   `citizen_number` varchar(12) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `citizen`
@@ -281,12 +281,12 @@ INSERT INTO `citizen` (`citizen_family_id`, `citizen_firstname`, `citizen_middle
 
 CREATE TABLE `citizen_appointments` (
   `appointment_id` int NOT NULL,
-  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `description` text NOT NULL,
   `appointed_datetime` datetime NOT NULL,
-  `status` enum('pending','scheduled','rejected','dismissed') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'pending',
+  `status` enum('pending','scheduled','rejected','dismissed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `created_at` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `citizen_appointments`
@@ -308,17 +308,17 @@ CREATE TABLE `citizen_clinical_record` (
   `staff_id` int NOT NULL,
   `citizen_family_id` varchar(50) NOT NULL,
   `civil_status` varchar(50) NOT NULL,
-  `philhealth_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `philhealth_dpin` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `philhealth_category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `philhealth_number` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `philhealth_dpin` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `philhealth_category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `chief_of_complaint` text NOT NULL,
   `history_of_present_illness` text NOT NULL,
   `smoking_status` enum('no','quit','yes') NOT NULL DEFAULT 'no',
-  `alcohol_status` enum('no','quit','yes') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'no',
+  `alcohol_status` enum('no','quit','yes') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
   `illicit_drug_status` enum('no','quit','yes') NOT NULL DEFAULT 'no',
   `sexually_active` enum('no','yes') NOT NULL DEFAULT 'no',
   `datetime_issued` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -333,7 +333,7 @@ CREATE TABLE `citizen_history` (
   `action_details` text NOT NULL,
   `staff_id` int DEFAULT NULL,
   `action_datetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `citizen_history`
@@ -364,8 +364,8 @@ CREATE TABLE `citizen_queue` (
   `citizen_family_id` varchar(50) NOT NULL,
   `time_arrived` datetime NOT NULL,
   `reason` varchar(255) NOT NULL,
-  `current_status` enum('waiting','serving','emergency','priority','dismissed') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'waiting'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `current_status` enum('waiting','serving','emergency','priority','dismissed') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'waiting'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `citizen_queue`
@@ -385,14 +385,14 @@ INSERT INTO `citizen_queue` (`queue_number`, `citizen_family_id`, `time_arrived`
 
 CREATE TABLE `medicalstaff` (
   `staff_id` int NOT NULL,
-  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `refresh_token` varchar(255) NOT NULL,
-  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `isVerified` tinyint(1) NOT NULL DEFAULT '0',
-  `role` enum('doctor','admin','staff','developer') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'staff',
+  `role` enum('doctor','admin','staff','developer') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'staff',
   `accessibility_id` int DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `medicalstaff`
@@ -418,7 +418,7 @@ CREATE TABLE `medicalstaff_accessbility` (
   `staff_id` int NOT NULL,
   `general` int NOT NULL,
   `accessibility_id` int NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -430,7 +430,7 @@ CREATE TABLE `medicalstaff_email_verification` (
   `token` varchar(255) NOT NULL,
   `staff_id` int NOT NULL,
   `expiry_date` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `medicalstaff_email_verification`
@@ -450,9 +450,9 @@ CREATE TABLE `medicalstaff_history` (
   `staff_id` int NOT NULL,
   `action` varchar(255) NOT NULL,
   `action_details` text NOT NULL,
-  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `action_datetime` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `medicalstaff_history`
@@ -475,7 +475,7 @@ CREATE TABLE `messaging` (
   `receiver_id` int NOT NULL,
   `message` varchar(255) NOT NULL,
   `datetime_sent` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -490,7 +490,7 @@ CREATE TABLE `notifications` (
   `status` enum('unread','read','archived') DEFAULT 'unread',
   `datetime_received` datetime DEFAULT NULL,
   `datetime_seen` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -502,11 +502,11 @@ CREATE TABLE `pharmacy_inventory` (
   `item_id` int NOT NULL,
   `item_name` varchar(55) NOT NULL,
   `quantity` int DEFAULT NULL,
-  `container_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
-  `lot_no` varchar(55) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `container_type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lot_no` varchar(55) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `exp_date` date DEFAULT NULL,
-  `quantity_stockroom` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `quantity_stockroom` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `pharmacy_inventory`

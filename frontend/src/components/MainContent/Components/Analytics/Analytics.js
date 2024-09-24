@@ -3,36 +3,15 @@ import { useLocation } from "react-router-dom";
 import { MdAnalytics } from "react-icons/md";
 import { useContext } from "react";
 import { colorTheme } from "../../../../App";
-// import io from 'socket.io-client';
-
 import Header from "../../Header";
 import Linechart from "./Linechart";
-import Barchart from "./Barchart";
-// import { AES, enc } from 'crypto-js';
+import MostDiseases from "./MostDiseases";
 
 const Analytics = () => {
   const [selectedTheme] = useContext(colorTheme);
   const location = useLocation();
   const pathname = location.pathname.slice(1);
   const title = pathname.charAt(0).toUpperCase() + pathname.slice(1);
-  // CREATE PROMPT TO USER WHETHER THE PAGE IS CONNECTED TO THE SOCKET OR REAL TIME, WITH BUTTON TO RECONNECT OR RETRY OR REFRESH
-  // const socket = io("https://localhost:5000");
-  // const secretKey = process.env.REACT_APP_KEY;
-  
-  // useEffect(() => {
-  //   socket.on('data', (data) => {
-  //     const decryptedData = AES.decrypt(data, secretKey).toString(enc.Utf8);
-  //     console.log('Decrypted Data:', decryptedData);
-  //   });
-  // }, []);
-
-  // const toggleSocket = (e) => {
-  //   e.preventDefault();
-  //   const originalData = 'hello';
-  //   const encryptedData = AES.encrypt(originalData, secretKey).toString();
-  //   console.log('Encrypted Data:',encryptedData);
-  //   socket.emit('newData', encryptedData);
-  // };
 
   return (
     <div className="w-full h-screen flex flex-col">
@@ -43,19 +22,19 @@ const Analytics = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 w-full h-full">
               <div className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}>
                 <div className="flex justify-start items-center">
-                  <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Barchart</p>
+                  <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Most Diseases and Illness</p>
                 </div>
-                <Linechart/>
+                <MostDiseases/>
               </div>
               <div className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}>
                 <div className="flex justify-start items-center">
                   <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Barchart</p>
                 </div>
-                <Barchart/>
+                <Linechart/>
               </div>
             </div>
             <div className={`flex w-full h-full p-4 bg-${selectedTheme}-50 rounded-lg`}>
-              <Barchart/>
+              {/* <Barchart/> */}
             </div>
           </div>
         </div>

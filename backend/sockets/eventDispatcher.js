@@ -12,7 +12,7 @@ function initializeWebSocket(server) {
   const io = new Server(server, {
     cors: {
       origin: [process.env.ALLOWED_ORIGIN, 'https://localhost:3000', 'https://192.168.1.2:3000'],
-      methods: ["GET", "POST"],
+      methods: ["GET"],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true
     },

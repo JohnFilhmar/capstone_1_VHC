@@ -73,9 +73,9 @@ const SideMenu = () => {
   const [selectedTheme] = useContext(colorTheme);
   return (
     <div className={`flex flex-col text-${selectedTheme}-700 font-semibold`}>
-      {/* <Menu path="home" Icon={MdHome} label="Home" /> */}
+      <Menu path="home" Icon={MdHome} label="Home" />
       <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
-      {/* <Menu path="analytics" Icon={MdAnalytics} label="Analytics" /> */}
+      <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
       <Menu path="mapping" Icon={FaMapMarkedAlt} label="Mapping" />
       <Menu path="appointments" Icon={IoCalendar} label="Appointments" />
       <Menu path="queue" Icon={MdPeople} label="Queues" />

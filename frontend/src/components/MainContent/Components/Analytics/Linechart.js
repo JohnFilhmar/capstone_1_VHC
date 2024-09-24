@@ -5,7 +5,7 @@ import { useContext } from 'react';
 import { colorTheme } from '../../../../App';
 import tinycolor from 'tinycolor2';
 
-const Barchart = () => {
+const LineChart = () => {
   const [selectedTheme] = useContext(colorTheme);
   const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
@@ -60,4 +60,4 @@ const Barchart = () => {
   );
 }
  
-export default Barchart;
+export default LineChart;
