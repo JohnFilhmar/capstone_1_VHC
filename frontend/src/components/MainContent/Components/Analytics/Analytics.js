@@ -4,7 +4,7 @@ import { MdAnalytics } from "react-icons/md";
 import { useContext } from "react";
 import { colorTheme } from "../../../../App";
 import Header from "../../Header";
-import Linechart from "./Linechart";
+import IllnessRate from "./IllnessRate";
 import MostDiseases from "./MostDiseases";
 
 const Analytics = () => {
@@ -12,6 +12,8 @@ const Analytics = () => {
   const location = useLocation();
   const pathname = location.pathname.slice(1);
   const title = pathname.charAt(0).toUpperCase() + pathname.slice(1);
+  const dd = localStorage.getItem('dashboardData');
+  const storedData = dd ? JSON.parse(dd) : [];
 
   return (
     <div className="w-full h-screen flex flex-col">
@@ -24,13 +26,13 @@ const Analytics = () => {
                 <div className="flex justify-start items-center">
                   <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Most Diseases and Illness</p>
                 </div>
-                <MostDiseases/>
+                <MostDiseases data={storedData.illnesses_count}/>
               </div>
               <div className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}>
                 <div className="flex justify-start items-center">
-                  <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Barchart</p>
+                  <p className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}>Annual Illness Rate</p>
                 </div>
-                <Linechart/>
+                <IllnessRate data={storedData.illnesses_rate}/>
               </div>
             </div>
             <div className={`flex w-full h-full p-4 bg-${selectedTheme}-50 rounded-lg`}>

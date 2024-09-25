@@ -15,7 +15,7 @@ const Pharmacy = () => {
   const [isProductAuditOpen, setIsProductAuditOpen] = useState(false);
   const productAuditRef = useRef(null);
   const [itemId, setItemId] = useState(null);
-  const { isLoading, error } = useQuery();
+  const { error } = useQuery();
 
   const { data: medicines, loading } = useSocket({ SSName: "sessionPharmacy", fetchUrl: "getPharmacyInventory", socketEmit: "updatePharmacy", socketUrl: "newPharmacy", socketError: "newPharmacyError" })
 

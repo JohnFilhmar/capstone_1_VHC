@@ -48,8 +48,6 @@ const DashIcon = ({ Icon, title, value, isLoading }) => {
 };
 
 const Dashboard = () => {
-  // eslint-disable-next-line no-unused-vars
-  const [selectedTheme, setSelectedTheme] = useContext(colorTheme);
   const { response, isLoading, fetchData } = useQuery();
   const [data, setData] = useState({
     patient_count: 0,
@@ -68,8 +66,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (response?.status === 200) {
+      localStorage.setItem('dashboardData', JSON.stringify(response.data));
       setData(response.data);
-      console.log(response.data.total_deliveries)
     }
   }, [response]);
   
@@ -88,7 +86,7 @@ const Dashboard = () => {
 
             </div>
 
-            <PatientChart title="Patient Frequency"/>
+            <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
             <DonorChart title="Most Frequent Donor"/>
             <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
 

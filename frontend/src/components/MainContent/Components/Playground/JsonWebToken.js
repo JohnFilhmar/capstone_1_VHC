@@ -14,9 +14,6 @@ const JsonWebToken = () => {
 
   const [messages, setMessages] = useState([{}]);
   const [message, setMessage] = useState('');
-  const [username, setusername] = useState('');
-  const [password, setpassword] = useState('');
-  const [receivedMessage, setReceivedMessage] = useState('');
   const { verifyToken } = useQuery();
 
   useEffect(() => {
@@ -25,7 +22,6 @@ const JsonWebToken = () => {
         ...prev,
         { text: data, sender: 'other'}
       ])
-      setReceivedMessage(data);
     });
     return () => socket.off('message');
   }, []);
@@ -41,13 +37,8 @@ const JsonWebToken = () => {
         ...prev,
         { text: message, sender: 'me' }
       ]);
-      setReceivedMessage('');
     } else {
-      setReceivedMessage('You are disconnected!');
       setMessage('');
-    }
-    if (socket.disconnected) {
-      setReceivedMessage('Socket is disconnected!');
     }
   };
 

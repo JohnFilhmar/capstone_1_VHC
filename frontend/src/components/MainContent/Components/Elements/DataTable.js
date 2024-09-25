@@ -9,6 +9,7 @@ import useIndexedDB from "../../../../hooks/useIndexedDb";
 const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { getAllItems } = useIndexedDB();
+  // eslint-disable-next-line no-unused-vars
   const [token, setToken] = useState(null);
   const [move, setMove] = useState(false);
   const [query, setQuery] = useState('');

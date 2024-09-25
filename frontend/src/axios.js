@@ -21,7 +21,6 @@ const createCancelToken = () => {
 
 const RefreshAccessToken = async (accessToken) => {
   const { updateItem } = useIndexedDB();
-  console.log(config);
   try {
     const decodedToken = jwtDecode(accessToken);
     const response = await axios.post(`${baseUrl}/authToken`, { username: decodedToken.username }, {

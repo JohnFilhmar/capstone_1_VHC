@@ -3,7 +3,6 @@ import { MdOutlineArrowLeft, MdOutlineArrowRight, MdPeople } from "react-icons/m
 import Header from "../../Header";
 import { colorTheme } from "../../../../App";
 import { useContext, useEffect, useRef, useState } from "react";
-import { IoMdAlert } from "react-icons/io";
 import useQuery from "../../../../hooks/useQuery";
 import AddToQueue from "./AddToQueue";
 import Attended from "./Attended";
@@ -20,7 +19,7 @@ const Queue = () => {
   const attendedRef = useRef(null);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [isAttendedOpen, setIsAttendedOpen] = useState(false);
-  const { response, isLoading, error, addData, editData, fetchData } = useQuery();
+  const { addData, editData } = useQuery();
   const [waiting, setWaiting] = useState([{}]);
   const displayedData = ['priority', 'emergency', 'serving'];
   const [viewStateIndex, setViewStateIndex] = useState(displayedData.indexOf('serving'));

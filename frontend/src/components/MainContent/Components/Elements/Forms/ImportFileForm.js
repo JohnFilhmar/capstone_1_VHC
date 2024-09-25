@@ -1,4 +1,4 @@
-import { Checkbox, Spinner } from 'flowbite-react';
+import { Spinner } from 'flowbite-react';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { colorTheme } from '../../../../../App';
 import useQuery from '../../../../../hooks/useQuery';

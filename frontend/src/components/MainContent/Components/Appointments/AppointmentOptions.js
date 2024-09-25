@@ -12,7 +12,7 @@ import useCurrentTime from "../../../../hooks/useCurrentTime";
 const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { mysqlTime } = useCurrentTime();
-  const { searchResults, response, isLoading, error, searchItems, editData, deleteData } = useQuery();
+  const { searchResults, response, isLoading, error, searchItems, deleteData } = useQuery();
   const [selectedAppointment, setSelectedAppointment] = useState({
     fullname: "",
     phoneNumber: "",
