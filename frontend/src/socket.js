@@ -1,14 +1,14 @@
 import { io } from 'socket.io-client';
 import config from './config';
 
-const URL = config.REACT_APP_PROJECT_STATE === 'production' ? config.REACT_APP_PRODUCTION_BACKEND_BASE_URL : window.location.hostname !== '192.168.1.2' ? 'https://localhost:5000' : 'https://192.168.1.2:5000';
+const URL = config.REACT_APP_PROJECT_STATE === 'production' ? config.REACT_APP_PRODUCTION_BACKEND_BASE_URL : config.REACT_APP_DEVELOPMENT_BACKEND_BASE_URL;
 
 const initializeSocket = () => {
   const socket = io(URL, {
     reconnection: true,
-    reconnectionDelay: 2000,
-    reconnectionDelayMax: 5000,
-    reconnectionAttempts: Infinity,
+    reconnectionDelay: 15000,
+    reconnectionDelayMax: 10000,
+    reconnectionAttempts: 20,
     secure: true,
     autoConnect: true,
   });

@@ -4,14 +4,9 @@ const config = require('../config');
 const routeAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const accessToken = authHeader && authHeader.split(' ')[1];
-  const refreshToken = req.cookies.refreshToken;
   if (!accessToken) {
     res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: true });
     return res.status(401).json({ message: "Access token is missing" });
-  }
-  if(!refreshToken) {
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: true });
-    return res.status(401).json({ message: "Refresh token is missing" });
   }
   jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {

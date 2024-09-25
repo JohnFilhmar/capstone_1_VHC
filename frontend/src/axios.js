@@ -3,11 +3,9 @@ import { jwtDecode } from 'jwt-decode';
 import useIndexedDB from './hooks/useIndexedDb';
 import config from './config';
 
-const baseUrl = config.REACT_APP_PROJECT_STATE === 'production' ? config.REACT_APP_PRODUCTION_BACKEND_BASE_URL : config.REACT_APP_DEVELOPMENT_BACKEND_BASE_URL;
+const baseUrl = config.REACT_APP_PROJECT_STATE === 'production' ? `${config.REACT_APP_PRODUCTION_BACKEND_BASE_URL}/api` : `${config.REACT_APP_DEVELOPMENT_BACKEND_BASE_URL}/api`;
 const api = axios.create({
-  baseURL: baseUrl,
-  withCredentials: true,
-  secure: true
+  baseURL: baseUrl
 });
 
 let cancelTokenSource = null;
@@ -47,8 +45,7 @@ api.interceptors.response.use(
         if (tokens && tokens.accessToken) {
           const { data } = await axios.post(`${baseUrl}/authToken`, { username: jwtDecode(tokens?.accessToken).username }, { 
             headers: { Authorization: `Bearer ${tokens?.accessToken}`},
-            withCredentials: true,
-            secure: true
+            withCredentials: true
           });
           originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
         }

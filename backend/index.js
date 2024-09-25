@@ -17,8 +17,8 @@ const app = express();
 const port = 5000;
 
 const corsOptions = {
-  origin: [config.ALLOWED_ORIGIN, 'https://localhost:3000', 'https://192.168.1.2:3000'],
-  methods: ['GET', 'POST'],
+  origin: [config.ALLOWED_ORIGIN],
+  methods: ['GET,POST,PUT,DELETE,OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 };

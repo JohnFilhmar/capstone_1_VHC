@@ -9,9 +9,9 @@ const PatientChart = ({ title, annual_patients, monthly_patients, daily_patients
   const [selectedTheme] = useContext(colorTheme);
 
   const periods = {
-    yearly: annual_patients.map(item => item.year),
-    monthly: monthly_patients.map(item => item.month),
-    daily: daily_patients.map(item => item.day_name),
+    yearly: annual_patients?.map(item => item.year) || [],
+    monthly: monthly_patients?.map(item => item.month) || [],
+    daily: daily_patients?.map(item => item.day_name) || [],
   };
 
   const [labels, setLabels] = useState(periods.yearly);
@@ -20,12 +20,13 @@ const PatientChart = ({ title, annual_patients, monthly_patients, daily_patients
   // Update the chart data based on the selected period
   useEffect(() => {
     const selectedPeriod = labels === periods.yearly
-      ? annual_patients.map(item => item.patient_count)
+      ? annual_patients?.map(item => item.patient_count)
       : labels === periods.monthly
-      ? monthly_patients.map(item => item.patient_count)
-      : daily_patients.map(item => item.patient_count);
+      ? monthly_patients?.map(item => item.patient_count)
+      : daily_patients?.map(item => item.patient_count);
 
     setChartData(selectedPeriod);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [labels, annual_patients, monthly_patients, daily_patients]);
 
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);

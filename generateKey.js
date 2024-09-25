@@ -1,4 +1,4 @@
 const crypto = require('crypto');
-const keyLengthBytes = 16;
+const keyLengthBytes = 50;
 const randomKey = crypto.randomBytes(keyLengthBytes).toString('hex');
 console.log(randomKey);
