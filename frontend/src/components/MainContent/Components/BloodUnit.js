@@ -10,12 +10,12 @@ const BloodUnit = () => {
   const records = [];
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div>
           <Header title={ title } icon={ <BiSolidDonateBlood /> } />
         </div>
-        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
+        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable data={records} modalForm={pathname} enImport={false} />
         </div>
       </div>

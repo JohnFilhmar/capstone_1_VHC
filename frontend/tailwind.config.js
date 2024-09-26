@@ -5,13 +5,13 @@ module.exports = {
     './components/**/*.js',
     'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}'
   ],
-  // safelist: [
-  //   {pattern: /(bg|text|border)-./},
-  //   {pattern: /(bg|text)-./, variants: ['hover','focus','active'] }
-  // ],
+  safelist: [
+    { pattern: /(bg|text|border)-./ },
+    { pattern: /(bg|text)-./, variants: ['hover', 'focus', 'active'] }
+  ],
   theme: {
     fontFamily: {
-      'table': ['Roboto', 'sans-serif'],
+      table: ['Roboto', 'sans-serif']
     },
     fontSize: {
       xxs: ['10px', '16px'],
@@ -21,12 +21,9 @@ module.exports = {
       lg: ['20px', '28px'],
       xl: ['24px', '32px'],
       '2xl': ['26px', '34px'],
-      '3xl': ['28px', '36px'],
+      '3xl': ['28px', '36px']
     },
-    extend: {},
+    extend: {}
   },
-  plugins: [
-    require('flowbite/plugin'),
-    require('tailwindcss-animated'),
-  ]
-}
+  plugins: [require('flowbite/plugin'), require('tailwindcss-animated')]
+};

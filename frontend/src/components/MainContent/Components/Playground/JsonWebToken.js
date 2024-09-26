@@ -43,12 +43,12 @@ const JsonWebToken = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div>
           <Header title={title} icon={<MdOutlineSmartToy />} />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 p-2 mt-2">
+        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className={`flex flex-col gap-3 justify-center items-center p-4 bg-${selectedTheme}-300 rounded-lg`}>
             <h1 className="text-lg md:text-xl lg:text-2xl">Socket.io with JWT Authentication</h1>
             <h1 className="text-lg md:text-xl lg:text-2xl flex items-center justify-center gap-2">Socket Status <span className={`rounded-full size-2 md:size-3 lg:size-4 ${socket.disconnected ? 'bg-red-500' : 'bg-green-500'}`}></span></h1>

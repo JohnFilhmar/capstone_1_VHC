@@ -37,7 +37,7 @@ const Records = () => {
         <div onClick={() => socket.emit("updateRecords")}>
           <Header title={ title } icon={ <MdFolder /> }/>
         </div>
-        <div className="min-h-full h-full overflow-y-auto scroll-smooth p-2 mt-2 mb-52">
+        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable data={records} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} error={error} enImport={true} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} enExport={false} />
         </div>
       </div>

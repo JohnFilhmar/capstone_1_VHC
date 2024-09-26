@@ -161,12 +161,12 @@ const Appointments = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div onClick={() => socket.emit("updateAppointment")}>
           <Header title={ title } icon={<IoCalendar />}/>
         </div>
-        <div className="min-h-screen h-screen overflow-y-auto scroll-smooth p-2 mt-2 pb-52">
+        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col justify-start gap-3">
 
             <div className={`flex flex-col bg-${selectedTheme}-50 rounded-md drop-shadow-md text-xs md:text-sm lg:text-base w-full h-auto`}>
