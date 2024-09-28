@@ -18,13 +18,14 @@ import JsonWebToken from "./components/MainContent/Components/Playground/JsonWeb
 import Problems from "./components/MainContent/Components/Playground/Problems.js";
 import Equipments from "./components/MainContent/Components/Equipments/Equipments.js";
 import Login from "./components/Login.js";
-import Register from "./components/Register.js";
+// import Register from "./components/Register.js";
 
 import { socket } from "./socket.js";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import useIndexedDB from "./hooks/useIndexedDb.js";
 import api from "./axios.js";
 import { Spinner } from "flowbite-react";
+import Register from "./components/Register.js";
 
 export const colorTheme = createContext();
 export const messaging = createContext();

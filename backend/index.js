@@ -1,4 +1,4 @@
-const https = require('https');
+const http = require('http');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -28,10 +28,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
-const serverOptions = {
-  key: fs.readFileSync(path.join(__dirname, 'certificates', 'key.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'certificates', 'cert.pem')),
-};
+// const serverOptions = {
+//   key: fs.readFileSync(path.join(__dirname, 'certificates', 'key.pem')),
+//   cert: fs.readFileSync(path.join(__dirname, 'certificates', 'cert.pem')),
+// };
 app.use(express.static('public'));
 
 app.use('/api/authStaff', authController.authStaff);
@@ -39,13 +39,13 @@ app.use('/api/authToken', authController.authToken);
 app.post('/api/sendEmail', emailController.sendEmail);
 app.use('/api', routeAuth, roleAuth, routes);
 
-const server = https.createServer(serverOptions, app);
-// const server = https.createServer(app);
+// const server = https.createServer(serverOptions, app);
+const server = http.createServer(app);
 
 initializeWebSocket(server);
 
 server.listen(port, () => {
-  console.log(`Server is running on port https://localhost:${port} or https://192.168.1.2:${port}`);
+  console.log(`Server is running on port https://localhost:${port}`);
 });
 
 module.exports = app;

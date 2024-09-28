@@ -23,7 +23,7 @@ const CitizenForm = ({ userData }) => {
         ? JSON.parse(sessionStorage.getItem('clinicForm')) 
         : {};
       const updatedClinicForm = {
-        citizen_family_id: userData.citizen_family_id,
+        citizen_family_id: userData?.citizen_family_id,
         ...oldClinicForm,
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
@@ -41,8 +41,8 @@ const CitizenForm = ({ userData }) => {
       </div>
       <SocialHistory selectedTheme={selectedTheme}/>
       <PhysicalExamination selectedTheme={selectedTheme}/>
-      <MenstrualHistory selectedTheme={selectedTheme} gender={userData.citizen_gender}/>
-      <PregnancyHistory selectedTheme={selectedTheme} gender={userData.citizen_gender}/>
+      <MenstrualHistory selectedTheme={selectedTheme} gender={userData?.citizen_gender}/>
+      <PregnancyHistory selectedTheme={selectedTheme} gender={userData?.citizen_gender}/>
       <DiagnosisPlan selectedTheme={selectedTheme}/>
       <Prescriptions selectedTheme={selectedTheme}/>
     </div>

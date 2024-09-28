@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { colorTheme } from "../../../../App";
 import { MdClose, MdPeople } from "react-icons/md";
 import { Checkbox, Label, Radio, Spinner } from "flowbite-react";
@@ -18,6 +18,7 @@ const AddToQueue = ({ ATref, ATonClick }) => {
   const [gender, setGender] = useState('');
   const [status, setStatus] = useState('waiting');
   const [isChecked, setIsChecked] = useState(true);
+  const nameInputRef = useRef(null);
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -37,6 +38,9 @@ const AddToQueue = ({ ATref, ATonClick }) => {
       const time = setTimeout(() => {
         socket.emit("updateQueue", {dateTime: String(mysqlTime)});
       },500);
+      setName('');
+      if (!isChecked) ATonClick();
+      nameInputRef.current.focus();
       return () => clearTimeout(time);
     } catch (error) {
       console.log(error);
@@ -44,27 +48,54 @@ const AddToQueue = ({ ATref, ATonClick }) => {
     setName('');
   };
 
-  const handleEnter = async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      postData('/findCitizen', {name: name});
-    }
-  }
+  // function handleCitizenSearch(e) {
+  //   if (e.key === 'Enter') {
+  //     e.preventDefault();
+  //     if (name.length > 3) {
+  //       postData('/findCitizen', {name: name});
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
-    if (response?.status === 200) {
-      setName(response.citizen?.full_name || '');
-      setBarangay(response.citizen?.citizen_barangay || '');
-      setGender(response.citizen?.citizen_gender || '');
+    if (name.length > 3 && !barangay) {
+      const time = setTimeout(() => {
+        postData('/findCitizen', {name: name});
+      }, 1000);
+      return () => clearTimeout(time);
     }
-  }, [response]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name]);
 
   useEffect(() => {
+    if (name.length > 3 && !barangay) {
+      const time = setTimeout(() => {
+        postData('/findCitizen', { name: name });
+      }, 500);
+      return () => clearTimeout(time);
+    }
     if (name.length === 0) {
       setBarangay('');
       setGender('');
+      setSuggestions([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
+
+  useEffect(() => {
+    if (response?.status === 200) {
+      if (response && response?.citizen?.length === 1) {
+        const citizen = response.citizen[0];
+        setName(citizen.full_name);
+        setBarangay(citizen.citizen_barangay);
+        setGender(citizen.citizen_gender);
+      } else if (response?.citizen?.length > 1) {
+        setSuggestions(response.citizen);
+      } else {
+        setSuggestions([]);
+      }
+    }
+  }, [response]);
   
   return (
     <dialog ref={ATref} className={`rounded-lg bg-gray-100 drop-shadow-lg w-80 md:w-[500px] lg:w-[600px]`}>
@@ -92,21 +123,21 @@ const AddToQueue = ({ ATref, ATonClick }) => {
               type="text" 
               name="name" 
               id="name" 
-              value={name} 
+              value={name}
+              ref={nameInputRef}
               onChange={(e) => {
                 const alphabetsOnly = /^[a-zA-Z\s]*$/;
                 if (alphabetsOnly.test(e.target.value)) setName(e.target.value);
               }} 
+              // onKeyDown={handleCitizenSearch}
               className={`text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-50 border-transparent focus:ring-0 focus:border-transparent`}
               autoComplete="off"
-              onBlur={() => setSuggestions([])}
-              onKeyDown={handleEnter}
               list="nameResults"
               placeholder="Type your name then press ENTER to search the records"
             />
             <datalist id="nameResults">
               {suggestions && suggestions.slice(0, 5).map((name, index) => (
-                <option key={index} value={name} />
+                <option key={index} value={name.full_name} />
               ))}
             </datalist>
           </div>

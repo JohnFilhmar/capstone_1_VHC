@@ -30,20 +30,14 @@ class AppointmentController {
     try {
 
       connection = await dbModel.getConnection();
-      const { fullName, appointedTime, description, dateTime, staff_id } = req.body;
-      const firstName = fullName.split(' ')[0];
-      const lastName = fullName.split(' ')[1];
-      const getCitizenQuery = "SELECT `citizen_family_id`, `citizen_number` FROM `citizen` WHERE `citizen_firstname` LIKE ? OR `citizen_lastname` LIKE ?";
-      const [citizen] = await dbModel.query(getCitizenQuery, [firstName, lastName]);
-
-      if (!citizen) return res.status(404).json({ status: 404, message: 'Citizen not found!' });
+      const { appointedTime, description, dateTime, staff_id, citizen_family_id } = req.body;
 
       const insertAppointmentQuery = "INSERT INTO `citizen_appointments` (`citizen_family_id`, `description`, `appointed_datetime`, `status`, `created_at`) VALUES (?, ?, ?, ?, ?)";
-      const insertAppointmentResponse = await dbModel.query(insertAppointmentQuery, [citizen.citizen_family_id, description, appointedTime, 'pending', dateTime]);
+      const insertAppointmentResponse = await dbModel.query(insertAppointmentQuery, [citizen_family_id, description, appointedTime, 'pending', dateTime]);
 
       if (insertAppointmentResponse.affectedRows > 0) {
         const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
-        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [citizen.citizen_family_id, 'appointment', 'requested for an appointment', staff_id, dateTime]);
+        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [citizen_family_id, 'appointment', 'requested for an appointment', staff_id, dateTime]);
         if (insertHistoryResponse.affectedRows > 0) {
           return res.status(200).json({ status: 200, message: "Appointment Successfully Created!" });
         }

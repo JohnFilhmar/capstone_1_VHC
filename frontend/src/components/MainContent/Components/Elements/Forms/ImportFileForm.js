@@ -36,7 +36,7 @@ const ImportFileForm = ({ close, children, tableName }) => {
         setData(jsonData);
       });
     };
-    reader.readAsBinaryString(file);
+    file && reader.readAsBinaryString(file);
   };
 
   const handleSubmit = async (e) => {

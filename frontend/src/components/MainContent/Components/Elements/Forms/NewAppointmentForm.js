@@ -13,6 +13,8 @@ const NewAppointmentForm = ({ close, children }) => {
   const [description, setDescription] = useState("");
   const [appointment, setAppointment] = useState("");
   const [errorPrompt, setErrorPrompt] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [famId, setFamId] = useState('');
   const { mysqlTime } = useCurrentTime();
   const { response, isLoading, addData, postData } = useQuery();
 
@@ -37,7 +39,6 @@ const NewAppointmentForm = ({ close, children }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const payload = {
-      fullName: fullname,
       appointedTime: appointment,
       description: description,
       dateTime: mysqlTime,
@@ -48,7 +49,8 @@ const NewAppointmentForm = ({ close, children }) => {
         const convertedPayload = {
             ...payload,
             staff_id: res.data.staff_id,
-            appointedTime: convertToMySQLDateTime(payload.appointedTime)
+            appointedTime: convertToMySQLDateTime(payload.appointedTime),
+            citizen_family_id: famId
         };
         if (new Date(appointment) > new Date()) {
           addData("newAppointment", convertedPayload);
@@ -93,24 +95,34 @@ const NewAppointmentForm = ({ close, children }) => {
     }
   };
 
-  const handleEnter = async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      postData('/findCitizen', {name: fullname});
-    }
-  }
-
   useEffect(() => {
-    if (response?.status === 200) {
-      setFullname(response?.citizen?.full_name || '');
-      setPhoneNumber(response?.citizen?.citizen_number || '');
+    if (fullname.length > 3) {
+      const time = setTimeout(() => {
+        postData('/findCitizen', {name: fullname});
+      }, 1000);
+      return () => clearTimeout(time);
     }
-  }, [response]);
-  useEffect(() => {
     if (fullname.length === 0) {
       setPhoneNumber('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullname]);
+  
+  useEffect(() => {
+    if (response?.status === 200) {
+      if (response && response?.citizen?.length === 1) {
+        const citizen = response.citizen[0];
+        setFullname(citizen.full_name);
+        setPhoneNumber(citizen.citizen_number);
+        setFamId(citizen.citizen_family_id);
+      } else if (response?.citizen?.length > 1) {
+        setSuggestions(response.citizen);
+      } else {
+        setSuggestions([]);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
   
   return (
     <>
@@ -120,19 +132,23 @@ const NewAppointmentForm = ({ close, children }) => {
           <div>
             <label htmlFor={'fullname'} className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>{'Name'}:<span className="text-red-600 font-bold">*</span></label>
             <input
-                type="text"
-                name={'fullname'}
-                id={'fullname'}
-                list="recordSuggestions"
-                required
-                value={fullname}
-                onChange={handleNameChange}
-                autoComplete="off"
-                className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-                placeholder="Type your name then press ENTER to search the records"
-                maxLength={100}
-                onKeyDown={handleEnter}
-              />
+              type="text"
+              name={'fullname'}
+              id={'fullname'}
+              list="recordSuggestions"
+              required
+              value={fullname}
+              onChange={handleNameChange}
+              autoComplete="off"
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              placeholder="Type your name then press ENTER to search the records"
+              maxLength={100}
+            />
+            <datalist id="recordSuggestions">
+              {suggestions.map((name, i) => (
+                <option key={i} value={name.full_name}/>
+              ))}
+            </datalist>
           </div>
           <div>
             <label htmlFor="phoneNumber" className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>Contact Number:</label>
@@ -144,10 +160,11 @@ const NewAppointmentForm = ({ close, children }) => {
                 autoComplete="off"
                 value={phoneNumber}
                 onChange={handleNumberChange}
+                placeholder="Enter patient's number to contact..."
                 className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
                 maxLength={12}
                 minLength={11}
-                disabled={true}
+                disabled={phoneNumber?.length > 10}
               />
             </div>
           </div>

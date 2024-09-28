@@ -43,13 +43,17 @@ api.interceptors.response.use(
       try {
         const tokens = await getAllItems('tokens');
         if (tokens && tokens.accessToken) {
-          const { data } = await axios.post(`${baseUrl}/authToken`, { username: jwtDecode(tokens?.accessToken).username }, { 
-            headers: { Authorization: `Bearer ${tokens?.accessToken}`},
-            withCredentials: true
-          });
-          originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+          const exp = jwtDecode(tokens?.accessToken).exp;
+          const curr = Math.floor(Date.now() / 1000);
+          if (exp < curr) {
+            const { data } = await axios.post(`${baseUrl}/authToken`, { username: jwtDecode(tokens?.accessToken).username }, { 
+              headers: { Authorization: `Bearer ${tokens?.accessToken}`},
+              withCredentials: true
+            });
+            originalRequest.headers['Authorization'] = `Bearer ${data.accessToken}`;
+          }
         }
-        return axios(originalRequest);  
+        return axios(originalRequest);
       } catch (err) {
         return Promise.reject(err);
       }

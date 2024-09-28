@@ -7,7 +7,11 @@ class Database {
       host: config.PROJECT_STATE === 'production' ? config.MYSQL_HOST : 'localhost',
       user: config.PROJECT_STATE === 'production' ? config.MYSQL_USER : 'root',
       password: config.PROJECT_STATE === 'production' ? config.MYSQL_PASS : '',
-      database: config.PROJECT_STATE === 'production' ? config.MYSQL_DATABASE : 'capstone'
+      database: config.PROJECT_STATE === 'production' ? config.MYSQL_DATABASE : 'capstone',
+      port: 3306,
+      ssl: {
+        rejectUnauthorized: true
+      }
     });
   }
 

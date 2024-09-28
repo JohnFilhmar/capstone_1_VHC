@@ -22,9 +22,14 @@ class AuthController {
   
       if (username === developer.username && password === developer.password) {
         const user = { username: developer.username, role: "developer" };
-        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET);
-        const refreshToken = jwt.sign(user, config.REFRESH_TOKEN_SECRET);
-        return res.status(200).json({ accessToken, refreshToken, message: "Welcome back Mr. Developer!" });
+        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET, {expiresIn: '1d'});
+        const refreshToken = jwt.sign(user, config.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
+        res.cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'Strict'
+        });
+        return res.status(200).json({ accessToken, message: "Welcome back Mr. Developer!" });
       }
   
       const userQuery = "SELECT `staff_id`, `username`, `password`, `role`, `isVerified` FROM `medicalstaff` WHERE `username` = ?";
@@ -101,6 +106,7 @@ class AuthController {
 
       const [user] = await dbModel.query('SELECT `refresh_token` FROM `medicalstaff` WHERE `username` = ?', [username]);
       if (!user || refreshToken !== user.refresh_token) {
+        res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
         return res.status(401).json({ status: 401, message: "Unauthorized or malformed token!" });
       }
   

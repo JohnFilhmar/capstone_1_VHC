@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiMedicineBottleFill } from "react-icons/ri";
 import api from "../../../../../axios";
+import { prescriptionContext } from "../RecordAudit";
 
 const Prescriptions = ({ selectedTheme }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -9,7 +10,8 @@ const Prescriptions = ({ selectedTheme }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [itemName, setItemName] = useState('');
   const [itemId, setItemId] = useState('');
-  const [medicinePrescriptions, setMedicinePrescriptions] = useState([]);
+  const [contType, setContType] = useState('bxs');
+  const [medicinePrescriptions, setMedicinePrescriptions] = useContext(prescriptionContext);
   const [prescriptions, setPrescriptions] = useState({
     dosage: '',
     intake_method: 'oral',
@@ -20,21 +22,28 @@ const Prescriptions = ({ selectedTheme }) => {
     quantity_prescribed: ''
   });
 
-  async function handleFindMedicine(e) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      try {
-        const res = await api.post(`/findMedicine`, { medicine });
-        if (res?.status === 200) {
-          if ((res.data.medicine).length === 1) {
-            setMedicine(res.data.medicine[0].item_name)
-          } else {
-            setSuggestions(res.data.medicine);
-          }
+  useEffect(() => {
+    if (medicine.length > 3) {
+      const time = setTimeout(() => {
+        handleFindMedicine(medicine);
+      }, 1000);
+      return () => clearTimeout(time);
+    }
+  }, [medicine]);
+
+  async function handleFindMedicine(medicine) {
+    try {
+      const res = await api.post(`/findMedicine`, { medicine });
+      if (res?.status === 200) {
+        if ((res.data.medicine).length === 1) {
+          setMedicine(res.data?.medicine[0].item_name);
+          setItemId(res.data?.medicine[0].item_id);
+        } else {
+          setSuggestions(res.data.medicine);
         }
-      } catch (error) {
-        console.error(error)
       }
+    } catch (error) {
+      console.error(error)
     }
   };
 
@@ -70,6 +79,7 @@ const Prescriptions = ({ selectedTheme }) => {
       // console.log(suggestions.filter(prev => prev.item_name === medicine)[0].item_id);
       setItemId(suggestions.filter(prev => prev.item_name === medicine)[0].item_id);
       setItemName(suggestions.filter(prev => prev.item_name === medicine)[0].item_name);
+      setContType(suggestions.filter(prev => prev.item_name === medicine)[0].container_type);
       setSuggestions([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,7 +99,6 @@ const Prescriptions = ({ selectedTheme }) => {
     return () => clearTimeout(time);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicinePrescriptions]);
-  
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
@@ -110,8 +119,8 @@ const Prescriptions = ({ selectedTheme }) => {
         <div className="flex justify-start items-center gap-3 w-full">
           <p className={`text-${selectedTheme}-600 font-bold p-2`}>Prescribed Medicines:</p>
           {medicinePrescriptions.length === 0 && (
-            <div className={`flex justify-between items-center divide-x-[1px] bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md rounded-md`}>
-              <p className="grow p-1 px-2">Add new prescribed medicine...</p>
+            <div className={`flex justify-between items-center divide-x-[1px] bg-${selectedTheme}-200 animate-pulse text-${selectedTheme}-600 drop-shadow-md rounded-md`}>
+              <p className="grow p-1 px-2 font-bold">Add new prescribed medicine...</p>
             </div>
           )}
           {medicinePrescriptions.map((mp, i) => (
@@ -132,7 +141,11 @@ const Prescriptions = ({ selectedTheme }) => {
               onChange={(e) => setMedicine(e.target.value)}
               placeholder="Type the medicine and press 'Enter'. . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-              onKeyDown={handleFindMedicine}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleFindMedicine(e.target.value);
+                }
+              }}
               list="suggestedMedicines"
               autoComplete="off"
             />
@@ -143,11 +156,14 @@ const Prescriptions = ({ selectedTheme }) => {
             </datalist>
           </div>
           <div className="p-2">
-            <label htmlFor="dosage" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Dosage:</label>
+            <label htmlFor="dosage" className={`block mb-2 text-${selectedTheme}-600 font-semibold flex`}>
+              Dosage:
+            </label>
             <input
               type="text"
               id="dosage"
               name="dosage"
+              disabled={!itemId}
               value={prescriptions.dosage}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, dosage: e.target.value }))}
               placeholder="Enter the dosage instructions for the medicine. . . ."
@@ -159,6 +175,7 @@ const Prescriptions = ({ selectedTheme }) => {
             <select 
               id="intake_method" 
               className="rounded-lg text-xs md:text-sm lg:text-base w-full"
+              disabled={!itemId}
               value={prescriptions.intake_method}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, intake_method: e.target.value }))}
             >
@@ -176,6 +193,7 @@ const Prescriptions = ({ selectedTheme }) => {
               type="text"
               id="frequency"
               name="frequency"
+              disabled={!itemId}
               value={prescriptions.frequency}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, frequency: e.target.value }))}
               placeholder="Describe frequency intake of medicine. . . ."
@@ -188,6 +206,7 @@ const Prescriptions = ({ selectedTheme }) => {
               type="text"
               id="duration"
               name="duration"
+              disabled={!itemId}
               value={prescriptions.duration}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, duration: e.target.value }))}
               placeholder="Duration, length or span of medicine intake. . . ."
@@ -200,6 +219,7 @@ const Prescriptions = ({ selectedTheme }) => {
           <textarea
             name="instructions" 
             id="instructions" 
+            disabled={!itemId}
             value={prescriptions.instructions}
             onChange={(e) => setPrescriptions(prev => ({ ...prev, instructions: e.target.value }))}
             placeholder="Enter the tests conducted on the patient. . . . ."
@@ -216,6 +236,7 @@ const Prescriptions = ({ selectedTheme }) => {
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
                 <input
                   type="checkbox"
+                  disabled={!itemId}
                   checked={prescriptions.refill_allowed}
                   onChange={() => setPrescriptions(prev => ({ ...prev, refill_allowed: !prev.refill_allowed }))}
                   className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
@@ -227,6 +248,7 @@ const Prescriptions = ({ selectedTheme }) => {
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
                 <input
                   type="checkbox"
+                  disabled={!itemId}
                   checked={!prescriptions.refill_allowed}
                   onChange={() => setPrescriptions(prev => ({ ...prev, refill_allowed: !prev.refill_allowed }))}
                   className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
@@ -239,18 +261,28 @@ const Prescriptions = ({ selectedTheme }) => {
           </div>
           <div className="p-2">
             <label htmlFor="quantity_prescribed" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Quantity Prescribed:</label>
-            <input
-              type="number"
-              id="quantity_prescribed"
-              name="quantity_prescribed"
-              value={prescriptions.quantity_prescribed}
-              onChange={(e) => setPrescriptions(prev => ({ ...prev, quantity_prescribed: e.target.value }))}
-              placeholder="Quantity of the prescribed medicine. . . ."
-              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-            />
+            <div className="flex gap-1 items-center justify-between">
+              <input
+                type="text"
+                id="quantity_prescribed"
+                name="quantity_prescribed"
+                disabled={!itemId}
+                value={prescriptions.quantity_prescribed}
+                onChange={(e) => {
+                  const input = e.target.value;
+                  if (/^\d*$/.test(input)) {
+                    setPrescriptions(prev => ({ ...prev, quantity_prescribed: `${input}` }));
+                  }
+                }}
+                placeholder={`Quantity of the prescribed medicine (${contType}) . . .`}
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+              />
+              <p className="p-1 font-bold">{contType}</p>
+            </div>
           </div>
         </div>
-        <button disabled={!itemId} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines and Create New Medicine Prescription</button>
+        <button
+          disabled={!itemId || !prescriptions.dosage || !prescriptions.intake_method || !prescriptions.frequency || !prescriptions.duration || !prescriptions.instructions || !prescriptions.quantity_prescribed} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines and Create New Medicine Prescription</button>
       </div>
     </div>
   );

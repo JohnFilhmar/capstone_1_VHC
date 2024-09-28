@@ -33,13 +33,14 @@ const NewAccountForm = ({ close, children }) => {
       current_datetime: String(mysqlTime)
     }));
   }
-
+  
   useEffect(() => {
     if (payload.password !== repassword) {
       setIsWarningShown(true);
       setWarning("Password does not match!");
     } else {
-      setIsWarningShown(false);
+      validatePasswordStrength(payload.password);
+      validatePasswordStrength(repassword);
     }
   }, [payload.password, repassword]);
 
@@ -66,6 +67,28 @@ const NewAccountForm = ({ close, children }) => {
     return () => {
       clearTimeout(time);
     };
+  }
+  
+  function validatePasswordStrength(password) {
+    const missingConditions = [];
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isValidLength = password.length >= 8;
+    if (hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar && isValidLength) {
+      setIsWarningShown(false);
+      return true;
+    } else {
+      if (!hasUpperCase) missingConditions.push("an uppercase letter");
+      if (!hasLowerCase) missingConditions.push("a lowercase letter");
+      if (!hasNumber) missingConditions.push("a number");
+      if (!hasSpecialChar) missingConditions.push("a special character");
+      if (!isValidLength) missingConditions.push("at least 8 characters in length");
+      setWarning(`Password must contain: ${missingConditions.join(", ")}.`);
+      setIsWarningShown(true);
+    }
+    return false;
   }
   
   return (
@@ -144,17 +167,6 @@ const NewAccountForm = ({ close, children }) => {
             />
             <Label htmlFor="user">Staff</Label>
           </div>
-          <div className="flex items-center gap-2">
-            <Radio
-              id="admin"
-              name="role"
-              value="admin"
-              className='text-xs md:text-sm lg:text-base'
-              checked={payload.role === 'admin'}
-              onChange={handleChange}
-            />
-            <Label htmlFor="admin">Admin</Label>
-          </div>
         </fieldset>
         <div>
           <div className="mb-2 block">
@@ -174,7 +186,7 @@ const NewAccountForm = ({ close, children }) => {
             autoComplete="off"
           />
         </div>
-        <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? 'Add New Record' : <Spinner/>}</p></button>
+        <button disabled={isLoading || isWarningShown} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading && !isWarningShown ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner hover:cursor-not-allowed` }`}><p className="drop-shadow-lg">{isWarningShown ? 'Invalid Password' : !isLoading ? 'Add New Record' : <Spinner/>}</p></button>
       </form>
     </>
   );

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import useCurrentTime from "./useCurrentTime";
@@ -38,13 +37,15 @@ const useSocket = ({ socketUrl, socketEmit, socketError }) => {
       setSockError(error);
       console.error('Error retrieving data:', error);
     });
-    setTimeout(() => {
+    const time = setTimeout(() => {
       socket.emit(socketEmit, {dateTime: String(mysqlTime)});
-    },500)
+    },500);
     return () => {
+      clearTimeout(time);
       socket.off(socketUrl);
       socket.off(socketError);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { data, SockError, loading }

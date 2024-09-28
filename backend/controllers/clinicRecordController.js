@@ -6,10 +6,10 @@ class ClinicRecordController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const { citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, vital_signs, isPediatric, pediatric_client, chief_of_complaint, history_of_present_illness,past_medical_history, family_medical_history, smoking_status, alcohol_status, illicit_drug_status, sexually_active, physical_examination, menstrual_history, isMenstrual, pregnancy_history, isPregnancy, diagnosis_plan, prescriptions, staff_id, dateTime } = req.body;
+      const { citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, vital_signs, isPediatric, pediatric_client, chief_of_complaint, history_of_present_illness,past_medical_history, family_medical_history, smoking_status, alcohol_status, illicit_drug_status, sexually_active, physical_examination, menstrual_history, isMenstrual, pregnancy_history, isPregnancy, diagnosis_plan, prescriptions, staff_id, dateTime, contact_number } = req.body;
       
-      const insertClinicRecordQuery = "INSERT INTO `citizen_clinical_record`(`staff_id`, `citizen_family_id`, `civil_status`, `philhealth_number`, `philhealth_dpin`, `philhealth_category`, `chief_of_complaint`, `history_of_present_illness`, `smoking_status`, `alcohol_status`, `illicit_drug_status`, `sexually_active`, `datetime_issued`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      const insertCitizenRecordPayload = [staff_id, citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, chief_of_complaint, history_of_present_illness, smoking_status, alcohol_status, illicit_drug_status, sexually_active, dateTime]
+      const insertClinicRecordQuery = "INSERT INTO `citizen_clinical_record`(`staff_id`, `citizen_family_id`, `civil_status`, `philhealth_number`, `philhealth_dpin`, `philhealth_category`, `chief_of_complaint`, `history_of_present_illness`, `smoking_status`, `alcohol_status`, `illicit_drug_status`, `sexually_active`, `datetime_issued`, `contact_number`) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const insertCitizenRecordPayload = [staff_id, citizen_family_id, civil_status, philhealth_number, philhealth_dpin, philhealth_category, chief_of_complaint, history_of_present_illness, smoking_status, alcohol_status, illicit_drug_status, sexually_active, dateTime, contact_number]
       const insertClinicRecordResponse = await dbModel.query(insertClinicRecordQuery, insertCitizenRecordPayload);
 
       const record_id = insertClinicRecordResponse.insertId;
@@ -81,6 +81,10 @@ class ClinicRecordController {
         const insertPrescriptionsQuery = "INSERT INTO `ccr_prescriptions` (`record_id`, `item_id`, `dosage`, `intake_method`, `frequency`, `duration`, `instructions`, `refill_allowed`, `quantity_prescribed`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const insertPrescriptionsPayload = [record_id, item_id, dosage, intake_method, frequency, duration, instructions, refill_allowed, quantity_prescribed];
         await dbModel.query(insertPrescriptionsQuery, insertPrescriptionsPayload);
+
+        const [foundItem] = await dbModel.query("SELECT `quantity` FROM `pharmacy_inventory` WHERE `item_id` = ?", [item_id]);
+        const newQuantity = parseInt(foundItem.quantity) - quantity_prescribed;
+        dbModel.query("UPDATE `pharmacy_inventory` SET `quantity` = ? WHERE `item_id` = ?;", [newQuantity, item_id]);
         
       }
 

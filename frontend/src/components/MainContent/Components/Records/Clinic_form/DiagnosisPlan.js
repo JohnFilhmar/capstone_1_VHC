@@ -110,6 +110,8 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               placeholder="Enter your primary diagnosis for the patient. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               rows={4}
+              value={diagnosisPlan.primary_diagnosis}
+              onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, primary_diagnosis: e.target.value }))}
             />
           </div>
           <div className="p-2">
@@ -120,6 +122,8 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               placeholder="Enter your secondary diagnosis for the patient. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               rows={4}
+              value={diagnosisPlan.secondary_diagnosis}
+              onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, secondary_diagnosis: e.target.value }))}
             />
           </div>
         </div>

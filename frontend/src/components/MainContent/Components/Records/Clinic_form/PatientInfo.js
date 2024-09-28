@@ -9,6 +9,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
   const [philhealthStatusType, setPhilhealthStatusType] = useState('dependent');
   const [dpin, setDpin] = useState('');
   const [phCategory, setPhCategory] = useState('');
+  const [contactNumber, setContactNumber] = useState(userData?.citizen_number || '');
   const [vitalSigns, setVitalSigns] = useState({
     blood_pressure: '120/80 mmHg',      // Normal BP
     temperature: '98.6°F',              // Normal Temperature
@@ -47,7 +48,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
   };
   const formatBirthdate = () => {
     if (!userData?.citizen_birthdate) return '';
-    const date = new Date(userData.citizen_birthdate);
+    const date = new Date(userData?.citizen_birthdate);
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
@@ -79,7 +80,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
   }, [phNumber]);
 
   useEffect(() => {
-    const age = getAge(userData.citizen_birthdate);
+    const age = getAge(userData?.citizen_birthdate);
     if (age < 2) {
       setPediatricClient({
         length: '70-90 cm',     // Length range for 1–2 years old
@@ -119,7 +120,8 @@ const PatientInfo = ({ selectedTheme, userData }) => {
         philhealth_category: phCategory,
         vital_signs: vitalSigns,
         pediatric_client: pediatricClient,
-        isPediatric: isPediatric
+        isPediatric: isPediatric,
+        contact_number: contactNumber
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
     }, 1000);
@@ -132,7 +134,8 @@ const PatientInfo = ({ selectedTheme, userData }) => {
     phCategory,
     vitalSigns,
     pediatricClient,
-    isPediatric
+    isPediatric,
+    contactNumber
   ]);
 
   const convertHeightToMeters = (height) => {
@@ -193,7 +196,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="fullname"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              value={userData.full_name}
+              value={userData?.full_name}
               disabled
             />
           </div>
@@ -205,7 +208,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="barangay"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              value={userData.citizen_barangay}
+              value={userData?.citizen_barangay}
               disabled
             />
           </div>
@@ -219,7 +222,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="age"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               required
-              value={getAge(userData.citizen_birthdate)}
+              value={getAge(userData?.citizen_birthdate)}
               disabled
             />
           </div>
@@ -231,7 +234,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="sex"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               required
-              value={(userData.citizen_gender).charAt(0).toUpperCase() + (userData.citizen_gender).slice(1)}
+              value={userData && (userData?.citizen_gender).charAt(0).toUpperCase() + (userData?.citizen_gender).slice(1)}
               disabled
             />
           </div>
@@ -343,8 +346,9 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 id="contactnumber"
                 name="contactnumber"
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-                value={userData.citizen_number}
-                disabled
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                disabled={userData?.citizen_number}
               />
             </div>
           </div>

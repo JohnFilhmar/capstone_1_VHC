@@ -55,8 +55,14 @@ const TopNav = () => {
   } = useNavigationState();
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
 
+  const playNotificationSound = () => {
+    const audio = new Audio('notif_sound.mp3');
+    audio.play();
+  };
+
   useEffect(() => {
     if (notifMessage) {
+      playNotificationSound();
       popupNotif.current.show();
       setTimeout(() => {
         popupNotif.current.close();

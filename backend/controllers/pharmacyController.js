@@ -144,9 +144,11 @@ class PharmacyController {
       
       const searchTerms = (req.body.medicine).split(' ');
       const getMedicineQuery = `
-        SELECT item_id, item_name 
+        SELECT item_id, item_name, container_type 
         FROM pharmacy_inventory 
-        WHERE ${searchTerms.map(() => "`item_name` LIKE CONCAT('%', ?, '%')").join(' AND ')}`;
+        WHERE
+        ${searchTerms.map(() => "`item_name` LIKE CONCAT('%', ?, '%')").join(' OR ')} 
+        AND quantity > 0 `;
       const getMedicineResponse = await dbModel.query(getMedicineQuery, searchTerms);
 
       if (!getMedicineResponse) return res.status(404).json({ status: 404, message: "Medicine not found!" });

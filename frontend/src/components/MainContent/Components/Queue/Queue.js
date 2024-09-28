@@ -132,15 +132,15 @@ const Queue = () => {
         <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex items-center justify-end gap-3 m-1 my-2">
             {role && (role !== 'user') && (
-              <button onClick={toggleAttended} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
+              <button key={0} onClick={toggleAttended} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
                 Attended
               </button>
             )}
-            <button onClick={toggleForm} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-200 text-${selectedTheme}-600 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-700 hover:bg-${selectedTheme}-300 focus:bg-${selectedTheme}-400 focus:text-${selectedTheme}-800 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-300 border-[1px] border-${selectedTheme}-600`}>
+            <button key={1} onClick={toggleForm} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-200 text-${selectedTheme}-600 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-700 hover:bg-${selectedTheme}-300 focus:bg-${selectedTheme}-400 focus:text-${selectedTheme}-800 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-300 border-[1px] border-${selectedTheme}-600`}>
               Add
             </button>
             {role && (role !== 'user') && (
-              <button disabled={!waiting[0]} onClick={handleNext} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
+              <button key={2} disabled={!waiting[0]} onClick={handleNext} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
                 Next
               </button>
             )}

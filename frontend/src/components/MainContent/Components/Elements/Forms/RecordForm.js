@@ -60,8 +60,8 @@ const RecordForm = ( { close, children } ) => {
   const { isLoading, addData } = useQuery();
 
   useEffect(() => {
-    setFamilyId(GenerateFamId(8).toUpperCase());
-  }, []);
+    setFamilyId(barangay.substring(0,3).toUpperCase() + "-");
+  }, [barangay]);
 
   const GenerateFamId = (length) => {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -97,7 +97,7 @@ const RecordForm = ( { close, children } ) => {
     setBirthdate("2001-01-01");
     setBarangay('');
     setPhoneNumber('');
-    setFamilyId(GenerateFamId(8).toUpperCase());
+    setFamilyId('');
   };
 
   const handleSubmit = async (e) => {
@@ -105,13 +105,13 @@ const RecordForm = ( { close, children } ) => {
     try {
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
-        if (!barangays.includes(barangay)) {
-          setNotifMessage('Barangay must be inside the municipality of Victoria only!');
-          const time = setTimeout(() => {
-            setNotifMessage(null);
-          }, 5000);
-          return () => clearTimeout(time);
-        }
+        // if (!barangays.includes(barangay)) {
+        //   setNotifMessage('Barangay must be inside the municipality of Victoria only!');
+        //   const time = setTimeout(() => {
+        //     setNotifMessage(null);
+        //   }, 5000);
+        //   return () => clearTimeout(time);
+        // }
         const payload = {
           firstName: firstname,
           middleName: middlename,
@@ -119,7 +119,7 @@ const RecordForm = ( { close, children } ) => {
           gender: gender,
           birthdate: birthdate,
           barangay: barangay,
-          family_id: `FAMILY_ID-${familyId}`,
+          family_id: `${barangay.substring(0,2).toUpperCase()}-${familyId}`,
           phone_number: phoneNumber,
           dateTime: mysqlTime,
           staff_id: res.data.staff_id
@@ -289,7 +289,7 @@ const RecordForm = ( { close, children } ) => {
               type="text" 
               value={familyId}
               onChange={(e) => setFamilyId(e.target.value)}
-              maxLength={20}
+              maxLength={18}
               required
             />
             <button className="p-1 text-blue-800" onClick={randomizeFamilyId}>

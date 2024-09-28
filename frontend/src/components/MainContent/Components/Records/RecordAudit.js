@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { colorTheme } from "../../../../App";
 import { MdClose, MdPerson } from "react-icons/md";
 import useQuery from "../../../../hooks/useQuery";
@@ -8,14 +8,18 @@ import DataTable from "../Elements/DataTable";
 import api from "../../../../axios";
 import useCurrentTime from "../../../../hooks/useCurrentTime";
 
+export const prescriptionContext = createContext();
+
 const RecordAudit = ({ recordAudit, toggle, family_id }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState([]);
   const [history, setHistory] = useState([]);
+  const [warningMessage, setWarningMessage] = useState(null);
   const { mysqlTime } = useCurrentTime();
-  
+
   const { searchResults, isLoading, error, searchData, addData } = useQuery();
   const [formVisibility, setFormVisibility] = useState(false);
+  const [medicinePrescriptions, setMedicinePrescriptions] = useState([]);
 
   useEffect(() => {
     if (family_id) {
@@ -73,26 +77,80 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
 
   function closeAudit() {
     toggle();
+    setData([])
     sessionStorage.removeItem('clinicForm');
+  };
+
+  function testForm() {
+    const storedData = sessionStorage.getItem('clinicForm');
+    const clinicForm = storedData && JSON.parse(storedData);
+    if (!clinicForm) {
+      return { valid: false, message: "No form data available." };
+    }
+    const {
+      chief_of_complaint,
+      history_of_present_illness,
+      past_medical_history,
+      family_medical_history,
+      physical_examination,
+      vital_signs,
+      diagnosis_plan
+    } = clinicForm;
+    if (!chief_of_complaint) {
+      return { valid: false, message: "Chief of complaint must be filled in." };
+    }
+    if (!history_of_present_illness) {
+      return { valid: false, message: "History of present illness must be filled in." };
+    }
+    const pastMedicalHistoryValues = Object.values(past_medical_history);
+    const familyMedicalHistoryValues = Object.values(family_medical_history);
+    const hasAnyPastOrFamilyHistory = pastMedicalHistoryValues.includes(true) || familyMedicalHistoryValues.includes(true);
+    if (!hasAnyPastOrFamilyHistory) {
+      return { valid: false, message: "At least one item from past or family medical history should be true." };
+    }
+    const skinDescriptionsValues = Object.values(physical_examination.skin_descriptions);
+    const heentDescriptionsValues = Object.values(physical_examination.heent_descriptions);
+    const hasAnySkinOrHeentIssue = skinDescriptionsValues.includes(true) && heentDescriptionsValues.includes(true);
+    if (!hasAnySkinOrHeentIssue) {
+      return { valid: false, message: "At least one item from skin and HEENT descriptions should be true." };
+    }
+    if (!vital_signs.height || !vital_signs.weight) {
+      return { valid: false, message: "Both height and weight must have a value." };
+    }
+    const { primary_diagnosis, secondary_diagnosis, illnesses, symptoms, severity } = diagnosis_plan;
+    if (!primary_diagnosis || !secondary_diagnosis || !illnesses || !symptoms || !severity) {
+      return { valid: false, message: "Diagnosis plan requires primary diagnosis, secondary diagnosis, illnesses, symptoms, and severity." };
+    }
+    return null
   };
 
   async function handleSubmitClinicForm(e) {
     e.preventDefault();
-    try {
-      const payload = sessionStorage.getItem('clinicForm') 
-        ? JSON.parse(sessionStorage.getItem('clinicForm')) 
-        : {};
-      const res = await api.get('/getStaffId');
-      if (res?.status === 200) {
-        const newPayload = {
-          ...payload,
-          staff_id: res.data.staff_id,
-          dateTime: mysqlTime
+    if (!testForm()) {
+      try {
+        const payload = sessionStorage.getItem('clinicForm') 
+          ? JSON.parse(sessionStorage.getItem('clinicForm')) 
+          : {};
+        const res = await api.get('/getStaffId');
+        if (res?.status === 200) {
+          const newPayload = {
+            ...payload,
+            staff_id: res.data.staff_id,
+            dateTime: mysqlTime
+          }
+          addData('/addClinicRecord', newPayload);
+          setMedicinePrescriptions([]);
+          closeAudit();
         }
-        addData('/addClinicRecord', newPayload);
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
+    } else {
+      setWarningMessage(testForm().message);
+      const time = setTimeout(() => {
+        setWarningMessage(null);
+      }, 3000);
+      return () => clearTimeout(time);
     }
   }
   
@@ -139,20 +197,27 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
               )}
             </p>
           </div>
-          <button onClick={() => setFormVisibility(prev => !prev)} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>
+          <button disabled={!data || data.length === 0} onClick={() => setFormVisibility(prev => !prev)} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>
             <span>{formVisibility ? 'Open History Table' : 'Open Prescription Form'}</span>
           </button>
           <div className="mx-4 flex justify-between items-center">
             <p className={`text-left text-${selectedTheme}-700 font-bold text-base md:text-lg lg:text-xl`}>{formVisibility ? 'Clinic Form' : 'Patient History'}</p>
             {formVisibility && (
-              <button onClick={handleSubmitClinicForm} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>Submit Clinic Form</button>
+              <div className="relative">
+                <button onClick={handleSubmitClinicForm} className={`m-1 mx-5 p-2 block rounded-lg font-semibold text-${selectedTheme}-800 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-600 active:text-${selectedTheme}-200 flex items-center justify-center`}>Submit Clinic Form</button>
+                {warningMessage && <p className={`absolute bottom-0 right-0 bg-red-100 text-red-700 p-1 px-2`}>
+                  {warningMessage}
+                </p>}
+              </div>
             )}
           </div>
           <div className="m-3 overflow-y-auto min-h-full rounded-lg">
             {!formVisibility ? (
               <DataTable data={convertData(history)}  enAdd={false} enExport={true} enOptions={false} enImport={false} isLoading={isLoading} error={error} />
             ):(
-              <CitizenForm userData={data[0]} />
+              <prescriptionContext.Provider value={[ medicinePrescriptions, setMedicinePrescriptions ]}>
+                <CitizenForm userData={data[0]} />
+              </prescriptionContext.Provider>
             )}
           </div>
         </div>

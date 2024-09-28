@@ -1,9 +1,9 @@
 const config = {
-  REACT_APP_PROJECT_STATE: 'production',
+  REACT_APP_PROJECT_STATE: 'development',
   REACT_APP_DEVELOPMENT_BACKEND_BASE_URL:
     window.location.hostname === '192.168.1.2'
       ? 'https://192.168.1.2:5000'
-      : 'https://localhost:5000',
+      : window.location.hostname === '192.168.220.1' ? 'https://192.168.220.1:5000' : 'https://localhost:5000',
   REACT_APP_PRODUCTION_BACKEND_BASE_URL: 'https://api.kalusugapp.com',
   REACT_APP_KEY:
     '446695e060e919602d5620e6312f315887004076d9f91e14958082263a7a3b56',
