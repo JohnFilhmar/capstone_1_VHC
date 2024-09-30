@@ -28,7 +28,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
   };
 
   function handleAddSymptom(e) {
-    if (e.key === 'Enter') {
+    if (diagnosisPlan.symptoms.length > 2) {
       e.preventDefault();
       setSymptoms(prev => ([
         ...prev,
@@ -101,7 +101,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="p-2">
             <label htmlFor="primary_diagnosis" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Primary Diagnosis:</label>
             <textarea 
@@ -109,7 +109,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               id="primary_diagnosis" 
               placeholder="Enter your primary diagnosis for the patient. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              rows={4}
+              rows={2}
               value={diagnosisPlan.primary_diagnosis}
               onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, primary_diagnosis: e.target.value }))}
             />
@@ -121,16 +121,16 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               id="secondary_diagnosis" 
               placeholder="Enter your secondary diagnosis for the patient. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-              rows={4}
+              rows={2}
               value={diagnosisPlan.secondary_diagnosis}
               onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, secondary_diagnosis: e.target.value }))}
             />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           <div className="p-2 relative">
             <label htmlFor="illnesses" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>
-              Illness/es:
+              Case/es:
             </label>
             <div className="flex tag-input">
               {illnesses.map((illness, i) => (
@@ -145,7 +145,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
                 type="text"
                 id="illnesses-input"
                 name="illnesses"
-                placeholder="Type an illness or disease"
+                placeholder="Type the case of the patient..."
                 value={diagnosisPlan.illnesses}
                 onChange={handleIllnessChange}
                 className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
@@ -168,9 +168,9 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               </ul>
             )}
           </div>
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+          <div className={`flex flex-col items-center justify-start gap-3`}>
             <label htmlFor="severity" className={`block text-${selectedTheme}-600 font-semibold`}>
-              Severity of the Illness/es:
+              Severity of the Case/es:
             </label>
             <div className="flex items-center space-x-4">
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
@@ -217,20 +217,26 @@ const DiagnosisPlan = ({ selectedTheme }) => {
                   <button type="button" onClick={() => removeSymptom(i)}>&times;</button>
                 </div>
               ))}
-              <input
-                type="text"
-                id="symptoms"
-                name="symptoms"
-                placeholder="Type a symptom and press 'Enter'"
-                value={diagnosisPlan.symptoms}
-                onChange={(e) => setDiagnosisPlan(prev => ({ ...prev, symptoms: e.target.value }))}
-                className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
-                onKeyDown={handleAddSymptom}
-              />
+              <div className="flex items-center justify-between w-full gap-2">
+                <input
+                  type="text"
+                  id="symptoms"
+                  name="symptoms"
+                  placeholder="Add a symptom..."
+                  value={diagnosisPlan.symptoms}
+                  onChange={(e) => {
+                    setDiagnosisPlan(prev => ({ ...prev, symptoms: e.target.value }));
+                  }}
+                  className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
+                />
+                <button onClick={handleAddSymptom} className={`p-2 rounded-md bg-${selectedTheme}-600 text-${selectedTheme}-200 hover:bg-${selectedTheme}-500 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-700 active:text-${selectedTheme}-300`}>
+                  <FaPlus className="size-3 md:size-4 lg:size-5"/>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="p-2">
             <label htmlFor="tests_conducted" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Tests Conducted:</label>
             <textarea

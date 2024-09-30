@@ -17,6 +17,17 @@ const useIndexedDB = () => {
     },
   });
 
+  const createStore = async (storeName) => {
+    const db = await openDB(dbName, undefined, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(storeName)) {
+          db.createObjectStore(storeName);
+        }
+      }
+    });
+    return db;
+  };
+
   const addItem = async (storeName, value, key) => {
     try {
       const db = await dbPromise;
@@ -105,7 +116,8 @@ const useIndexedDB = () => {
     getAllItems,
     updateItem,
     deleteItem,
-    clearStore
+    clearStore,
+    createStore
   };
 };
 

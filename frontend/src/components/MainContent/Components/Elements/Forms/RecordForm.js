@@ -1,11 +1,10 @@
 import { Checkbox, Label, Radio, Spinner } from 'flowbite-react';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef } from 'react';
 import jsonData from '../../../../../common_names_by_gender.json';
 import { colorTheme, notificationMessage } from '../../../../../App';
 import useQuery from '../../../../../hooks/useQuery';
 import useCurrentTime from '../../../../../hooks/useCurrentTime';
 import { socket } from '../../../../../socket';
-import { GiDiceSixFacesFive, GiDiceSixFacesFour, GiDiceSixFacesOne, GiDiceSixFacesSix, GiDiceSixFacesThree, GiDiceSixFacesTwo } from "react-icons/gi";
 import api from '../../../../../axios';
 
 const RecordForm = ( { close, children } ) => {
@@ -19,9 +18,11 @@ const RecordForm = ( { close, children } ) => {
   const [familyId, setFamilyId] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
-  const [diceNumber, setDiceNumber] = useState(1);
   const { mysqlTime } = useCurrentTime();
+  const [staffId, setStaffId] = useState(null);
+  const alreadyExistsRef = useRef(null);
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
+  const [isMessageShown, setIsMessageShown] = useState(false);
   const barangays = [
     'Alcate',
     'Antonino',
@@ -57,21 +58,11 @@ const RecordForm = ( { close, children } ) => {
     'Villa Cerveza',
   ];
 
-  const { isLoading, addData } = useQuery();
+  const { response, isLoading, addData } = useQuery();
 
   useEffect(() => {
     setFamilyId(barangay.substring(0,3).toUpperCase() + "-");
   }, [barangay]);
-
-  const GenerateFamId = (length) => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      result += characters.charAt(randomIndex);
-    }
-    return result;
-  }
 
   const parsePhoneNumber = (e) => {
     const userInput = e.target.value;
@@ -105,13 +96,7 @@ const RecordForm = ( { close, children } ) => {
     try {
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
-        // if (!barangays.includes(barangay)) {
-        //   setNotifMessage('Barangay must be inside the municipality of Victoria only!');
-        //   const time = setTimeout(() => {
-        //     setNotifMessage(null);
-        //   }, 5000);
-        //   return () => clearTimeout(time);
-        // }
+        setStaffId(res.data.staff_id);
         const payload = {
           firstName: firstname,
           middleName: middlename,
@@ -119,18 +104,18 @@ const RecordForm = ( { close, children } ) => {
           gender: gender,
           birthdate: birthdate,
           barangay: barangay,
-          family_id: `${barangay.substring(0,2).toUpperCase()}-${familyId}`,
+          family_id: familyId,
           phone_number: phoneNumber,
           dateTime: mysqlTime,
           staff_id: res.data.staff_id
         };
         if(dontCloseUponSubmission) {
-          addData('/addRecord',payload);
+          await addData('/addRecord',payload);
           cleanUp();
         } else {
-          close();
-          addData('/addRecord',payload);
-          cleanUp();
+          await addData('/addRecord',payload);
+          // close();
+          // cleanUp();
         }
         const time = setTimeout(() => {
           socket.emit('updateRecords');
@@ -140,17 +125,74 @@ const RecordForm = ( { close, children } ) => {
     } catch (error) {
       setNotifMessage(error.message);
     }
-  }
-
-  const randomizeFamilyId = (e) => {
-    e.preventDefault();
-    setDiceNumber(Math.floor(Math.random() * 6) + 1);
-    setFamilyId(GenerateFamId(8).toUpperCase());
   };
 
+  const handleChange = (e) => {
+    const input = e.target.value; 
+    let prefix = barangay.slice(0, 3).toUpperCase(); 
+    const cleanedValue = input.replace(/\D/g, '').slice(0, 13); 
+    const formattedValue = cleanedValue
+      .replace(/(\d{4})(\d{0,4})(\d{0,5})/, (_, g1, g2, g3) =>
+        [g1, g2, g3].filter(Boolean).join('-')
+      ); 
+    setFamilyId(`${prefix}-${formattedValue}`);
+  }; 
 
-  // THIS FORM SHOULD AUTO COMPLETE THE BARANGAY DEPENDING ON THE FAMILY NAME THAT IS ALSO WITHIN WHAT BARANGAY THE FAMILY NAME IS IN
-  // SHOULD CHECK FAMILY ID FIRST BEFORE PASSING WHETHER IT ALREADY EXISTS OR NOT
+  function handleCloseMessage(e) {
+    e.preventDefault();
+    console.log(isMessageShown);
+    if (isMessageShown) {
+      setIsMessageShown(false);
+      alreadyExistsRef.current.close();
+    }
+  }
+
+  async function handleContinue(e) {
+    e.preventDefault();
+    const payload = {
+      firstName: firstname,
+      middleName: middlename,
+      lastName: lastname,
+      gender: gender,
+      birthdate: birthdate,
+      barangay: barangay,
+      family_id: familyId,
+      phone_number: phoneNumber,
+      dateTime: mysqlTime,
+      staff_id: staffId
+    };
+    await addData('/proceedAddRecord',payload);
+  }
+
+  useEffect(() => {
+    function doneWithThisShit() {
+      setFamilyId(null);
+      setStaffId(null);
+      cleanUp();
+      close();
+      if (isMessageShown) {
+        setIsMessageShown(false);
+        alreadyExistsRef.current.close();
+      }
+    }
+    if (response?.status === 208) {
+      alreadyExistsRef.current.showModal();
+      setIsMessageShown(true);
+    }
+    if (response?.status === 200) {
+      doneWithThisShit();
+      const time = setTimeout(() => {
+        socket.emit('updateRecords');
+      },[500])
+      return () => clearTimeout(time);
+    }
+    if (response?.status === 226) {
+      setNotifMessage(response?.message);
+      doneWithThisShit();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
+
   return (
     <>
       {children}
@@ -275,6 +317,7 @@ const RecordForm = ( { close, children } ) => {
               onChange={parsePhoneNumber} 
               maxLength={12} 
               minLength={10}
+              autoComplete='off'
             />
           </div>
         </div>
@@ -288,20 +331,12 @@ const RecordForm = ( { close, children } ) => {
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent text-slate-500 border-[1px] border-${selectedTheme}-800`}
               type="text" 
               value={familyId}
-              onChange={(e) => setFamilyId(e.target.value)}
-              maxLength={18}
+              onChange={handleChange}
+              maxLength={19}
+              minLength={19}
+              autoComplete='off'
               required
             />
-            <button className="p-1 text-blue-800" onClick={randomizeFamilyId}>
-              {diceNumber === 1 ? <GiDiceSixFacesOne className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              diceNumber === 2 ? <GiDiceSixFacesTwo className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              diceNumber === 3 ? <GiDiceSixFacesThree className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              diceNumber === 4 ? <GiDiceSixFacesFour className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              diceNumber === 5 ? <GiDiceSixFacesFive className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              diceNumber === 6 ? <GiDiceSixFacesSix className="size-6 md:size-8 lg:size-9" color={selectedTheme} /> :
-              <GiDiceSixFacesOne className="size-6 md:size-8 lg:size-9" color={selectedTheme} />
-              }
-            </button>
           </div>
         </div>
         <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Add New Record') : <Spinner/>}</p></button>
@@ -315,7 +350,29 @@ const RecordForm = ( { close, children } ) => {
             Don't Close Upon Submition
           </label>
         </div>
+
       </form>
+
+      <dialog ref={alreadyExistsRef} className='drop-shadow-md rounded-md'>
+
+        <div className={`flex flex-col justify-start items-center w-full max-w-[90vw] h-fit max-h-[90vh] bg-${selectedTheme}-200 rounded-md drop-shadow-md overflow-auto`}>
+
+          <p className={`p-4 w-full bg-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-200`}>{response?.message}</p>
+
+          <div className={`text-${selectedTheme}-800 font-medium p-2`}>
+
+            <p className={`font-bold text-sm md:text-base lg:text-lg`}>Do you still wish to continue and consider this person a family member or relative of <span className="text-red-800 font-bold underline">{response?.lastname}</span>?</p>
+
+            <div className="flex justify-end items-center p-2 gap-4">
+              <button onClick={(e) => handleCloseMessage(e)} className={`font-bold p-2 rounded-sm drop-shadow-md bg-${selectedTheme}-200 text-${selectedTheme}-600 hover:bg-${selectedTheme}-400 hover:text-${selectedTheme}-600`}>Cancel</button>
+              <button onClick={(e) => handleContinue(e)} className={`font-bold p-2 rounded-sm drop-shadow-md bg-${selectedTheme}-600 text-${selectedTheme}-200 hover:bg-${selectedTheme}-400 hover:text-${selectedTheme}-600`}>Continue</button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </dialog>
     </>
   );
 }

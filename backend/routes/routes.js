@@ -20,6 +20,7 @@ router.get('/verifyToken', staffController.verifyAccessToken);
 // RECORDS
 router.post('/handleFileUploadRecords', recordController.handleFileUploadRecords);
 router.post('/addRecord', recordController.addRecord);
+router.post('/proceedAddRecord', recordController.proceedAddRecord);
 router.get('/getRecords', recordController.getRecords);
 router.get('/findRecord/:id', recordController.findRecord);
 router.post('/findCitizen', recordController.findCitizen);

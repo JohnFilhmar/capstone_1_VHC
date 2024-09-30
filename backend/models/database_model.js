@@ -10,7 +10,7 @@ class Database {
       database: config.PROJECT_STATE === 'production' ? config.MYSQL_DATABASE : 'capstone',
       port: 3306,
       ssl: {
-        rejectUnauthorized: true
+        rejectUnauthorized: config.PROJECT_STATE === 'production' ? true : false
       }
     });
   }

@@ -42,7 +42,7 @@ const SocialHistory = ({ selectedTheme }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="flex items-center">
             <label htmlFor="smoker" className={`text-${selectedTheme}-600 w-1/3 font-semibold`}>Is patient a Smoker:</label>
             <select 

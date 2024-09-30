@@ -5,12 +5,39 @@ import { useContext, useEffect, useState } from "react";
 import useQuery from "../../../../hooks/useQuery";
 import { socket } from "../../../../socket";
 import { colorTheme } from "../../../../App";
+import useIndexedDB from "../../../../hooks/useIndexedDb";
 
 const JsonWebToken = () => {
   const location = useLocation();
   const pathname = location.pathname.slice(1);
   const title = pathname.charAt(0).toUpperCase() + pathname.slice(1);
   const [selectedTheme] = useContext(colorTheme);
+  const { createStore, getAllItems, addItem } = useIndexedDB();
+
+  useEffect(() => {
+    // Create a new store (table) dynamically
+    const createNewStore = async () => {
+      await createStore('newStore'); // Create a new table called 'newStore'
+      console.log('New store created!');
+    };
+
+    createNewStore();
+  }, [createStore]);
+
+  const addNewItem = async () => {
+    // Add a new item to the newly created store
+    await addItem('newStore', { id: 1, name: 'Item 1' }, 1);
+    console.log('Item added to newStore');
+
+    // Retrieve all items from the new store
+    const items = await getAllItems('newStore');
+    console.log('Items in newStore:', items);
+  };
+
+  useEffect(() => {
+    addNewItem();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [messages, setMessages] = useState([{}]);
   const [message, setMessage] = useState('');

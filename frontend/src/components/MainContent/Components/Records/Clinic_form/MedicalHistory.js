@@ -85,7 +85,7 @@ const MedicalHistory = ({ selectedTheme, isVisible, setIsVisible }) => {
   }, [medicalHistory]);
 
   return (
-    <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg w-full`}>
+    <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg lg:w-full`}>
       <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <MdHistoryEdu className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
@@ -100,7 +100,7 @@ const MedicalHistory = ({ selectedTheme, isVisible, setIsVisible }) => {
         </button>
       </p>
       <div className={visibility ? 'block' : 'hidden'}>
-        <div className="grid grid-cols-2 gap-2 mx-8">
+        <div className="grid grid-cols-2 gap-2 lg:mx-8">
           <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
             <input
               type="checkbox"

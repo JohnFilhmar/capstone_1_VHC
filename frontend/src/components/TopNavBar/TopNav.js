@@ -73,13 +73,14 @@ const TopNav = () => {
 
   return (
     <div className={`top-0 left-0 right-0 flex justify-between items-center p-5 bg-${selectedTheme}-200 z-50`}>
-      <div className={`flex justify-center items-center text-${selectedTheme}-500`}>
-        <img src="MHO_logo.png" className=' w-8 h-8 md:w-12 md:h-12 lg:w-16 lg:h-16 drop-shadow-md' alt="..."/>
-        <div className="self-center whitespace-nowrap text-2xl font-bold">
-          <p>KalusugApp: MHO</p>
-          <div className={`p-1 bg-${selectedTheme}-100 flex gap-2 items-center justify-start text-xs rounded-lg`}>
+      <div className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}>
+        <img src="MHO_logo.png" className='size-12 md:size-12 lg:size-16 drop-shadow-md' alt="..."/>
+        <div className="self-center whitespace-nowrap font-bold">
+          <p className="sm:text-lg md:text-xl lg:text-2xl">KalusugApp: MHO</p>
+          <div className={`p-1 flex gap-2 items-center justify-start text-xs rounded-lg`}>
             <span className="hidden md:block lg:block"><DateComponent /></span>
-            <TimeComponent /></div>
+            <TimeComponent />
+          </div>
         </div>
       </div>
       <div className="flex justify-end items-center gap-2 md:gap-3 lg:gap-4">

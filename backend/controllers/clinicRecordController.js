@@ -46,14 +46,14 @@ class ClinicRecordController {
 
       const physical_examination_id = insertPhysicalExaminationResponse.insertId;
 
-      const { clubbing, decreased_mobility, pale_nailbeds, weak_pulses, cold_clammy, edema_swelling, poor_skin_turgor, cyanosis_mottled_skin, essentially_normal: skin_essentially_normal, rash_or_itching } = physical_examination.skin_descriptions;
-      const insertPeSkinQuery = "INSERT INTO `ccr_physical_examination_skin_descriptions`(`physical_examination_id`, `clubbing`, `decreased_mobility`, `pale_nailbeds`, `weak_pulses`, `cold_clammy`, `edema_swelling`, `poor_skin_turgor`, `cyanosis_mottled_skin`, `essentially_normal`, `rash_or_itching`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      const insertPeSkinPayload = [physical_examination_id, clubbing, decreased_mobility, pale_nailbeds, weak_pulses, cold_clammy, edema_swelling, poor_skin_turgor, cyanosis_mottled_skin,  skin_essentially_normal, rash_or_itching];
+      const { clubbing, decreased_mobility, pale_nailbeds, weak_pulses, cold_clammy, edema_swelling, poor_skin_turgor, cyanosis_mottled_skin, essentially_normal: skin_essentially_normal, rash_or_itching, other_skin_description } = physical_examination.skin_descriptions;
+      const insertPeSkinQuery = "INSERT INTO `ccr_physical_examination_skin_descriptions`(`physical_examination_id`, `clubbing`, `decreased_mobility`, `pale_nailbeds`, `weak_pulses`, `cold_clammy`, `edema_swelling`, `poor_skin_turgor`, `cyanosis_mottled_skin`, `essentially_normal`, `rash_or_itching`, `other_skin_description`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const insertPeSkinPayload = [physical_examination_id, clubbing, decreased_mobility, pale_nailbeds, weak_pulses, cold_clammy, edema_swelling, poor_skin_turgor, cyanosis_mottled_skin,  skin_essentially_normal, rash_or_itching, other_skin_description];
       await dbModel.query(insertPeSkinQuery, insertPeSkinPayload);
 
-      const { abnormal_pupillary_reaction, essentially_normal: heent_essentially_normal, sunken_eyeballs, cervical_lymphadenopathy, icteric_sclerae, sunken_fontanelle, dry_mucous_membrane, pale_conjunctivae } = physical_examination.heent_descriptions;
-      const insertPeHeentQuery = "INSERT INTO `ccr_physical_examination_heent_descriptions`(`physical_examination_id`, `abnormal_pupillary_reaction`, `essentially_normal`, `sunken_eyeballs`, `cervical_lymphadenopathy`, `icteric_sclerae`, `sunken_fontanelle`, `dry_mucous_membrane`, `pale_conjunctivae`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      const insertPeHeentPayload = [physical_examination_id, abnormal_pupillary_reaction, heent_essentially_normal, sunken_eyeballs, cervical_lymphadenopathy, icteric_sclerae, sunken_fontanelle, dry_mucous_membrane, pale_conjunctivae];
+      const { abnormal_pupillary_reaction, essentially_normal: heent_essentially_normal, sunken_eyeballs, cervical_lymphadenopathy, icteric_sclerae, sunken_fontanelle, dry_mucous_membrane, pale_conjunctivae, other_heent_description } = physical_examination.heent_descriptions;
+      const insertPeHeentQuery = "INSERT INTO `ccr_physical_examination_heent_descriptions`(`physical_examination_id`, `abnormal_pupillary_reaction`, `essentially_normal`, `sunken_eyeballs`, `cervical_lymphadenopathy`, `icteric_sclerae`, `sunken_fontanelle`, `dry_mucous_membrane`, `pale_conjunctivae`, `other_heent_description`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const insertPeHeentPayload = [physical_examination_id, abnormal_pupillary_reaction, heent_essentially_normal, sunken_eyeballs, cervical_lymphadenopathy, icteric_sclerae, sunken_fontanelle, dry_mucous_membrane, pale_conjunctivae, other_heent_description];
       await dbModel.query(insertPeHeentQuery, insertPeHeentPayload);
 
       if (isMenstrual) {

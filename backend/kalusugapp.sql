@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 28, 2024 at 09:30 PM
+-- Generation Time: Sep 29, 2024 at 01:18 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -119,15 +119,6 @@ CREATE TABLE `ccr_past_medical_history` (
   `none` tinyint(1) DEFAULT '0',
   `others` text COLLATE utf8mb4_general_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `ccr_past_medical_history`
---
-
-INSERT INTO `ccr_past_medical_history` (`past_medical_history_id`, `record_id`, `allergy`, `cerebrovascular_disease`, `emphysema`, `hepatitis`, `mental_illness`, `peptic_ulcer`, `thyroid_disease`, `asthma`, `coronary_artery_disease`, `epilepsy_seizure_disorder`, `hyperlipidemia`, `pneumonia`, `urinary_tract_infection`, `cancer`, `diabetes_mellitus`, `extrapulmonary_tuberculosis`, `pulmonary_tuberculosis`, `none`, `others`) VALUES
-(5, 5, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 1, ''),
-(6, 6, '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 1, ''),
-(7, 7, '0', '1', '0', '1', '1', '0', '0', '0', '1', '0', '0', '0', '1', '0', '0', '0', '0', 0, '');
 
 -- --------------------------------------------------------
 
@@ -359,13 +350,6 @@ CREATE TABLE `medicalstaff` (
   `accessibility_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `medicalstaff`
---
-
-INSERT INTO `medicalstaff` (`staff_id`, `username`, `password`, `refresh_token`, `email`, `isVerified`, `role`, `accessibility_id`) VALUES
-(2, 'filhmarola', '$2a$10$FCR40jcCQ7n08q75oVZi3.JDUQ4E4LB8gOQ9/k5haqEzxKk02gTv.', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImZpbGhtYXJvbGEiLCJyb2xlIjoiZGV2ZWxvcGVyIiwiaWF0IjoxNzI3NTU4NjgxLCJleHAiOjE3MjgxNjM0ODF9.91gKI22gS5MP8FMmqBZTY1emyp_yrVk3wBEY-Ftjl-4', 'olajohnfilhmar@gmail.com', 1, 'developer', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -390,14 +374,6 @@ CREATE TABLE `medicalstaff_email_verification` (
   `expiry_date` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `medicalstaff_email_verification`
---
-
-INSERT INTO `medicalstaff_email_verification` (`token`, `staff_id`, `expiry_date`) VALUES
-('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTcyNzU1ODQ4MywiZXhwIjoxNzI3NTU4NTQzfQ.VoxZK7CPEL3rUiLNRXVLluNtIBQksWMVJQq1KmJ9jSQ', 1, '2024-09-29 07:21:23'),
-('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTcyNzU1ODY0MiwiZXhwIjoxNzI3NTU4NzAyfQ.4D0H0G_MUPBQspOEUoxYyaq5BcvH_WD5khiWd6rK99Q', 2, '2024-09-29 07:24:02');
-
 -- --------------------------------------------------------
 
 --
@@ -412,15 +388,6 @@ CREATE TABLE `medicalstaff_history` (
   `citizen_family_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `action_datetime` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `medicalstaff_history`
---
-
-INSERT INTO `medicalstaff_history` (`history_id`, `staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES
-(1, 1, 'registered', 'account created', NULL, '2024-09-29 05:21:05'),
-(2, 2, 'registered', 'account created', NULL, '2024-09-29 05:23:41'),
-(3, 2, 'logged in', 'logged in', NULL, '2024-09-29 05:24:13');
 
 -- --------------------------------------------------------
 
@@ -662,7 +629,7 @@ ALTER TABLE `ccr_menstrual_history`
 -- AUTO_INCREMENT for table `ccr_past_medical_history`
 --
 ALTER TABLE `ccr_past_medical_history`
-  MODIFY `past_medical_history_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `past_medical_history_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `ccr_pediatric_client`
@@ -734,7 +701,7 @@ ALTER TABLE `citizen_queue`
 -- AUTO_INCREMENT for table `medicalstaff`
 --
 ALTER TABLE `medicalstaff`
-  MODIFY `staff_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `staff_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `medicalstaff_accessbility`
@@ -746,7 +713,7 @@ ALTER TABLE `medicalstaff_accessbility`
 -- AUTO_INCREMENT for table `medicalstaff_history`
 --
 ALTER TABLE `medicalstaff_history`
-  MODIFY `history_id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `history_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `messaging`
@@ -838,10 +805,62 @@ ALTER TABLE `ccr_vital_signs`
   ADD CONSTRAINT `fk_vital_signs` FOREIGN KEY (`record_id`) REFERENCES `citizen_clinical_record` (`record_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 --
+-- Constraints for table `citizen_appointments`
+--
+ALTER TABLE `citizen_appointments`
+  ADD CONSTRAINT `fk_appointments_citizen` FOREIGN KEY (`citizen_family_id`) REFERENCES `citizen` (`citizen_family_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
 -- Constraints for table `citizen_clinical_record`
 --
 ALTER TABLE `citizen_clinical_record`
+  ADD CONSTRAINT `fk_clinical_record_citizen` FOREIGN KEY (`citizen_family_id`) REFERENCES `citizen` (`citizen_family_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   ADD CONSTRAINT `fk_clinical_record_medicalstaff` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `citizen_history`
+--
+ALTER TABLE `citizen_history`
+  ADD CONSTRAINT `fk_history_citizen` FOREIGN KEY (`family_id`) REFERENCES `citizen` (`citizen_family_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_history_medicalstaff` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `citizen_queue`
+--
+ALTER TABLE `citizen_queue`
+  ADD CONSTRAINT `fk_queue_citizen` FOREIGN KEY (`citizen_family_id`) REFERENCES `citizen` (`citizen_family_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `medicalstaff_accessbility`
+--
+ALTER TABLE `medicalstaff_accessbility`
+  ADD CONSTRAINT `fk_accessibility_medicalstaff` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `medicalstaff_email_verification`
+--
+ALTER TABLE `medicalstaff_email_verification`
+  ADD CONSTRAINT `fk_email_verification_medicalstaff` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `medicalstaff_history`
+--
+ALTER TABLE `medicalstaff_history`
+  ADD CONSTRAINT `fk_medicalstaff_history_medicalstaff` FOREIGN KEY (`citizen_family_id`) REFERENCES `citizen` (`citizen_family_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_medstaff_history_staff_id` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `messaging`
+--
+ALTER TABLE `messaging`
+  ADD CONSTRAINT `fk_messaging_receiver_medicalstaff` FOREIGN KEY (`receiver_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  ADD CONSTRAINT `fk_messaging_sender_medicalstaff` FOREIGN KEY (`sender_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `fk_notifications_medicalstaff` FOREIGN KEY (`staff_id`) REFERENCES `medicalstaff` (`staff_id`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

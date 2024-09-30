@@ -48,8 +48,8 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-        <div className="grid grid-cols-3 gap-2">
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-2">
+          <div className={`flex flex-col items-center ${!applicablePregnancy && 'col-span-3'} justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
             <label htmlFor="is_applicable_pregnancy" className={`block text-${selectedTheme}-600 font-semibold`}>
               If Pregnancy History Applicable:
             </label>
@@ -78,7 +78,7 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
               </label>
             </div>
           </div>
-          <div className="p-2">
+          <div className={`${applicablePregnancy ? 'block' : 'hidden'} p-2`}>
             <label htmlFor="gravidity" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Number of pregnancy to date-gravidity:</label>
             <input
               type="number"
@@ -90,7 +90,7 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
             />
           </div>
-          <div className="p-2">
+          <div className={`${applicablePregnancy ? 'block' : 'hidden'} p-2`}>
             <label htmlFor="parity" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Number of delivery to date-parity:</label>
             <input
               type="number"
@@ -103,7 +103,7 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className={`grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-2 ${applicablePregnancy ? 'block' : 'hidden'}`}>
           <div className="p-2">
             <label htmlFor="delivery_types" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Types of Delivery:</label>
             <input
@@ -141,7 +141,7 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className={`${applicablePregnancy ? 'block' : 'hidden'} grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2`}>
           <div className="p-2">
             <label htmlFor="abortions" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Number of Abortions:</label>
             <input
@@ -178,7 +178,7 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
             />
           </div>
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+          <div className={`flex flex-col items-center justify-start gap-3`}>
             <label htmlFor="is_applicable_pregnancy" className={`block text-${selectedTheme}-600 font-semibold`}>
               With Access to Family Planning Counselling:
             </label>

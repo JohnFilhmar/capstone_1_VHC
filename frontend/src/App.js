@@ -67,8 +67,10 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    let time;
     const verifyAccessToken = async () => {
       try {
+        setIsLoading(true);
         const res = await api.get('/verifyToken', {
           headers: { Authorization: `Bearer ${tokens}` },
           withCredentials: true,
@@ -83,15 +85,17 @@ const App = () => {
           if (location.pathname !== '/dashboard') {
             navigate('/dashboard');
           }
+          setIsLoading(false);
         } else {
           setNotifMessage('Something went wrong checking your session');
-          const time = setTimeout(async () => {
+          time = setTimeout(async () => {
             setNotifMessage(null);
             await clearStore('tokens');
             if (location.pathname !== '/login') {
               navigate('/login');
             }
           }, 3000);
+          setIsLoading(false);
           return () => clearTimeout(time);
         }
       } catch (error) {
@@ -103,15 +107,19 @@ const App = () => {
           navigate('/login');
         }
         setNotifMessage('Something went wrong');
-        const time = setTimeout(() => {
+        time = setTimeout(() => {
           setNotifMessage(null);
         }, 8000);
+        setIsLoading(false);
         return () => clearTimeout(time);
       }
     };
     if (tokens) {
       verifyAccessToken();
     }
+    return () => {
+      if (time) clearTimeout(time);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
   

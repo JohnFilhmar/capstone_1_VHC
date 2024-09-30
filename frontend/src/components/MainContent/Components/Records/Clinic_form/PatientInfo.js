@@ -5,6 +5,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 const PatientInfo = ({ selectedTheme, userData }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [civilStatus, setCivilStatus] = useState('');
+  const [age, setAge] = useState(null);
   const [phNumber, setPhNumber] = useState('');
   const [philhealthStatusType, setPhilhealthStatusType] = useState('dependent');
   const [dpin, setDpin] = useState('');
@@ -33,6 +34,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
   });
 
   const getAge = (birthdate) => {
+    if (!birthdate) return null;
     const today = new Date();
     const birthDate = new Date(birthdate);
     if (isNaN(birthDate)) {
@@ -46,6 +48,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
     }
     return age;
   };
+
   const formatBirthdate = () => {
     if (!userData?.citizen_birthdate) return '';
     const date = new Date(userData?.citizen_birthdate);
@@ -54,6 +57,15 @@ const PatientInfo = ({ selectedTheme, userData }) => {
     const year = date.getFullYear();
     return `${year}-${month}-${day}`;
   };
+
+  useEffect(() => {
+    if (userData?.citizen_birthdate) {
+      const formattedDate = formatBirthdate();
+      const calculatedAge = getAge(formattedDate);
+      setAge(calculatedAge);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?.citizen_birthdate]);
 
   function handleVitalSignsChange(e) {
     const { name, value } = e.target;
@@ -80,7 +92,9 @@ const PatientInfo = ({ selectedTheme, userData }) => {
   }, [phNumber]);
 
   useEffect(() => {
-    const age = getAge(userData?.citizen_birthdate);
+    const date = userData?.citizen_birthdate && new Date(userData?.citizen_birthdate);
+    const newBirthDateFormat = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+    const age = getAge(newBirthDateFormat);
     if (age < 2) {
       setPediatricClient({
         length: '70-90 cm',     // Length range for 1–2 years old
@@ -169,12 +183,22 @@ const PatientInfo = ({ selectedTheme, userData }) => {
       setVitalSigns(prev => ({ ...prev, bmi: bmi.toFixed(2) })); 
     }
   }, [vitalSigns.weight, vitalSigns.height]);
+ 
+  const handleChange = (e) => {
+    const input = e.target.value; 
+    const cleanedValue = input.replace(/\D/g, '').slice(0, 11); 
+    const formattedValue = cleanedValue
+      .replace(/(\d{0,2})(\d{0,8})(\d{0,1})/, (_, g1, g2, g3) =>
+        [g1, g2, g3].filter(Boolean).join('-')
+      ); 
+    setPhNumber(formattedValue);
+  }; 
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
       <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
-          <BsPersonBoundingBox className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
+          <BsPersonBoundingBox className="size-4 md:size-5 lg:size-6"/>
           <span>Patient Information</span>
         </div>
         <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
@@ -213,7 +237,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
             />
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2">
           <div className={`p-2 grow`}>
             <label htmlFor="age" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Age:</label>
             <input
@@ -222,7 +246,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="age"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               required
-              value={getAge(userData?.citizen_birthdate)}
+              value={age !== null ? age : ''}
               disabled
             />
           </div>
@@ -250,7 +274,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               disabled
             />
           </div>
-          <div className="p-2 grow col-span-2">
+          <div className="p-2 grow">
             <label htmlFor="civilstatus" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Civil Status:<span className="text-red-600 font-bold">*</span></label>
             <select id="civilstatus" value={civilStatus} onChange={(e) => setCivilStatus(e.target.value)} className="w-full rounded-lg text-xs md:text-sm lg:text-base">
               <option value="married" className="w-full rounded-lg text-xs md:text-sm lg:text-base">Married</option>
@@ -263,7 +287,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2">
           {/* PHILHEALTH STATUS */}
           <div className="flex flex-col">
             <div className={`p-2`}>
@@ -275,88 +299,92 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 placeholder="Enter your philheath number. . . . ."
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base"
                 value={phNumber}
-                onChange={(e) => setPhNumber(e.target.value)}
+                onChange={handleChange}
               />
             </div>
-            <div className="p-2 flex items-center justify-start gap-3">
-              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
-                Philhealth Status Type:
-              </label>
-              <div className="flex items-center space-x-4">
-                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                  <input
-                    disabled={!phNumber}
-                    type="checkbox"
-                    checked={philhealthStatusType === 'member'}
-                    onChange={() => setPhilhealthStatusType(prev => (prev === 'member' ? 'dependent' : 'member'))}
-                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                  />
-                  <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'member' ? 'font-bold' : ''}`}>
-                    Member
-                  </span>
+            <div className={`${phNumber.length > 0 ? 'block': 'hidden'} flex flex-col`}>
+              <div className="p-2 flex items-center justify-start gap-3">
+                <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
+                  Philhealth Status Type:
                 </label>
+                <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2">
 
-                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                  <input
-                    disabled={!phNumber}
-                    type="checkbox"
-                    checked={philhealthStatusType === 'dependent'}
-                    onChange={() => (prev => (prev === 'member' ? 'dependent' : 'member'))}
-                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                  />
-                  <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'dependent' ? 'font-bold' : ''}`}>
-                    Dependent
-                  </span>
-                </label>
+                  <label className={`flex items-center gap-2 p-1`}>
+                    <input
+                      disabled={!phNumber}
+                      type="checkbox"
+                      checked={philhealthStatusType === 'member'}
+                      onChange={() => setPhilhealthStatusType(prev => (prev === 'member' ? 'dependent' : 'member'))}
+                      className={`form-checkbox h-5 w-5`}
+                    />
+                    <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'member' ? 'font-bold' : ''}`}>
+                      Member
+                    </span>
+                  </label>
+
+                  <label className={`flex items-center gap-2 p-1`}>
+                    <input
+                      disabled={!phNumber}
+                      type="checkbox"
+                      checked={philhealthStatusType === 'dependent'}
+                      onChange={() => (prev => (prev === 'member' ? 'dependent' : 'member'))}
+                      className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                    />
+                    <span className={`text-${selectedTheme}-600 ${philhealthStatusType === 'dependent' ? 'font-bold' : ''}`}>
+                      Dependent
+                    </span>
+                  </label>
+
+                </div>
               </div>
-            </div>
-            <div className={`p-2`}>
-              <label htmlFor="dpin" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>DPIN:</label>
-              <input
-                disabled={!phNumber}
-                type="text"
-                id="dpin"
-                name="dpin"
-                placeholder="Enter your Philhealth DPIN. . . . ."
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-                maxLength={50}
-                value={dpin}
-                onChange={(e) => setDpin(e.target.value)}
-                required={phNumber}
-              />
-            </div>
-            <div className={`p-2`}>
-              <label htmlFor="philhealth_category" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Category:</label>
-              <input
-                disabled={!phNumber}
-                type="text"
-                id="philhealth_category"
-                name="philhealth_category"
-                placeholder="Enter your Philhealth category. . . . ."
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-                value={phCategory}
-                onChange={(e) => setPhCategory(e.target.value)}
-                required={phNumber}
-              />
-            </div>
-            <div className={`p-2`}>
-              <label htmlFor="contactnumber" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Contact Number:</label>
-              <input
-                type="text"
-                id="contactnumber"
-                name="contactnumber"
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-                value={contactNumber}
-                onChange={(e) => setContactNumber(e.target.value)}
-                disabled={userData?.citizen_number}
-              />
+              <div className={`p-2`}>
+                <label htmlFor="dpin" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>DPIN:</label>
+                <input
+                  disabled={!phNumber}
+                  type="text"
+                  id="dpin"
+                  name="dpin"
+                  placeholder="Enter your Philhealth DPIN. . . . ."
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  maxLength={50}
+                  value={dpin}
+                  onChange={(e) => setDpin(e.target.value)}
+                  required={phNumber}
+                />
+              </div>
+              <div className={`p-2`}>
+                <label htmlFor="philhealth_category" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Philhealth Category:</label>
+                <input
+                  disabled={!phNumber}
+                  type="text"
+                  id="philhealth_category"
+                  name="philhealth_category"
+                  placeholder="Enter your Philhealth category. . . . ."
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  value={phCategory}
+                  onChange={(e) => setPhCategory(e.target.value)}
+                  required={phNumber}
+                />
+              </div>
+              <div className={`p-2`}>
+                <label htmlFor="contactnumber" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Contact Number:</label>
+                <input
+                  type="text"
+                  id="contactnumber"
+                  name="contactnumber"
+                  className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  disabled={userData?.citizen_number}
+                />
+              </div>
             </div>
           </div>
           <div className="flex flex-col">
             {/* VITAL SIGNS */}
-            <div className="grid grid-cols-4 gap-2 p-1 pt-3">
-              <p className={`block text-${selectedTheme}-600 font-semibold col-span-4 justify-self-start self-start`}>Vital Signs:</p>
-              <div className="grid grid-cols-2 gap-1">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 p-1 pt-3">
+              <p className={`block text-${selectedTheme}-600 col-span-2 md:col-span-3 lg:col-span-4 justify-self-start self-start font-bold`}>Vital Signs:</p>
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="blood_pressure" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>BP</label>
                 <input
                   type="text"
@@ -367,7 +395,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="temperature" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>TMP</label>
                 <input
                   type="text"
@@ -378,7 +406,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="heart_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HR</label>
                 <input
                   type="text"
@@ -389,7 +417,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="weight" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>WT(kg/lbs)</label>
                 <input
                   type="text"
@@ -400,7 +428,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="height" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>HT(ft/cm)</label>
                 <input
                   type="text"
@@ -411,7 +439,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="pulse_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>PR</label>
                 <input
                   type="text"
@@ -422,7 +450,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="respiratory_rate" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>RR</label>
                 <input
                   type="text"
@@ -433,7 +461,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handleVitalSignsChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="bmi" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>BMI</label>
                 <input
                   type="text"
@@ -445,7 +473,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   disabled
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 gap-1">
                 <label htmlFor="oxygen_saturation" className={`block text-${selectedTheme}-600 font-semibold self-center justify-self-center`}>O2Sat</label>
                 <input
                   type="text"
@@ -458,12 +486,11 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               </div>
             </div>
             {/* PEDIATRIC CLIENT */}
-            <div className="grid grid-cols-4 gap-2">
-              <div className="col-span-4 flex p-3 justify-self-start self-start gap-1">
-                <label htmlFor="isPediatric" className={`text-${selectedTheme}-600 font-semibold`}>Pediatric Client(1-2 years old):</label>
-                {/* <input type="checkbox" name="isPediatric" id="isPediatric" checked={isPediatric} onChange={() => setIsPediatric(prev => !prev)}/> */}
+            <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 ${isPediatric ? 'block' : 'hidden'}`}>
+              <div className="col-span-2 md:col-span-3 lg:col-span-4 flex p-3 justify-self-start self-start gap-1">
+                <p htmlFor="isPediatric" className={`text-${selectedTheme}-600 font-bold`}>Pediatric Client(1-2 years old):</p>
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="length" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Lenght:</label>
                 <input
                   type="text"
@@ -479,7 +506,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="waist" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Waist:</label>
                 <input
                   type="text"
@@ -495,7 +522,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="head" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Head:</label>
                 <input
                   type="text"
@@ -511,7 +538,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="hip" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Hip:</label>
                 <input
                   type="text"
@@ -527,7 +554,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="limb" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Limb:</label>
                 <input
                   type="text"
@@ -543,7 +570,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="muac" className={`block text-${selectedTheme}-600 font-semibold self-center`}>MUAC:</label>
                 <input
                   type="text"
@@ -559,7 +586,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   onChange={handlePediatricChange}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-1">
                 <label htmlFor="skinfold" className={`block text-${selectedTheme}-600 font-semibold self-center`}>Skinfold:</label>
                 <input
                   type="text"

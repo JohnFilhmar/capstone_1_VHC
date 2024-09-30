@@ -11,7 +11,12 @@ const authenticationSocket = require('./authenticationSocket');
 function initializeWebSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: [config.ALLOWED_ORIGIN, 'https://localhost:3000', 'https://192.168.1.2:3000'],
+      origin: [
+        ...config.ALLOWED_ORIGIN,
+        config.PROJECT_STATE === "development" && "https://localhost:3000",
+        "https://192.168.1.2:3000",
+        "https://192.168.220.1:3000",
+      ],
       methods: ["GET"],
       allowedHeaders: ['Content-Type', 'Authorization'],
       credentials: true

@@ -6,9 +6,6 @@ const config = {
   MYSQL_DATABASE: "u807685206_kalusugapp",
   ALLOWED_ORIGIN: [
     "https://kalusugapp.com",
-    // "https://localhost:3000",
-    // "https://192.168.1.2:3000",
-    // "https://192.168.220.1:3000",
   ],
   ACCESS_TOKEN_SECRET:
     "07c0eee3de2cfcc35cb0ef4e5cd2881d63f2de13f0447760d3ded68472be80ebaf094d04f7dcc7368d3b47784a3a3608b79a63d844fd3e4a31f75e1b18d5021b",

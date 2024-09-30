@@ -17,7 +17,7 @@ const ImportFileForm = ({ close, children, tableName }) => {
   useEffect(() => {
     fetchData(`/describe${tableName}`);
   // eslint-disable-next-line
-  }, []);
+  }, [tableName]);
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -49,9 +49,9 @@ const ImportFileForm = ({ close, children, tableName }) => {
           dateTime: mysqlTime,
           staff_id: res.data.staff_id
         };
-        addData(`/handleFileUpload${tableName}`, payload);
-        setData(null);
+        await addData(`/handleFileUpload${tableName}`, payload);
         close();
+        setData(null);
         fileRef.current.value = "";
         const time = setTimeout(() => {
           socket.emit('updatePharmacy')
@@ -61,7 +61,7 @@ const ImportFileForm = ({ close, children, tableName }) => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
   
   return (
     <>

@@ -116,21 +116,23 @@ const Prescriptions = ({ selectedTheme }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-        <div className="flex justify-start items-center gap-3 w-full">
+        <div className="flex flex-col justify-start items-start">
           <p className={`text-${selectedTheme}-600 font-bold p-2`}>Prescribed Medicines:</p>
           {medicinePrescriptions.length === 0 && (
             <div className={`flex justify-between items-center divide-x-[1px] bg-${selectedTheme}-200 animate-pulse text-${selectedTheme}-600 drop-shadow-md rounded-md`}>
               <p className="grow p-1 px-2 font-bold">Add new prescribed medicine...</p>
             </div>
           )}
-          {medicinePrescriptions.map((mp, i) => (
-            <div key={i} className={`flex justify-between items-center divide-x-[1px] bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md rounded-md`}>
-              <p className="grow p-1 px-2">{mp.item_name}</p>
-              <button onClick={() => handleDeleteMedicinePrescription(i)} className={`font-bold p-1 text-lg`}>&times;</button>
-            </div>
-          ))}
+          <div className="max-w-full overflow-x-auto overflow-y-hidden flex gap-1">
+            {medicinePrescriptions.map((mp, i) => (
+              <div key={i} className={`flex justify-between items-center divide-x-[1px] bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md rounded-md`}>
+                <p className="grow p-1 px-2 whitespace-nowrap">{mp.item_name}</p>
+                <button onClick={() => handleDeleteMedicinePrescription(i)} className={`font-bold p-1 text-lg`}>&times;</button>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-2">
           <div className="p-2">
             <label htmlFor="medicine" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Medicine:</label>
             <input
@@ -186,7 +188,7 @@ const Prescriptions = ({ selectedTheme }) => {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-2 p-2">
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 lg:p-2">
           <div className="p-2">
             <label htmlFor="frequency" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Frequency:</label>
             <input
@@ -227,8 +229,8 @@ const Prescriptions = ({ selectedTheme }) => {
             rows={2}
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 p-2">
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2 my-2">
+          <div className={`flex flex-col items-center justify-start gap-3`}>
             <label htmlFor="is_applicable_pregnancy" className={`block text-${selectedTheme}-600 font-semibold`}>
               Is Medicine Refillable:
             </label>
@@ -259,7 +261,7 @@ const Prescriptions = ({ selectedTheme }) => {
               </label>
             </div>
           </div>
-          <div className="p-2">
+          <div>
             <label htmlFor="quantity_prescribed" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Quantity Prescribed:</label>
             <div className="flex gap-1 items-center justify-between">
               <input
@@ -282,7 +284,7 @@ const Prescriptions = ({ selectedTheme }) => {
           </div>
         </div>
         <button
-          disabled={!itemId || !prescriptions.dosage || !prescriptions.intake_method || !prescriptions.frequency || !prescriptions.duration || !prescriptions.instructions || !prescriptions.quantity_prescribed} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines and Create New Medicine Prescription</button>
+          disabled={!itemId || !prescriptions.dosage || !prescriptions.intake_method || !prescriptions.frequency || !prescriptions.duration || !prescriptions.instructions || !prescriptions.quantity_prescribed} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines</button>
       </div>
     </div>
   );

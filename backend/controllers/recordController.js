@@ -14,13 +14,11 @@ class RecordController {
           .status(404)
           .json({ status: 404, message: "Table not found!" });
 
-      return res
-        .status(200)
-        .json({
-          status: 200,
-          data: getDescribeResponse,
-          message: "Table successfully described!",
-        });
+      return res.status(200).json({
+        status: 200,
+        data: getDescribeResponse,
+        message: "Table successfully described!",
+      });
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -51,11 +49,26 @@ class RecordController {
         staff_id,
       } = req.body;
 
+      const familyIdExistsQuery = `
+        SELECT COUNT(citizen_lastname) AS count, citizen_lastname
+        FROM citizen
+        WHERE citizen_family_id LIKE CONCAT(?, '%')
+        GROUP BY citizen_lastname
+        LIMIT 1`;
+      const [familyIdExistsResponse] = await dbModel.query(
+        familyIdExistsQuery,
+        [family_id]
+      );
+      const count = familyIdExistsResponse.count;
+      if (count > 0) return res.status(208).json({ status: 208, message: `Found ${count} records with the same Family ID.`, lastname: familyIdExistsResponse.citizen_lastname });
+
       const fullName = `${firstName} ${
         middleName ? middleName + " " : ""
       }${lastName}`;
       const date = new Date(birthdate);
-      const newBirthdate = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`;
+      const newBirthdate = `${date.getFullYear()}-${
+        date.getMonth() + 1
+      }-${date.getDate()}`;
       const checkIfNameExistsQuery = `
         SELECT 
           CASE 
@@ -65,30 +78,19 @@ class RecordController {
         FROM 
           citizen
         WHERE 
-          CONCAT(citizen_firstname, ' ', COALESCE(citizen_middlename, ''), ' ', citizen_lastname) LIKE ?
+          LOWER(CONCAT(citizen_firstname, ' ', COALESCE(citizen_middlename, ''), ' ', citizen_lastname)) LIKE LOWER(?)
           AND citizen_birthdate = ?
-          AND citizen_barangay = ?;`;
+          AND LOWER(citizen_barangay) = LOWER(?);`;
       const [checkIfNameExistsResponse] = await dbModel.query(
         checkIfNameExistsQuery,
         [fullName, newBirthdate, barangay]
       );
-      if (Boolean(checkIfNameExistsResponse.record_exists))
-        return res
-          .status(403)
-          .json({
-            status: 403,
-            message: "Record already exists in the database! ",
-          });
-
-      const checkFamilyIdQuery =
-        "SELECT `citizen_family_id` FROM `citizen` WHERE `citizen_family_id` = ?";
-      const [checkFamilyIdResponse] = await dbModel.query(checkFamilyIdQuery, [
-        family_id,
-      ]);
-      if (checkFamilyIdResponse)
-        return res
-          .status(409)
-          .json({ status: 409, message: "Family Id Already Taken!" });
+      if (Boolean(checkIfNameExistsResponse.record_exists)) {
+        return res.status(403).json({
+          status: 403,
+          message: "Record already exists in the database! ",
+        });
+      }
 
       const insertCitizenQuery =
         "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -130,6 +132,104 @@ class RecordController {
     }
   }
 
+  async proceedAddRecord(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const {
+        family_id,
+        firstName,
+        middleName,
+        lastName,
+        gender,
+        birthdate,
+        barangay,
+        phone_number,
+        dateTime,
+        staff_id,
+      } = req.body;
+      
+      const familyIdExistsQuery = `
+        SELECT COUNT(citizen_lastname) AS count
+        FROM citizen
+        WHERE citizen_family_id LIKE CONCAT(?, '%')`;
+      const [familyIdExistsResponse] = await dbModel.query(
+        familyIdExistsQuery,
+        [family_id]
+      );
+      const count = familyIdExistsResponse.count;
+      
+      const fullName = `${firstName} ${
+        middleName ? middleName + " " : ""
+      }${lastName}`;
+      const date = new Date(birthdate);
+      const newBirthdate = `${date.getFullYear()}-${
+        date.getMonth() + 1
+      }-${date.getDate()}`;
+      const checkIfNameExistsQuery = `
+        SELECT 
+          CASE 
+            WHEN COUNT(*) > 0 THEN TRUE 
+            ELSE FALSE 
+          END AS record_exists
+        FROM 
+          citizen
+        WHERE 
+          LOWER(CONCAT(citizen_firstname, ' ', COALESCE(citizen_middlename, ''), ' ', citizen_lastname)) LIKE LOWER(?)
+          AND citizen_birthdate = ?
+          AND LOWER(citizen_barangay) = LOWER(?);`;
+      const [checkIfNameExistsResponse] = await dbModel.query(
+        checkIfNameExistsQuery,
+        [fullName, newBirthdate, barangay]
+      );
+      if (Boolean(checkIfNameExistsResponse.record_exists)) {
+        return res.status(226).json({
+          status: 226,
+          message: "Record already exists in the database! ",
+        });
+      }
+
+      const insertCitizenQuery =
+        "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      const citizenPayload = [
+        `${family_id}~${count}`,
+        firstName,
+        middleName,
+        lastName,
+        gender,
+        birthdate,
+        barangay,
+        phone_number,
+      ];
+      await dbModel.query(insertCitizenQuery, citizenPayload);
+
+      const insertHistoryQuery =
+        "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
+      const insertHistoryPayload = [
+        `${family_id}~${count}`,
+        "record added",
+        "added this to records",
+        staff_id,
+        dateTime,
+      ];
+      await dbModel.query(insertHistoryQuery, insertHistoryPayload);
+      return res
+        .status(200)
+        .json({ status: 200, message: "Record added successfully" });
+            
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      })
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
+  
   async getRecords(req, res) {
     let connection;
     try {
@@ -210,11 +310,11 @@ class RecordController {
           continue;
         }
         const dateBirthdate = new Date(item.citizen_birthdate ?? "2001-01-01");
-        
+
         const newBirthDate = `${dateBirthdate.getFullYear()}-${
           dateBirthdate.getMonth() + 1
         }-${dateBirthdate.getDate()}`;
-        
+
         const fullName = `${item.citizen_firstname} ${
           item.citizen_middlename ? item.citizen_middlename + " " : ""
         }${item.citizen_lastname}`;

@@ -30,7 +30,7 @@ const Analytics = () => {
                   <p
                     className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}
                   >
-                    Most Diseases and Illness
+                    Most Cases Reported
                   </p>
                 </div>
                 <MostDiseases data={storedData.illnesses_count} />
@@ -42,7 +42,7 @@ const Analytics = () => {
                   <p
                     className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}
                   >
-                    Annual Illness Rate
+                    Annual Cases Rate
                   </p>
                 </div>
                 <IllnessRate data={storedData.illnesses_rate} />
@@ -55,7 +55,7 @@ const Analytics = () => {
                 <p
                   className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}
                 >
-                  Barangay Illnesses Rate
+                  Barangay Cases Rate
                 </p>
               </div>
               <BarangayIllnessRate dataset={storedData.barangay_illness_rate} />

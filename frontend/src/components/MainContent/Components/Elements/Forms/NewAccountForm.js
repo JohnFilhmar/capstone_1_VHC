@@ -4,6 +4,7 @@ import useQuery from "../../../../../hooks/useQuery";
 import { Label, Radio, Spinner } from "flowbite-react";
 import useCurrentTime from "../../../../../hooks/useCurrentTime";
 import { socket } from "../../../../../socket";
+import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 
 const NewAccountForm = ({ close, children }) => {
   const [selectedTheme] = useContext(colorTheme);
@@ -12,6 +13,7 @@ const NewAccountForm = ({ close, children }) => {
   const [isWarningShown, setIsWarningShown] = useState(false);
   const [warning, setWarning] = useState("");
   const [repassword, setRepassword] = useState("");
+  const [isPassVisible, setIsPassVisible] = useState(false);
   const [payload, setPayload] = useState({
     username: "",
     password: "",
@@ -67,6 +69,34 @@ const NewAccountForm = ({ close, children }) => {
     return () => {
       clearTimeout(time);
     };
+  };
+
+  useEffect(() => {
+    if (payload.password.length === 0) {
+      setRepassword('');
+    }
+  }, [payload.password]);
+
+  function generateStrongPassword() {
+    const upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    const specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+    let password = "";
+    password += upperCaseChars[Math.floor(Math.random() * upperCaseChars.length)];
+    password += lowerCaseChars[Math.floor(Math.random() * lowerCaseChars.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += specialChars[Math.floor(Math.random() * specialChars.length)];
+    const allChars = upperCaseChars + lowerCaseChars + numbers + specialChars;
+    const remainingLength = Math.floor(Math.random() * 3) + 4;
+    
+    for (let i = 0; i < remainingLength; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+    setPayload(prev => ({ ...prev, password: password }));
+    setRepassword(password);
+    // return password;
   }
   
   function validatePasswordStrength(password) {
@@ -116,19 +146,28 @@ const NewAccountForm = ({ close, children }) => {
           <div className="mb-2 block">
             <label htmlFor="password" className='text-xs md:text-sm lg:text-base font-semibold'>Password</label>
           </div>
-          <input 
-            required 
-            className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-            maxLength={50} 
-            minLength={8}
-            id="password"
-            name="password"
-            type="password" 
-            placeholder="Create a unique password. . . . ."
-            value={payload.password}
-            onChange={handleChange} 
-            autoComplete="off"
-          />
+          <div className="flex gap-1">
+            <input 
+              required 
+              className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
+              maxLength={50} 
+              minLength={8}
+              id="password"
+              name="password"
+              type={isPassVisible ? 'text' : 'password'} 
+              placeholder="Create a unique password. . . . ."
+              value={payload.password}
+              onChange={handleChange} 
+              autoComplete="off"
+            />
+            <button onClick={(e) => {e.preventDefault(); setIsPassVisible(prev => !prev);}} className={`drop-shadow-sm p-2 rounded-md bg-${selectedTheme}-200 text-${selectedTheme}-800`}>
+              {isPassVisible ? (
+                <IoMdEye className="size-4 md:size-5 lg:size-6"/>
+              ) : (
+                <IoMdEyeOff className="size-4 md:size-5 lg:size-6"/>
+              )}
+            </button>
+          </div>
         </div>
         <div>
           <div className="mb-2 block">
@@ -141,7 +180,7 @@ const NewAccountForm = ({ close, children }) => {
             minLength={8}
             id="repassword"
             name="repassword"
-            type="password" 
+            type={isPassVisible ? 'text' : 'password'} 
             placeholder="Re-enter your unique password. . . . ."
             value={repassword}
             onChange={handleChange} 
@@ -150,8 +189,8 @@ const NewAccountForm = ({ close, children }) => {
           </div>
 
           {isWarningShown && 
-          <p className={`text-wrap text-red-700 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
-            {warning}
+          <p className={`text-wrap text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
+            {warning} <button className="font-bold text-blue-800" onClick={() => generateStrongPassword()}>Click this to create a strong random password.</button>
           </p>}
 
         <fieldset className="flex flex-row gap-3 p-2">

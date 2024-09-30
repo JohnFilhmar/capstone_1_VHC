@@ -35,7 +35,7 @@ const CitizenForm = ({ userData }) => {
     <div className={`flex flex-col gap-0 p-2 m-1 border-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
       <PatientInfo selectedTheme={selectedTheme} userData={userData}/>
       <ChiefCompaint selectedTheme={selectedTheme}/>
-      <div className="flex gap-3 justify-between">
+      <div className="grid lg:flex grid-cols-1 md:grid-cols-1 lg:grid-cols-2 lg:gap-3">
         <MedicalHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility(prev => !prev)}/>
         <FamilyHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility(prev => !prev)}/>
       </div>

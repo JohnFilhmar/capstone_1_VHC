@@ -97,64 +97,62 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
         </button>
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
-        <div className="grid grid-cols-4 gap-2 w-full">
-          <div className="p-2 col-span-4 grid grid-cols-3 gap-2">
-            <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
-              <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
-                If Patient Menstrual History Applicable:
+        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-2 w-full">
+          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+            <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
+              If Patient Menstrual History Applicable:
+            </label>
+            <div className="flex items-center space-x-4">
+              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                <input
+                  type="checkbox"
+                  checked={mensApplicable}
+                  onChange={() => setMensApplicable(prev => !prev)}
+                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                />
+                <span className={`text-${selectedTheme}-600`}>
+                  Yes
+                </span>
               </label>
-              <div className="flex items-center space-x-4">
-                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                  <input
-                    type="checkbox"
-                    checked={mensApplicable}
-                    onChange={() => setMensApplicable(prev => !prev)}
-                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                  />
-                  <span className={`text-${selectedTheme}-600`}>
-                    Yes
-                  </span>
-                </label>
-                <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
-                  <input
-                    type="checkbox"
-                    checked={!mensApplicable}
-                    onChange={() => setMensApplicable(prev => !prev)}
-                    className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
-                  />
-                  <span className={`text-${selectedTheme}-600`}>
-                    No
-                  </span>
-                </label>
-              </div>
-            </div>
-            <div className="p-2">
-              <label htmlFor="menarche" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Menarche:</label>
-              <input
-                type="text"
-                id="menarche"
-                name="menarche"
-                value={menstrualHistory.menarche}
-                onChange={(e) => setMenstrualHistory(prev => ({ ...prev, menarche: e.target.value }))}
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-                disabled={!mensApplicable}
-              />
-            </div>
-            <div className="p-2">
-              <label htmlFor="last_menstrual_date" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Last Menstrual Date:</label>
-              <input
-                type="date"
-                id="last_menstrual_date"
-                name="last_menstrual_date"
-                value={menstrualHistory.last_menstrual_date}
-                onChange={(e) => setMenstrualHistory(prev => ({ ...prev, last_menstrual_date: e.target.value }))}
-                className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-                disabled={!mensApplicable}
-              />
+              <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
+                <input
+                  type="checkbox"
+                  checked={!mensApplicable}
+                  onChange={() => setMensApplicable(prev => !prev)}
+                  className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
+                />
+                <span className={`text-${selectedTheme}-600`}>
+                  No
+                </span>
+              </label>
             </div>
           </div>
+          <div className={`${mensApplicable ? 'block' : 'hidden'} p-2`}>
+            <label htmlFor="menarche" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Menarche:</label>
+            <input
+              type="text"
+              id="menarche"
+              name="menarche"
+              value={menstrualHistory.menarche}
+              onChange={(e) => setMenstrualHistory(prev => ({ ...prev, menarche: e.target.value }))}
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+              disabled={!mensApplicable}
+            />
+          </div>
+          <div className={`${mensApplicable ? 'block' : 'hidden'} p-2`}>
+            <label htmlFor="last_menstrual_date" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Last Menstrual Date:</label>
+            <input
+              type="date"
+              id="last_menstrual_date"
+              name="last_menstrual_date"
+              value={menstrualHistory.last_menstrual_date}
+              onChange={(e) => setMenstrualHistory(prev => ({ ...prev, last_menstrual_date: e.target.value }))}
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+              disabled={!mensApplicable}
+            />
+          </div>
         </div>
-        <div className="grid grid-cols-3 w-full gap-2">
+        <div className={`grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 w-full gap-2 ${mensApplicable ? 'block' : 'hidden'}`}>
           <div className="p-2">
             <label htmlFor="menstrual_duration" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Menstrual Duration:</label>
             <input
@@ -192,7 +190,7 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
             />
           </div>
         </div>
-        <div className="grid grid-cols-3 w-full gap-2">
+        <div className={`grid grid-cols-1 md:grid-cols-1 lg:rid-cols-3 w-full gap-2 ${mensApplicable ? 'block' : 'hidden'}`}>
           <div className="p-2">
             <label htmlFor="onset_sexual_intercourse" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Onset Sexual Intercourse:</label>
             <input
@@ -223,7 +221,7 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
               ))}
             </datalist>
           </div>
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+          <div className={`flex flex-col items-center justify-start gap-3`}>
             <label htmlFor="is_menopause" className={`block text-${selectedTheme}-600 font-semibold`}>
               Is On Menopause:
             </label>
