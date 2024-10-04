@@ -1,4 +1,4 @@
-// const http = require("http");
+const http = require("http");
 const https = require("https");
 const express = require("express");
 const fs = require("fs");
@@ -7,20 +7,20 @@ const cors = require("cors");
 const routes = require("./routes/routes");
 const initializeWebSocket = require("./sockets/eventDispatcher");
 const cookieParser = require("cookie-parser");
-const config = require("./config.js");
 const bodyParser = require("body-parser");
 const routeAuth = require("./middlewares/routeAuth");
 const authController = require("./controllers/authController");
 const emailController = require("./controllers/emailController");
 const roleAuth = require("./middlewares/roleAuth");
+require('dotenv').config();
 
 const app = express();
-const port = config.PROJECT_STATE === "production" ? 3000 : 5000;
+const port = process.env.PROJECT_STATE === "production" ? 3000 : 5000;
 
 const corsOptions = {
   origin: [
-    ...config.ALLOWED_ORIGIN,
-    config.PROJECT_STATE === "development" && "https://localhost:3000",
+    ...process.env.ALLOWED_ORIGIN,
+    process.env.PROJECT_STATE === "development" && "https://localhost:3000",
     "https://192.168.1.2:3000",
     "https://192.168.220.1:3000",
   ],
@@ -42,10 +42,10 @@ app.use(express.static("public"));
 
 app.use("/api/authStaff", authController.authStaff);
 app.use("/api/authToken", authController.authToken);
-app.post("/api/sendEmail", emailController.sendEmail);
+app.use("/api/verifyEmail/:token", authController.verifyEmail);
 app.use("/api", routeAuth, roleAuth, routes);
 
-const server = https.createServer(serverOptions, app);
+const server = process.env.PROJECT_STATE === "production" ? http.createServer(app) : https.createServer(serverOptions, app);
 // const server = http.createServer(app);
 
 initializeWebSocket(server);

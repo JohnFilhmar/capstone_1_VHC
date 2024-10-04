@@ -1,16 +1,16 @@
 const mysql = require('mysql');
-const config = require('../config');
+require('dotenv').config();
 
 class Database {
   constructor() {
     this.pool = mysql.createPool({
-      host: config.PROJECT_STATE === 'production' ? config.MYSQL_HOST : 'localhost',
-      user: config.PROJECT_STATE === 'production' ? config.MYSQL_USER : 'root',
-      password: config.PROJECT_STATE === 'production' ? config.MYSQL_PASS : '',
-      database: config.PROJECT_STATE === 'production' ? config.MYSQL_DATABASE : 'capstone',
+      host: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_HOST : 'localhost',
+      user: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_USER : 'root',
+      password: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_PASS : '',
+      database: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_DATABASE : 'u807685206_kalusugapp',
       port: 3306,
       ssl: {
-        rejectUnauthorized: config.PROJECT_STATE === 'production' ? true : false
+        rejectUnauthorized: process.env.PROJECT_STATE === 'production' ? true : false
       }
     });
   }

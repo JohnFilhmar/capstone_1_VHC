@@ -4,7 +4,7 @@
   "description": "CRUD (Create, Read, Update, Delete) application",
   "scripts": {
     "install:both": "concurrently \"cd frontend && npm install\" \"cd backend && npm install\"",
-    "start:both": "concurrently \"cd frontend && npm start\" \"cd backend && npm start\""
+    "start:both": "concurrently \"cd frontend && npm start\" \"cd backend && npm run nodemon start\""
   },
   "keywords": [
     "CRUD",

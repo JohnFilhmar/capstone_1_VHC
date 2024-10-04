@@ -224,7 +224,7 @@ const Prescriptions = ({ selectedTheme }) => {
             disabled={!itemId}
             value={prescriptions.instructions}
             onChange={(e) => setPrescriptions(prev => ({ ...prev, instructions: e.target.value }))}
-            placeholder="Enter the tests conducted on the patient. . . . ."
+            placeholder="Enter specific instructions for this specific medicine. . . . ."
             className="w-full rounded-lg text-xs md:text-sm lg:text-base"
             rows={2}
           />

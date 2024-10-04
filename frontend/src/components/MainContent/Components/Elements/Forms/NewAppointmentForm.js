@@ -15,6 +15,7 @@ const NewAppointmentForm = ({ close, children }) => {
   const [errorPrompt, setErrorPrompt] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [famId, setFamId] = useState('');
+  const [errMessage, setErrMessage] = useState(null);
   const { mysqlTime } = useCurrentTime();
   const { response, isLoading, addData, postData } = useQuery();
 
@@ -44,6 +45,22 @@ const NewAppointmentForm = ({ close, children }) => {
       dateTime: mysqlTime,
     };
     try {
+      if (!famId) {
+        setErrMessage("No name exists on the record.");
+        const time = setTimeout(() => {
+          setErrMessage(null);
+        }, 3000);
+        return () => clearTimeout(time);
+      }
+      if (new Date(appointment) < new Date()) {
+        if (!errMessage) {
+          setErrorPrompt("Appointment must be after this day or any other day!");
+          const time = setTimeout(() => {
+            setErrorPrompt();
+          }, 3000);
+          return () => clearTimeout(time);
+        }
+      }
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
         const convertedPayload = {
@@ -52,23 +69,14 @@ const NewAppointmentForm = ({ close, children }) => {
             appointedTime: convertToMySQLDateTime(payload.appointedTime),
             citizen_family_id: famId
         };
-        if (new Date(appointment) > new Date()) {
-          addData("newAppointment", convertedPayload);
-          setTimeout(() => {
-            socket.emit('updateAppointment');
-          },[500]);
-          cleanUp();
-          close();
-        } else {
-          setErrorPrompt("Appointment must be after this day or any other day!");
-          const time = setTimeout(() => {
-            setErrorPrompt("");
-          }, 3000);
-          return () => clearTimeout(time);
-        }
+        addData("newAppointment", convertedPayload);
+        setTimeout(() => {
+          socket.emit('updateAppointment');
+        },[500]);
+        cleanUp();
+        close();
       }
     } catch (error) {
-      console.error(error.message);
       setErrorPrompt(error.message);
       const time = setTimeout(() => {
         setErrorPrompt("");
@@ -127,7 +135,7 @@ const NewAppointmentForm = ({ close, children }) => {
   return (
     <>
       {children}
-      <div className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24">
+      <div className="relative flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24">
         <form className="flex flex-col gap-4 max-h-[450px] min-h-[450px] overflow-y-auto" onSubmit={handleSubmit}>
           <div>
             <label htmlFor={'fullname'} className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>{'Name'}:<span className="text-red-600 font-bold">*</span></label>
@@ -186,7 +194,7 @@ const NewAppointmentForm = ({ close, children }) => {
             <label htmlFor="appointmentdatetime" className='relative text-xs md:text-sm lg:text-base font-semibold'>
               Appointed Date & Time:<span className="text-red-600 font-bold">*</span>
               {errorPrompt && 
-                <p className="absolute left-0 text-xs border-[1px] border-red bg-red-100 rounded-lg p-1 text-red font-thin text-red text-nowrap w-min">{errorPrompt && errorPrompt}</p>
+                <p className="absolute top-0 left-0 border-[1px] border-red bg-red-100 rounded-lg p-1 text-red font-thin text-red text-nowrap w-min">{errorPrompt && errorPrompt}</p>
               }
             </label>
             <input 
@@ -199,7 +207,7 @@ const NewAppointmentForm = ({ close, children }) => {
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
             />
           </div>
-          <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? 'Create new appointment' : <Spinner/>}</p></button>
+          <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${errMessage ? 'bg-red-800 text-red-200 font-bold' :!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{errMessage ? errMessage : !isLoading ? 'Create new appointment' : <Spinner/>}</p></button>
         </form>
       </div>
     </>

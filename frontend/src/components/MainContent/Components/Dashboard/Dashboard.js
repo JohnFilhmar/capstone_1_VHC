@@ -48,6 +48,8 @@ const DashIcon = ({ Icon, title, value, isLoading }) => {
 };
 
 const Dashboard = () => {
+  // eslint-disable-next-line no-unused-vars
+  const [selectedTheme, setSelectedTheme] = useContext(colorTheme);
   const { response, isLoading, fetchData } = useQuery();
   const [data, setData] = useState({
     patient_count: 0,
@@ -86,10 +88,20 @@ const Dashboard = () => {
               <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="Donated" value={faker.datatype.number({ min: 0, max: 500 })}/>
 
             </div>
-
-            <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
-            <DonorChart title="Most Frequent Donor"/>
-            <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
+            
+            {isLoading ? (
+              <>
+                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
+                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
+                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2  rounded-md`}></div>
+              </>
+            ) : (
+              <>
+              <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
+              <DonorChart title="Most Frequent Donor"/>
+              <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
+              </>
+            )}
 
           </div>
         </div>

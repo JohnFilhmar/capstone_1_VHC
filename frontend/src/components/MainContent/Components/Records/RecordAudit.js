@@ -138,7 +138,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
             staff_id: res.data.staff_id,
             dateTime: mysqlTime
           }
-          addData('/addClinicRecord', newPayload);
+          await addData('/addClinicRecord', newPayload);
           setMedicinePrescriptions([]);
           closeAudit();
         }

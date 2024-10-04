@@ -16,6 +16,124 @@ export const genderContext = createContext();
 const CitizenForm = ({ userData }) => {
   const [selectedTheme] = useContext(colorTheme);
   const [historyVisibility, setHistoryVisibility] = useState(false);
+
+  useEffect(() => {
+    const toStore = {
+      "citizen_family_id": userData?.citizen_family_id,
+      "civil_status": "",
+      "philhealth_number": "",
+      "philhealth_dpin": "",
+      "philhealth_category": "",
+      "vital_signs": {
+          "blood_pressure": "120/80 mmHg",
+          "temperature": "98.6°F",
+          "heart_rate": "75 bpm",
+          "weight": "",
+          "height": "",
+          "pulse_rate": "75 bpm",
+          "respiratory_rate": "14 breaths/min",
+          "bmi": "29.14",
+          "oxygen_saturation": "98%"
+      },
+      "pediatric_client": {
+          "length": "",
+          "waist": "",
+          "head": "",
+          "hip": "",
+          "limb": "",
+          "muac": "",
+          "skinfold": ""
+      },
+      "isPediatric": false,
+      "contact_number": "111111111111",
+      "chief_of_complaint": "",
+      "history_of_present_illness": "",
+      "past_medical_history": {
+          "allergy": false,
+          "cerebrovascular_disease": false,
+          "emphysema": false,
+          "hepatitis": false,
+          "mental_illness": false,
+          "peptic_ulcer": false,
+          "thyroid_disease": false,
+          "asthma": false,
+          "coronary_artery_disease": false,
+          "epilepsy_seizure_disorder": false,
+          "hyperlipidemia": false,
+          "pneumonia": false,
+          "urinary_tract_infection": false,
+          "cancer": false,
+          "diabetes_mellitus": false,
+          "extrapulmonary_tuberculosis": false,
+          "pulmonary_tuberculosis": false,
+          "others": "",
+          "none": false
+      },
+      "family_medical_history": {
+          "allergy": false,
+          "cerebrovascular_disease": false,
+          "emphysema": false,
+          "hepatitis": false,
+          "mental_illness": false,
+          "peptic_ulcer": false,
+          "thyroid_disease": false,
+          "asthma": false,
+          "coronary_artery_disease": false,
+          "epilepsy_seizure_disorder": false,
+          "hyperlipidemia": false,
+          "pneumonia": false,
+          "urinary_tract_infection": false,
+          "cancer": false,
+          "diabetes_mellitus": false,
+          "extrapulmonary_tuberculosis": false,
+          "pulmonary_tuberculosis": false,
+          "others": "",
+          "none": false
+      },
+      "smoking_status": "no",
+      "alcohol_status": "no",
+      "illicit_drug_status": "no",
+      "sexually_active": "no",
+      "physical_examination": {
+          "skin_descriptions": {
+              "clubbing": false,
+              "decreased_mobility": false,
+              "pale_nailbeds": false,
+              "weak_pulses": false,
+              "cold_clammy": false,
+              "edema_swelling": false,
+              "poor_skin_turgor": false,
+              "cyanosis_mottled_skin": false,
+              "essentially_normal": false,
+              "rash_or_itching": false,
+              "other_skin_description": ""
+          },
+          "heent_descriptions": {
+              "abnormal_pupillary_reaction": false,
+              "essentially_normal": false,
+              "sunken_eyeballs": false,
+              "cervical_lymphadenopathy": false,
+              "icteric_sclerae": false,
+              "sunken_fontanelle": false,
+              "dry_mucous_membrane": false,
+              "pale_conjunctivae": false,
+              "other_heent_description": ""
+          }
+      },
+      "diagnosis_plan": {
+          "primary_diagnosis": "",
+          "secondary_diagnosis": "",
+          "illnesses": "",
+          "severity": "moderate",
+          "symptoms": "",
+          "tests_conducted": "",
+          "diagnosis_details": "",
+          "follow_up_recommendations": ""
+      }
+  };
+    sessionStorage.setItem('clinicForm', JSON.stringify(toStore));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   useEffect(() => {
     const time = setTimeout(() => {

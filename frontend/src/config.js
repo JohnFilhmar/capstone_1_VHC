@@ -1,5 +1,5 @@
 const config = {
-  REACT_APP_PROJECT_STATE: 'production',
+  REACT_APP_PROJECT_STATE: 'development',
   REACT_APP_DEVELOPMENT_BACKEND_BASE_URL:
     window.location.hostname === '192.168.1.2'
       ? 'https://192.168.1.2:5000'

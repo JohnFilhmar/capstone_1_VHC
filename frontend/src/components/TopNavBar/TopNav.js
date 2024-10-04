@@ -76,7 +76,7 @@ const TopNav = () => {
       <div className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}>
         <img src="MHO_logo.png" className='size-12 md:size-12 lg:size-16 drop-shadow-md' alt="..."/>
         <div className="self-center whitespace-nowrap font-bold">
-          <p className="sm:text-lg md:text-xl lg:text-2xl">KalusugApp: MHO</p>
+          <p className="sm:text-lg md:text-xl lg:text-2xl">KalusugApp: VMHO</p>
           <div className={`p-1 flex gap-2 items-center justify-start text-xs rounded-lg`}>
             <span className="hidden md:block lg:block"><DateComponent /></span>
             <TimeComponent />

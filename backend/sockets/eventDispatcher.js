@@ -1,6 +1,6 @@
 const { Server } = require('socket.io');
 const dbModel = require('../models/database_model');
-const config = require('../config');
+require('dotenv').config();
 const recordSocket = require('./recordSocket');
 const appointmentSocket = require('./appointmentSocket');
 const queueSocket = require('./queueSocket');
@@ -9,11 +9,12 @@ const pharmacySocket = require('./pharmacySocket');
 const authenticationSocket = require('./authenticationSocket');
 
 function initializeWebSocket(server) {
+  const allowedOrigins = process.env.ALLOWED_ORIGIN;
   const io = new Server(server, {
     cors: {
       origin: [
-        ...config.ALLOWED_ORIGIN,
-        config.PROJECT_STATE === "development" && "https://localhost:3000",
+        ...allowedOrigins,
+        process.env.PROJECT_STATE === "development" && "https://localhost:3000",
         "https://192.168.1.2:3000",
         "https://192.168.220.1:3000",
       ],

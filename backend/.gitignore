@@ -1,4 +1,4 @@
 .vercel
 
 # Configuration values
-# config.js
+# process.env.js

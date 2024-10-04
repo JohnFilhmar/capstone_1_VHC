@@ -58,9 +58,9 @@ const NewAccountForm = ({ close, children }) => {
     close();
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    addData('addStaff',payload);
+    await addData('addStaff',payload);
     setIsWarningShown(false);
     cleanUp();
     const time = setTimeout(() => {
@@ -124,7 +124,7 @@ const NewAccountForm = ({ close, children }) => {
   return (
     <>
       {children}
-      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24 w-[500px]" onSubmit={handleSubmit}>
+      <form className="flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24 w-[20rem] md:w-[50rem] lg:w-[50rem]" onSubmit={handleSubmit}>
         <div>
           <div className="mb-2 block">
             <label htmlFor="username" className='text-xs md:text-sm lg:text-base font-semibold'>User Name</label>
@@ -189,7 +189,7 @@ const NewAccountForm = ({ close, children }) => {
           </div>
 
           {isWarningShown && 
-          <p className={`text-wrap text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
+          <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
             {warning} <button className="font-bold text-blue-800" onClick={() => generateStrongPassword()}>Click this to create a strong random password.</button>
           </p>}
 

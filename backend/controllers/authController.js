@@ -1,17 +1,61 @@
 const jwt = require('jsonwebtoken');
 const dbModel = require('../models/database_model');
 const bcrypt = require('bcryptjs');
-const config = require('../config');
+require('dotenv').config();
 
 class AuthController {
+  
+  async verifyEmail(req, res) {
+    let connection;
+    try {
+      
+      const token = req.params.token; 
+      const findTokenQuery = "SELECT `staff_id`, `expiry_date` FROM `medicalstaff_email_verification` WHERE `token` = ?";
+      const [findTokenResponse] = await dbModel.query(findTokenQuery, [token]);
+      const expDate = findTokenResponse ? new Date(findTokenResponse.expiry_date) : null;
+      const currentDate = new Date();
+      if (!findTokenResponse && (expDate && expDate < currentDate)) {
+        return res.status(404).redirect('https://kalusugapp.com/invalid');
+      } else {
+
+        const updateEmailValidityQuery = "UPDATE `medicalstaff` SET `isVerified` = ? WHERE `staff_id` = ?";
+        await dbModel.query(updateEmailValidityQuery, [true, findTokenResponse.staff_id]);
+
+        const updateTokenQuery = "UPDATE `medicalstaff_email_verification` SET `token` = ? WHERE `staff_id` = ?";
+        await dbModel.query(updateTokenQuery, ['', findTokenResponse.staff_id]);
+
+        const date = new Date();
+        const dateTime = `
+          ${date.getFullYear()}-${String(date.getMonth() + 1).padStart('0', 2)}-${String(date.getDate()).padStart('0', 2)} ${String(date.getHours()).padStart('0', 2)}:${String(date.getMinutes()).padStart('0', 2)}:${String(date.getSeconds()).padStart('0', 2)}`;
+        const insertHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+        const historyPayload = [
+          findTokenResponse.staff_id,
+          'email verified',
+          'successfully verified the email',
+          null,
+          dateTime
+        ];
+        await dbModel.query(insertHistoryQuery, historyPayload);
+        
+        return res.redirect(process.env.PROJECT_STATE !== 'production' ? 'https://192.168.220.1:3000/login/validemail' : 'https://kalusugapp.com/login/validemail');
+      }
+      
+    } catch (error) {
+      return res.status(500).json({ status: 500, message: 'Internal server error', error: error.message });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
   
   async authStaff(req, res) {
     let connection;
     try {
       connection = await dbModel.getConnection();
       const developer = {
-        username: config.DEVELOPER_USERNAME,
-        password: config.DEVELOPER_PASSWORD
+        username: process.env.DEVELOPER_USERNAME,
+        password: process.env.DEVELOPER_PASSWORD
       };
   
       const { username, password, dateTime } = req.body;
@@ -22,8 +66,8 @@ class AuthController {
   
       if (username === developer.username && password === developer.password) {
         const user = { username: developer.username, role: "developer" };
-        const accessToken = jwt.sign(user, config.ACCESS_TOKEN_SECRET, {expiresIn: '1d'});
-        const refreshToken = jwt.sign(user, config.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
+        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'});
+        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
         res.cookie('refreshToken', refreshToken, {
           httpOnly: true,
           secure: true,
@@ -53,8 +97,8 @@ class AuthController {
         const data = { username, role}
         return jwt.sign( data, secret, { expiresIn } );
       };
-      const refreshToken = generateToken(config.REFRESH_TOKEN_SECRET, '7d');
-      const accessToken = generateToken(config.ACCESS_TOKEN_SECRET, '5m');
+      const refreshToken = generateToken(process.env.REFRESH_TOKEN_SECRET, '7d');
+      const accessToken = generateToken(process.env.ACCESS_TOKEN_SECRET, '5m');
   
       const updateRefreshTokenQuery = "UPDATE `medicalstaff` SET `refresh_token` = ? WHERE `staff_id` = ?";
       const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
@@ -66,7 +110,7 @@ class AuthController {
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: config.PROJECT_STATE === 'production' ? 'Strict' : 'None',
+        sameSite: process.env.PROJECT_STATE === 'production' ? 'Strict' : 'None',
         maxAge: 7 * 24 * 60 * 60 * 1000 // persistent cookie with expiration
       });
       return res.status(200).json({ status: 200, accessToken, message: "Login Successful!" });
@@ -91,12 +135,12 @@ class AuthController {
       }
       const accessToken = authHeader.split(' ')[1]; 
 
-      if (username === config.DEVELOPER_USERNAME) {
-        jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (username === process.env.DEVELOPER_USERNAME) {
+        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
           if (err) return res.status(403).json({ status: 403, err });
           const accessToken = jwt.sign(
             { username: decoded.username, role: decoded.role },
-            config.ACCESS_TOKEN_SECRET,
+            process.env.ACCESS_TOKEN_SECRET,
             { expiresIn: '5m' }
           );
           return res.status(200).json({ accessToken });
@@ -110,14 +154,14 @@ class AuthController {
         return res.status(401).json({ status: 401, message: "Unauthorized or malformed token!" });
       }
   
-      jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, (err, decoded) => {
+      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
         if (err) {
           res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
           return res.status(403).json({ status: 403, err });
         }
         const newAccessToken = jwt.sign(
           { username: decoded.username, role: decoded.role },
-          config.ACCESS_TOKEN_SECRET,
+          process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: '5m' }
         );
         return res.status(200).json({ accessToken: newAccessToken });
@@ -142,7 +186,7 @@ class AuthController {
         return res.status(401).json({ message: 'Refresh token missing' });
       }
 
-      jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET, async (err, decoded) => {
+      jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
         if (err) {
           res.clearCookie('refreshToken', { httpOnly: true, secure: true, sameSite: 'Strict' });
           const message = err.message;
@@ -165,7 +209,7 @@ class AuthController {
 
         const newRefreshToken = jwt.sign(
           { username: user.username, role: user.role },
-          config.REFRESH_TOKEN_SECRET,
+          process.env.REFRESH_TOKEN_SECRET,
           { expiresIn: '7d' }
         );
 

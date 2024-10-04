@@ -10,7 +10,6 @@ const clinicRecordController = require('../controllers/clinicRecordController');
 const dashboardController = require('../controllers/dashboardController');
 
 // USER AUTHENTICATION/REGISTRATION
-router.post('/verifyEmail', staffController.verifyEmail);
 router.get('/getStaffId', staffController.getStaffId);
 router.get('/getStaff', staffController.getStaff);
 router.post('/addStaff', staffController.addStaff);

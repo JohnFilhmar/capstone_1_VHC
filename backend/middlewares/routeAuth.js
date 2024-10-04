@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const config = require('../config');
+require('dotenv').config();
 
 const routeAuth = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -8,7 +8,7 @@ const routeAuth = (req, res, next) => {
     res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: true });
     return res.status(401).json({ message: "Access token is missing" });
   }
-  jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET, (err, decoded) => {
+  jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
       res.clearCookie('refreshToken', {
         httpOnly: true,

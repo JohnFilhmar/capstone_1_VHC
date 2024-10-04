@@ -53,6 +53,12 @@ const DiagnosisPlan = ({ selectedTheme }) => {
       setSuggestions([]);
     }
   };
+  const handleAddIllness = (e) => {
+    e.preventDefault();
+    if ((diagnosisPlan.illnesses).length > 3) {
+      setIllnesses(prev => [...prev, diagnosisPlan.illnesses]);
+    }
+  }
   const handleIllnessSelect = (illness) => {
     setIllnesses((prev) => [...prev, illness]);
     setDiagnosisPlan((prev) => ({ ...prev, illnesses: '' }));
@@ -141,15 +147,20 @@ const DiagnosisPlan = ({ selectedTheme }) => {
                   </button>
                 </div>
               ))}
-              <input
-                type="text"
-                id="illnesses-input"
-                name="illnesses"
-                placeholder="Type the case of the patient..."
-                value={diagnosisPlan.illnesses}
-                onChange={handleIllnessChange}
-                className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
-              />
+              <div className="flex items-center justify-between w-full gap-2">
+                <input
+                  type="text"
+                  id="illnesses-input"
+                  name="illnesses"
+                  placeholder="Type the case of the patient..."
+                  value={diagnosisPlan.illnesses}
+                  onChange={handleIllnessChange}
+                  className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
+                />
+                <button onClick={handleAddIllness} className={`p-2 rounded-md bg-${selectedTheme}-600 text-${selectedTheme}-200 hover:bg-${selectedTheme}-500 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-700 active:text-${selectedTheme}-300`}>
+                  <FaPlus className="size-3 md:size-4 lg:size-5"/>
+                </button>
+              </div>
             </div>
             {suggestions.length > 0 && (
               <ul

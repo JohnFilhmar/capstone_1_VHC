@@ -40,7 +40,7 @@ const PharmacyForm = ({ close, children }) => {
           staff_id: res.data.staff_id
         }
         console.log(newPayload);
-        addData('/addMedicine', newPayload);
+        await addData('/addMedicine', newPayload);
         setPayload({
           itemName: '',
           quantity: '',
@@ -157,7 +157,6 @@ const PharmacyForm = ({ close, children }) => {
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
               value={payload.stockroom}
               onChange={handleChange}
-              required
               maxLength={100}
             />
           </div>

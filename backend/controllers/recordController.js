@@ -59,7 +59,7 @@ class RecordController {
         familyIdExistsQuery,
         [family_id]
       );
-      const count = familyIdExistsResponse.count;
+      const count = familyIdExistsResponse?.count;
       if (count > 0) return res.status(208).json({ status: 208, message: `Found ${count} records with the same Family ID.`, lastname: familyIdExistsResponse.citizen_lastname });
 
       const fullName = `${firstName} ${
@@ -286,7 +286,7 @@ class RecordController {
           .json({ status: 404, message: "Citizen Not Found!" });
       return res
         .status(200)
-        .json({ status: 200, message: "Citizen Found!", citizen: citizen });
+        .json({ status: 200, citizen: citizen });
     } catch (error) {
       return res.status(500).json({
         status: 500,

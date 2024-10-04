@@ -4,7 +4,7 @@ import { FaMinus, FaPlus } from "react-icons/fa";
 
 const PatientInfo = ({ selectedTheme, userData }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [civilStatus, setCivilStatus] = useState('');
+  const [civilStatus, setCivilStatus] = useState('single');
   const [age, setAge] = useState(null);
   const [phNumber, setPhNumber] = useState('');
   const [philhealthStatusType, setPhilhealthStatusType] = useState('dependent');

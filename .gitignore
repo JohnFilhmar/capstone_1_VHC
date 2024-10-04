@@ -130,7 +130,7 @@ dist
 .pnp.*
 
 # Configuration values
-# config.js
+# process.env.js
 
 # Record files
 *.xlsx

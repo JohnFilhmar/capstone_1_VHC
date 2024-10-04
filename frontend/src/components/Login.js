@@ -4,18 +4,31 @@ import useQuery from "../hooks/useQuery";
 import { Spinner } from "flowbite-react";
 import useCurrentTime from "../hooks/useCurrentTime";
 import { notificationMessage } from "../App";
+import { useLocation } from "react-router-dom";
 
 const Login = () => {
   const { mysqlTime } = useCurrentTime();
   const [passwordVisibility, setPasswordVisibility] = useState(true);
   const { isLoading, userAuth } = useQuery();
-  const [notifMessage] = useContext(notificationMessage);
+  const [notifMessage, setNotifMessage] = useContext(notificationMessage);
   const promptRef = useRef(null);
   const [payload, setPayload] = useState({
     username: "",
     password: ""
   });
+  const location = useLocation();
 
+  useEffect(() => {
+    if (String(location.pathname).substring(1) === 'login/validemail') {
+      setNotifMessage('Email Successfully Validated. You can now login with your credentials.');
+    }
+    const time = setTimeout(() => {
+      setNotifMessage(null);
+    },5000);
+    return () => clearTimeout(time);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     const newPayload = {
@@ -98,8 +111,8 @@ const Login = () => {
               <p className="drop-shadow-lg">{!isLoading ? 'Login' : <Spinner />}</p>
             </button>
           </form>
-          <dialog ref={promptRef} className="absolute bottom-[-30px] right-0 left-0 bg-transparent">
-            <div className="bg-red-200 p-1 text-red-600 font-medium text-center rounded-md drop-shadow-md">
+          <dialog ref={promptRef} className="absolute bottom-[-50px] right-0 left-0 bg-transparent">
+            <div className="bg-blue-200 p-1 text-blue-600 font-medium text-center rounded-md drop-shadow-md">
               {notifMessage}
             </div>
           </dialog>
