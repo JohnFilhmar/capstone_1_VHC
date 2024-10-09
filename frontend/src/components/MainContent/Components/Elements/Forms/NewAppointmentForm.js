@@ -69,10 +69,8 @@ const NewAppointmentForm = ({ close, children }) => {
             appointedTime: convertToMySQLDateTime(payload.appointedTime),
             citizen_family_id: famId
         };
-        addData("newAppointment", convertedPayload);
-        setTimeout(() => {
-          socket.emit('updateAppointment');
-        },[500]);
+        await addData("newAppointment", convertedPayload);
+        socket.emit('newAppointmentSocket', convertedPayload);
         cleanUp();
         close();
       }
@@ -103,10 +101,14 @@ const NewAppointmentForm = ({ close, children }) => {
     }
   };
 
+  async function fetchCitizen() {
+    await postData('/findCitizen', {name: fullname});
+  };
+
   useEffect(() => {
     if (fullname.length > 3) {
       const time = setTimeout(() => {
-        postData('/findCitizen', {name: fullname});
+        fetchCitizen();
       }, 1000);
       return () => clearTimeout(time);
     }
@@ -115,6 +117,15 @@ const NewAppointmentForm = ({ close, children }) => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fullname]);
+
+  async function handleSelectSuggestions(e, i) {
+    e.preventDefault();
+    if (fullname.length > 3) {
+      setFamId(suggestions[i].citizen_family_id);
+      setFullname(suggestions[i].full_name);
+      setSuggestions([]);
+    }
+  };
   
   useEffect(() => {
     if (response?.status === 200) {
@@ -137,13 +148,12 @@ const NewAppointmentForm = ({ close, children }) => {
       {children}
       <div className="relative flex flex-col gap-4 m-5 mt-20 md:mt-24 lg:mt-24">
         <form className="flex flex-col gap-4 max-h-[450px] min-h-[450px] overflow-y-auto" onSubmit={handleSubmit}>
-          <div>
+          <div className="relative">
             <label htmlFor={'fullname'} className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>{'Name'}:<span className="text-red-600 font-bold">*</span></label>
             <input
               type="text"
               name={'fullname'}
               id={'fullname'}
-              list="recordSuggestions"
               required
               value={fullname}
               onChange={handleNameChange}
@@ -152,11 +162,22 @@ const NewAppointmentForm = ({ close, children }) => {
               placeholder="Type your name then press ENTER to search the records"
               maxLength={100}
             />
-            <datalist id="recordSuggestions">
-              {suggestions.map((name, i) => (
-                <option key={i} value={name.full_name}/>
-              ))}
-            </datalist>
+            {suggestions && suggestions.length > 0 && (
+              <ul
+                className="absolute z-10 bg-white shadow-lg border border-gray-300 max-h-40 overflow-auto rounded-md mt-1 w-full"
+                style={{ top: '100%' }}
+              >
+                {suggestions.map((suggestion, i) => (
+                  <li
+                    key={i}
+                    className="cursor-pointer p-2 hover:bg-gray-100"
+                    onClick={(e) => handleSelectSuggestions(e, i)}
+                  >
+                    {suggestion.full_name}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div>
             <label htmlFor="phoneNumber" className='mb-2 text-xs md:text-sm lg:text-base font-semibold'>Contact Number:</label>

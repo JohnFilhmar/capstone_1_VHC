@@ -6,7 +6,6 @@ import useQuery from "../../../../hooks/useQuery";
 import { useRef, useState } from "react";
 import RecordAudit from "./RecordAudit";
 import useSocket from "../../../../hooks/useSocket";
-import { socket } from "../../../../socket";
 
 const Records = () => {
   const location = useLocation();
@@ -18,7 +17,7 @@ const Records = () => {
   
   const { error } = useQuery();
 
-  const { data: records, loading } = useSocket({ SSName: "sessionRecords", fetchUrl: "getRecords", socketEmit: "updateRecords", socketUrl: "newRecords", socketError: "newRecordsError" })
+  const { data: records, loading } = useSocket({ fetchUrl: "getRecords", newDataSocket: "recordSocket", errorDataSocket: "recordSocketError" });
 
   const toggleOptions = (familyId) => {
     setFamID(familyId);
@@ -34,10 +33,10 @@ const Records = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
-        <div onClick={() => socket.emit("updateRecords")}>
+        <div>
           <Header title={ title } icon={ <MdFolder /> }/>
         </div>
-        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable data={records} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} error={error} enImport={true} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} enExport={false} />
         </div>
       </div>

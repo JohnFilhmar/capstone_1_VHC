@@ -10,30 +10,32 @@ const DatePicker = ({ dateRef, toggleDatePicker }) => {
   const handleSubmitDates = () => {
     if (new Date(startDate) < new Date(endDate)) {
       toggleDatePicker();
-    } else if (new Date(startDate) > new Date(endDate)) {
-      setErrorPrompt("Start date must be before the end date!");
-      setTimeout(() => {
-        setErrorPrompt("");
-      }, 3000);
     } else {
       setErrorPrompt("Start date and end date can't be the same!");
       setTimeout(() => {
         setErrorPrompt("");
       }, 3000);
     }
+    // if (new Date(startDate) > new Date(endDate)) {
+    //   setErrorPrompt("Start date must be before the end date!");
+    //   setTimeout(() => {
+    //     setErrorPrompt("");
+    //   }, 3000);
+    // }
   };
 
   const handleDateChange = (e) => {
     const { name, value } = e.target;
-    const currentDate = new Date(); 
+    // const currentDate = new Date(); 
     if (name === 'startDate') {
       const selectedDate = new Date(value);
-      if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
-        setErrorPrompt("Start date cannot be before this day!");
-        setTimeout(() => {
-          setErrorPrompt("");
-        }, 3000);
-      } else if (selectedDate <= new Date(endDate)) {
+      // if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
+      //   setErrorPrompt("Start date cannot be before this day!");
+      //   setTimeout(() => {
+      //     setErrorPrompt("");
+      //   }, 3000);
+      // }
+      if (selectedDate <= new Date(endDate)) {
         setStartDate(value);
       } else {
         setErrorPrompt("Start date cannot be after the end date!");

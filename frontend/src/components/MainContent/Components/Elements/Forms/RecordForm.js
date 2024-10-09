@@ -94,6 +94,7 @@ const RecordForm = ( { close, children } ) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (familyId.length !== 19) return;
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
         setStaffId(res.data.staff_id);
@@ -117,10 +118,7 @@ const RecordForm = ( { close, children } ) => {
           // close();
           // cleanUp();
         }
-        const time = setTimeout(() => {
-          socket.emit('updateRecords');
-        },[500])
-        return () => clearTimeout(time);
+        socket.emit("newRecordSocket", {citizen_family_id: familyId, citizen_firstname: firstname, citizen_birthdate: birthdate});
       }
     } catch (error) {
       setNotifMessage(error.message);
@@ -180,11 +178,8 @@ const RecordForm = ( { close, children } ) => {
       setIsMessageShown(true);
     }
     if (response?.status === 200) {
+      socket.emit("newRecordSocket", {citizen_family_id: familyId, citizen_firstname: firstname, citizen_birthdate: birthdate});
       doneWithThisShit();
-      const time = setTimeout(() => {
-        socket.emit('updateRecords');
-      },[500])
-      return () => clearTimeout(time);
     }
     if (response?.status === 226) {
       setNotifMessage(response?.message);

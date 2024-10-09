@@ -17,7 +17,7 @@ const Pharmacy = () => {
   const [itemId, setItemId] = useState(null);
   const { error } = useQuery();
 
-  const { data: medicines, loading } = useSocket({ SSName: "sessionPharmacy", fetchUrl: "getPharmacyInventory", socketEmit: "updatePharmacy", socketUrl: "newPharmacy", socketError: "newPharmacyError" })
+  const { data: medicines, loading } = useSocket({ fetchUrl: "getPharmacyInventory", newDataSocket: "pharmacySocket", errorDataSocket: "pharmacySocketError" });
 
   // useEffect(() => {
   //   console.log(medicines);
@@ -42,7 +42,7 @@ const Pharmacy = () => {
         <div onClick={() => socket.emit('updatePharmacy')}>
           <Header title={ title } icon={<MdLocalPharmacy/>}/>
         </div>
-        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable data={medicines} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} />
         </div>
       </div>

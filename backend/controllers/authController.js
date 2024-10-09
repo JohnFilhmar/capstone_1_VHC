@@ -53,28 +53,24 @@ class AuthController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const developer = {
-        username: process.env.DEVELOPER_USERNAME,
-        password: process.env.DEVELOPER_PASSWORD
-      };
   
       const { username, password, dateTime } = req.body;
   
       if (!username || !password) {
         return res.status(400).json({ status: 400, message: 'Username and password are required' });
-      }
+      };
   
-      if (username === developer.username && password === developer.password) {
-        const user = { username: developer.username, role: "developer" };
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'});
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: true,
-          sameSite: 'Strict'
-        });
-        return res.status(200).json({ accessToken, message: "Welcome back Mr. Developer!" });
-      }
+      // if (username === developer.username && password === developer.password) {
+      //   const user = { username: developer.username, role: "developer" };
+      //   const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1d'});
+      //   const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '1d'});
+      //   res.cookie('refreshToken', refreshToken, {
+      //     httpOnly: true,
+      //     secure: true,
+      //     sameSite: 'Strict'
+      //   });
+      //   return res.status(200).json({ accessToken, message: "Welcome back Mr. Developer!" });
+      // }
   
       const userQuery = "SELECT `staff_id`, `username`, `password`, `role`, `isVerified` FROM `medicalstaff` WHERE `username` = ?";
       const [staff] = await dbModel.query(userQuery, [username]);

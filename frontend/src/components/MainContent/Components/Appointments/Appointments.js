@@ -53,7 +53,7 @@ const Appointments = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { data: appointments, loading } = useSocket({ SSName: "sessionAppointments", fetchUrl: "getAppointments", socketUrl: "newAppointments", socketEmit: "updateAppointment", socketError: "newAppointmentsError" })
+  const { data: appointments, loading } = useSocket({ fetchUrl: "getAppointments", newDataSocket: "appointmentSocket", errorDataSocket: "appointmentSocketError" })
   
   const toggleAppointmentOption = (primaryKey) => {
     setPK(primaryKey);
@@ -166,7 +166,7 @@ const Appointments = () => {
         <div onClick={() => socket.emit("updateAppointment")}>
           <Header title={ title } icon={<IoCalendar />}/>
         </div>
-        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col justify-start gap-3">
 
             <div className={`flex flex-col bg-${selectedTheme}-50 rounded-md drop-shadow-md text-xs md:text-sm lg:text-base w-full h-auto`}>

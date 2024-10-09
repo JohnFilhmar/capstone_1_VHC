@@ -98,7 +98,7 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
       </p>
       <div className={isVisible ? 'block' : 'hidden'}>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-2 w-full">
-          <div className={`flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+          <div className={`${!isVisible ? 'lg:col-span-4' : 'lg:col-span-2'} flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
             <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
               If Patient Menstrual History Applicable:
             </label>

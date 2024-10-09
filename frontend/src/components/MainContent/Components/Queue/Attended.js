@@ -4,14 +4,15 @@ import { colorTheme } from "../../../../App";
 import DataTable from "../Elements/DataTable";
 import useQuery from "../../../../hooks/useQuery";
 import useSocket from "../../../../hooks/useSocket";
+import { socket } from "../../../../socket";
 
 const Attended = ({ ATref, ATonClick }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { error } = useQuery();
 
-  const { data: queue, loading } = useSocket({ SSName: "attendedQueue", fetchUrl: "getAttended", socketUrl: "newAttended", socketEmit: "updateAttended", socketError: "newAttendedError" });
+  const { data: attended, loading } = useSocket({ fetchUrl: "getAttended", newDataSocket: "newAttended", socketError: "newAttendedError", replaceData: false });
   
-  const transformedData = queue && queue.length > 0 && queue.map(item => {
+  const transformedData = attended && attended.length > 0 && attended.map(item => {
     const date = new Date(item["Time Arrived"]);
     let hours = date.getHours();
     const minutes = date.getMinutes();
@@ -29,10 +30,8 @@ const Attended = ({ ATref, ATonClick }) => {
     <dialog ref={ATref} className={`rounded-lg bg-${selectedTheme}-100 drop-shadow-lg w-[600px] md:w-[800px] lg:w-[1000px]`}>
       <div className="flex flex-col text-xs md:text-sm lg:text-base">
         <div className={`flex justify-between items-center p-2 text-${selectedTheme}-600 border-b-[1px] border-solid border-${selectedTheme}-500 shadow-md shadow-${selectedTheme}-600 mb-2`}>
-          <div className="flex items-center p-1 gap-1">
-            <MdPeople className='w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8' 
-              // onClick={() => socket.emit('updateAttended', {startDate: startDate, endDate: endDate})}
-            />
+          <div className="flex items-center p-1 gap-1" onClick={() => socket.emit('updateAttended')}>
+            <MdPeople className='w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8' />
             <strong className="font-semibold drop-shadow-md text-sm md:text-base lg:text-lg">Passed Attended Patients</strong>
           </div>
           <button onClick={ATonClick} className={`transition-colors duration-200 rounded-3xl p-1 bg-${selectedTheme}-300 hover:bg-${selectedTheme}-400 active:bg-${selectedTheme}-200`}>

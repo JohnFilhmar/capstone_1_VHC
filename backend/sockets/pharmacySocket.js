@@ -2,11 +2,11 @@ const dbModel = require('../models/database_model');
 
 module.exports = function(io) {
   io.on('connection', (socket) => {
-    socket.on('updatePharmacy', async () => {
+    socket.on('newPharmacySocket', async (data) => {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const response = await dbModel.query('SELECT `item_id`, `item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory`');
+        const response = await dbModel.query('SELECT `item_id`, `item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory` WHERE `item_name` = ? AND `lot_no` = ? AND `exp_date` = ?', [data.itemName, data.lotNo, data.expiry]);
         const newResponse = response.map((res) => {
           if (!res.exp_date || isNaN(new Date(res.exp_date).getTime())) {
             return {
@@ -24,11 +24,11 @@ module.exports = function(io) {
             exp_date: formattedDateTime
           };
         });
-        socket.emit('newPharmacy', newResponse);
-        socket.broadcast.emit('newPharmacy', newResponse);
+        socket.emit('pharmacySocket', newResponse);
+        socket.broadcast.emit('pharmacySocket', newResponse);
       } catch (error) {
-        socket.emit('newPharmacyError', error.message);
-        socket.broadcast.emit('newPharmacyError', error.message);
+        socket.emit('pharmacySocketError', error.message);
+        socket.broadcast.emit('pharmacySocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

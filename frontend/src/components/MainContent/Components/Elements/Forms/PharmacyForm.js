@@ -39,8 +39,8 @@ const PharmacyForm = ({ close, children }) => {
           dateTime: mysqlTime,
           staff_id: res.data.staff_id
         }
-        console.log(newPayload);
         await addData('/addMedicine', newPayload);
+        socket.emit('newPharmacySocket', payload);
         setPayload({
           itemName: '',
           quantity: '',
@@ -50,10 +50,6 @@ const PharmacyForm = ({ close, children }) => {
           stockroom: ''
         });
         if (!dontCloseUponSubmission) close();
-        const time = setTimeout(() => {
-          socket.emit('updatePharmacy');
-        }, 1000);
-        return () => clearTimeout(time);
       }
     } catch (error) {
       console.error(error);

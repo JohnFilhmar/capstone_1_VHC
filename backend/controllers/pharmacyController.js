@@ -69,7 +69,7 @@ class PharmacyController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const query = 'SELECT `item_id`, `item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom` FROM `pharmacy_inventory`';
+      const query = 'SELECT * FROM `pharmacy_inventory`';
       const response = await dbModel.query(query);
       const formattedResponse = response.map((row) => {
           if (!row.exp_date || isNaN(new Date(row.exp_date).getTime())) {

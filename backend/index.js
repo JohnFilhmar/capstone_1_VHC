@@ -1,5 +1,5 @@
-const http = require("http");
 const https = require("https");
+const { Server } = require('socket.io');
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
@@ -15,18 +15,20 @@ const roleAuth = require("./middlewares/roleAuth");
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PROJECT_STATE === "production" ? 3000 : 5000;
+const state = process.env.PROJECT_STATE;
+const allowedOrigins = process.env.ALLOWED_ORIGIN;
+const port = state === "production" ? 3000 : 5000;
 
 const corsOptions = {
   origin: [
-    ...process.env.ALLOWED_ORIGIN,
-    process.env.PROJECT_STATE === "development" && "https://localhost:3000",
+    allowedOrigins,
+    state === "development" && "https://localhost:3000",
     "https://192.168.1.2:3000",
     "https://192.168.220.1:3000",
   ],
-  methods: ["GET,POST,PUT,DELETE,OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
+  methods: ['GET','POST','OPTIONS'],
+  allowedHeaders: ["Content-Type", "Authorization"],
 };
 
 app.use(cors(corsOptions));
@@ -45,10 +47,13 @@ app.use("/api/authToken", authController.authToken);
 app.use("/api/verifyEmail/:token", authController.verifyEmail);
 app.use("/api", routeAuth, roleAuth, routes);
 
-const server = process.env.PROJECT_STATE === "production" ? http.createServer(app) : https.createServer(serverOptions, app);
+const server = https.createServer(serverOptions, app);
 // const server = http.createServer(app);
 
-initializeWebSocket(server);
+const io = new Server(server, {
+  cors: corsOptions,
+});
+initializeWebSocket(io);
 
 server.listen(port, () => {
   console.log(`Server is running on port https://localhost:${port}`);

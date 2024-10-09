@@ -99,7 +99,7 @@ class ClinicRecordController {
       await dbModel.query(insertHistoryQuery, historyPayload);
 
       const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
-      const staffHistoryValues = [staff_id, 'created a clinic form', 'filled up a clinic form', null, dateTime];
+      const staffHistoryValues = [staff_id, 'created a clinic form', 'filled up a clinic form', citizen_family_id, dateTime];
       await dbModel.query(createStaffHistoryQuery, staffHistoryValues);
       
       return res.status(200).json({ status: 200, message: "Successfully Created A Clinic Form!" });

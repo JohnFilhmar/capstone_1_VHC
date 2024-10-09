@@ -26,6 +26,7 @@ import useIndexedDB from "./hooks/useIndexedDb.js";
 import api from "./axios.js";
 import { Spinner } from "flowbite-react";
 import Register from "./components/Register.js";
+import IndexedDb from "./components/MainContent/Components/Playground/IndexedDb.js";
 
 export const colorTheme = createContext();
 export const messaging = createContext();
@@ -133,7 +134,7 @@ const App = () => {
   
   return (
     <>
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen overflow-hidden">
       <notificationMessage.Provider value={[notifMessage, setNotifMessage]}>
         <colorTheme.Provider value={[selectedTheme, setSelectedTheme, colors]}>
           <>
@@ -143,7 +144,7 @@ const App = () => {
                 <TopNav />
               </messaging.Provider>
               <div className="flex h-full">
-                <div className={`w-auto bg-${selectedTheme}-300`}>
+                <div className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}>
                   <SideMenu />
                 </div>
                 <div className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}>
@@ -160,6 +161,7 @@ const App = () => {
                     <Route path='blood_unit' element={<BloodUnit />}/>
                     <Route path='accounts' element={<Accounts />}/>
                     <Route path='playground-jwt' element={<JsonWebToken />}/>
+                    <Route path='indexed-db' element={<IndexedDb />}/>
                     <Route path='problems' element={<Problems />}/>
                     <Route path='*' element={<Notfound />}/>
                   </Routes>

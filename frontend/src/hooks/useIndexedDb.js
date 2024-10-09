@@ -2,7 +2,7 @@ import { openDB } from 'idb';
 
 const useIndexedDB = () => {
   const dbName = "Database";
-  let storeNames = ["tokens"];
+  let storeNames = ['tokens'];
   if (!Array.isArray(storeNames)) {
     storeNames = [storeNames];
   }
@@ -17,20 +17,19 @@ const useIndexedDB = () => {
     },
   });
 
-  const createStore = async (storeName) => {
-    const db = await openDB(dbName, undefined, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(storeName)) {
-          db.createObjectStore(storeName);
-        }
-      }
-    });
-    return db;
-  };
+  async function getDatabaseVersion() {
+    const oldDb = await dbPromise;
+    oldDb.close();
+    const db = await openDB('Database');
+    return db.version;
+  }
 
   const addItem = async (storeName, value, key) => {
     try {
       const db = await dbPromise;
+      if (!db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName);
+      }
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       await store.put(value, key);
@@ -83,6 +82,20 @@ const useIndexedDB = () => {
     }
   };
 
+  const getStoreKeys = async (storeName) => {
+    const db = await dbPromise;
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const keys = await store.getAllKeys();
+    await tx.done;
+    return keys;
+  };  
+
+  const getAllStoreNames = async () => {
+    const db = await dbPromise;
+    return Array.from(db.objectStoreNames);
+  };  
+
   const updateItem = async (storeName, key, newData) => {
     try {
       const db = await dbPromise;
@@ -117,7 +130,9 @@ const useIndexedDB = () => {
     updateItem,
     deleteItem,
     clearStore,
-    createStore
+    getAllStoreNames,
+    getStoreKeys,
+    getDatabaseVersion,
   };
 };
 

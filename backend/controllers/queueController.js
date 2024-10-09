@@ -5,14 +5,11 @@ class QueueController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const { name, dateTime, status, staff_id, reason } = req.body;
-      const getFamilyIdQuery = "SELECT `citizen_family_id` FROM `citizen` WHERE CONCAT(LOWER(TRIM(`citizen_firstname`)), ' ', LOWER(TRIM(`citizen_lastname`))) = LOWER(TRIM(?))";
-      const [citizen] = await dbModel.query(getFamilyIdQuery, [name]);
-      if (!citizen) return res.status(404).json({ status: 404, message: 'Citizen not found!' });
+      const { famId, dateTime, status, staff_id, reason } = req.body;
 
       const insertQueueQuery = 'INSERT INTO `citizen_queue`(`citizen_family_id`,`time_arrived`,`current_status`, `reason`) VALUES (?, ?, ?, ?)';
       const data = [
-        citizen.citizen_family_id,
+        famId,
         dateTime,
         status,
         reason
@@ -20,13 +17,24 @@ class QueueController {
 
       const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const historyPayload = [
-        citizen.citizen_family_id,
+        famId,
         `queued for ${status}`,
         `added to queue as ${status}`,
         staff_id,
         dateTime
       ];
       await dbModel.query(insertHistoryQuery, historyPayload);
+      
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        staff_id,
+        'added to queue',
+        'added a patient to queue',
+        famId,
+        dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
+
       const response = await dbModel.query(insertQueueQuery, data)
       if (response.affectedRows > 0) {
         return res.status(200).json({
@@ -53,13 +61,30 @@ class QueueController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const date = new Date(req.body.dateTime);
+      const date = new Date();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
       const year = date.getFullYear();
       const startDate = `${year}-${month}-${day} 00:00:00`;
       const endDate = `${year}-${month}-${day} 23:59:59`;
-      const query = `SELECT cq.queue_number, c.citizen_family_id AS family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS citizen_fullname, c.citizen_barangay, c.citizen_number, c.citizen_gender, cq.time_arrived, cq.current_status FROM citizen c INNER JOIN  citizen_queue cq ON c.citizen_family_id = cq.citizen_family_id`;
+      const query = `
+        SELECT 
+          cq.queue_number, 
+          c.citizen_family_id AS family_id, 
+          CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS citizen_fullname, 
+          c.citizen_barangay, 
+          c.citizen_number, 
+          c.citizen_gender, 
+          cq.time_arrived, 
+          cq.current_status 
+        FROM 
+          citizen c 
+        INNER JOIN  
+          citizen_queue cq 
+        ON 
+          c.citizen_family_id = cq.citizen_family_id
+        WHERE 
+          cq.time_arrived BETWEEN ? AND ? `;
       const response = await dbModel.query(query, [startDate, endDate]);
       const newResponse = response.map((res) => {
         const date = new Date(res.time_arrived);
@@ -129,17 +154,16 @@ class QueueController {
       const startDate = `${year}-${month}-${day} 00:00:00`;
       const endDate = `${year}-${month}-${day} 23:59:59`;
       
-      const getCitizenQueueQuery = `SELECT cq.queue_number, c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS citizen_fullname, 
-                c.citizen_barangay, c.citizen_number, c.citizen_gender, cq.time_arrived, cq.current_status 
-         FROM citizen_queue cq
-         INNER JOIN citizen c ON c.citizen_family_id = cq.citizen_family_id
-         WHERE cq.time_arrived BETWEEN ? AND ? 
-           AND cq.current_status = "waiting"
-         ORDER BY cq.queue_number ASC
-         LIMIT 1`
-      const [getFIFO] = await dbModel.query(getCitizenQueueQuery, 
-         [startDate, endDate]
-      );
+      const getCitizenQueueQuery = `
+      SELECT cq.queue_number, c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS citizen_fullname, 
+      c.citizen_barangay, c.citizen_number, c.citizen_gender, cq.time_arrived, cq.current_status 
+      FROM citizen_queue cq
+      INNER JOIN citizen c ON c.citizen_family_id = cq.citizen_family_id
+      WHERE cq.time_arrived BETWEEN ? AND ? 
+      AND cq.current_status = "waiting"
+      ORDER BY cq.queue_number ASC
+      LIMIT 1`;
+      const [getFIFO] = await dbModel.query(getCitizenQueueQuery, [startDate, endDate]);
       
       const query = 'UPDATE citizen_queue SET current_status = "serving" WHERE queue_number = ?';
       const updateStatusResponse = await dbModel.query(query, [getFIFO.queue_number]);
@@ -175,7 +199,6 @@ class QueueController {
   async dismissQueue(req, res) {
     let connection;
     try {
-
       connection = await dbModel.getConnection();
 
       const selectQuery = 'SELECT `citizen_family_id`, `current_status` FROM `citizen_queue` WHERE `queue_number` = ?';
@@ -203,9 +226,18 @@ class QueueController {
         'dismissed from the queue',
         req.body.staff_id,
         req.body.dateTime
-      ];
-      
+      ];      
       const insertCitizenHistoryResponse = await dbModel.query(insertCitizenHistoryQuery, citizenHistoryPayload);
+      
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        req.body.staff_id,
+        'dismissed a patient',
+        'dismissed a patient from the queue',
+        currentStatus.citizen_family_id,
+        req.body.dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
       
       if (insertCitizenHistoryResponse.affectedRows === 0) {
         return res.status(500).json({

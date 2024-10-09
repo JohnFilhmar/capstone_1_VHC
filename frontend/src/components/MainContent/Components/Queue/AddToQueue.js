@@ -12,11 +12,13 @@ const AddToQueue = ({ ATref, ATonClick }) => {
   const { response, isLoading, error, addData, postData } = useQuery();
   const { mysqlTime } = useCurrentTime();
   const [suggestions, setSuggestions] = useState([]);
+  const [famId, setFamId] = useState('');
   const [name, setName] = useState('');
   const [barangay, setBarangay] = useState('');
   const [reason, setReason] = useState('');
   const [gender, setGender] = useState('');
   const [status, setStatus] = useState('waiting');
+  const [currentDateTime, setCurrentDateTime] = useState(String(mysqlTime));
   const [isChecked, setIsChecked] = useState(true);
   const nameInputRef = useRef(null);
 
@@ -26,46 +28,23 @@ const AddToQueue = ({ ATref, ATonClick }) => {
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
         const staff_id = res.data.staff_id;
+        setCurrentDateTime(String(mysqlTime));
         if (isChecked) {
-          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id, reason: reason });
+          await addData('/addToQueue', { famId: famId, dateTime: currentDateTime, status, staff_id, reason: reason });
         } else {
-          addData('addToQueue', { name: name, dateTime: String(mysqlTime), status, staff_id, reason: reason });
+          await addData('/addToQueue', { famId: famId, dateTime: currentDateTime, status, staff_id, reason: reason });
           ATonClick();
         }
-      } else {
-        console.log(res);
       }
-      const time = setTimeout(() => {
-        socket.emit("updateQueue", {dateTime: String(mysqlTime)});
-      },500);
+      socket.emit('updateQueue', {dateTime: currentDateTime});
       setName('');
       if (!isChecked) ATonClick();
       nameInputRef.current.focus();
-      return () => clearTimeout(time);
     } catch (error) {
       console.log(error);
     }
     setName('');
   };
-
-  // function handleCitizenSearch(e) {
-  //   if (e.key === 'Enter') {
-  //     e.preventDefault();
-  //     if (name.length > 3) {
-  //       postData('/findCitizen', {name: name});
-  //     }
-  //   }
-  // };
-
-  useEffect(() => {
-    if (name.length > 3 && !barangay) {
-      const time = setTimeout(() => {
-        postData('/findCitizen', {name: name});
-      }, 1000);
-      return () => clearTimeout(time);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name]);
 
   useEffect(() => {
     if (name.length > 3 && !barangay) {
@@ -86,6 +65,7 @@ const AddToQueue = ({ ATref, ATonClick }) => {
     if (response?.status === 200) {
       if (response && response?.citizen?.length === 1) {
         const citizen = response.citizen[0];
+        setFamId(citizen.citizen_family_id);
         setName(citizen.full_name);
         setBarangay(citizen.citizen_barangay);
         setGender(citizen.citizen_gender);
@@ -96,6 +76,17 @@ const AddToQueue = ({ ATref, ATonClick }) => {
       }
     }
   }, [response]);
+
+  async function handleSelectSuggestions(e, i) {
+    e.preventDefault();
+    if (name.length > 3) {
+      setFamId(suggestions[i].citizen_family_id);
+      setName(suggestions[i].full_name);
+      setBarangay(suggestions[i].citizen_barangay);
+      setGender(suggestions[i].citizen_gender);
+      setSuggestions([]);
+    }
+  }
   
   return (
     <dialog ref={ATref} className={`rounded-lg bg-gray-100 drop-shadow-lg w-80 md:w-[500px] lg:w-[600px]`}>
@@ -115,31 +106,44 @@ const AddToQueue = ({ ATref, ATonClick }) => {
 
         <form className={`flex flex-col gap-4 mx-5 my-2 font-semibold`} onSubmit={handleSubmit}>
           <div className="flex gap-3 items-center justify-start">
-            <label htmlFor="name">Patient's Name:</label>
-            <input 
-              required 
-              maxLength={50} 
-              minLength={1}
-              type="text" 
-              name="name" 
-              id="name" 
-              value={name}
-              ref={nameInputRef}
-              onChange={(e) => {
-                const alphabetsOnly = /^[a-zA-Z\s]*$/;
-                if (alphabetsOnly.test(e.target.value)) setName(e.target.value);
-              }} 
-              // onKeyDown={handleCitizenSearch}
-              className={`text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-50 border-transparent focus:ring-0 focus:border-transparent`}
-              autoComplete="off"
-              list="nameResults"
-              placeholder="Type your name then press ENTER to search the records"
-            />
-            <datalist id="nameResults">
-              {suggestions && suggestions.slice(0, 5).map((name, index) => (
-                <option key={index} value={name.full_name} />
-              ))}
-            </datalist>
+            <label htmlFor="name" className="text-nowrap">Patient's Name:</label>
+            <div className="relative w-full">
+              <input 
+                required 
+                maxLength={50} 
+                minLength={1}
+                type="text" 
+                name="name" 
+                id="name" 
+                value={name}
+                ref={nameInputRef}
+                onChange={(e) => {
+                  const alphabetsOnly = /^[a-zA-Z\s]*$/;
+                  if (alphabetsOnly.test(e.target.value)) setName(e.target.value);
+                }} 
+                // onKeyDown={handleCitizenSearch}
+                className={`w-full text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-50 border-transparent focus:ring-0 focus:border-transparent`}
+                autoComplete="off"
+                list="nameResults"
+                placeholder="Type your name then press ENTER to search the records"
+              />
+              {suggestions && suggestions.length > 0 && (
+                <ul
+                  className="absolute z-10 bg-white shadow-lg border border-gray-300 max-h-40 overflow-auto rounded-md mt-1 w-full"
+                  style={{ top: '100%' }}
+                >
+                  {suggestions.map((suggestion, i) => (
+                    <li
+                      key={i}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={(e) => handleSelectSuggestions(e, i)}
+                    >
+                      {suggestion.full_name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <div className="flex gap-3 items-center justify-start">
             <label htmlFor="barangay">Patient's Barangay:</label>

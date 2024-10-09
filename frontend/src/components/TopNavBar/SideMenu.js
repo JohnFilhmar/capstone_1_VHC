@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { MdHome, MdSpaceDashboard, MdFolder, MdAnalytics, MdLocalPharmacy, MdPeople, MdOutlineSmartToy, MdKeyboardArrowDown } from "react-icons/md";
-import { FaCode, FaMapMarkedAlt, FaStethoscope, FaUsers } from "react-icons/fa";
+import { FaCode, FaMapMarkedAlt, FaStethoscope, FaStore, FaUsers } from "react-icons/fa";
 import { BiSolidDonateBlood } from "react-icons/bi";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { colorTheme } from "../../App";
@@ -40,13 +40,13 @@ const Menu = ({ path, Icon, label }) => {
       }`}
     >
       <div
-        className={`flex flex-row justify-start items-center ${
+        className={`grid grid-cols1 md:grid-cols-3 lg:grid-cols-3 justify-start items-center ${
           jump[label] && 'animate-jump'
         }`}
         onAnimationEnd={handleClick}
       >
-        <Icon className={`w-6 h-6 md:mr-2 lg:mr-2`} />
-        <p className={`hidden md:block lg:block`} onAnimationEnd={handleClick}>
+        <Icon className={`w-6 h-6`} />
+        <p className={`col-span-2 hidden md:block lg:block`} onAnimationEnd={handleClick}>
           {label}
         </p>
       </div>
@@ -72,7 +72,7 @@ const SideMenu = () => {
 
   const [selectedTheme] = useContext(colorTheme);
   return (
-    <div className={`flex flex-col text-${selectedTheme}-700 font-semibold`}>
+    <div className={`flex flex-col text-${selectedTheme}-800 font-semibold`}>
       <Menu path="home" Icon={MdHome} label="Home" />
       <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
       <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
@@ -92,17 +92,18 @@ const SideMenu = () => {
           <button onClick={() => setIsDevMenuOpen(prev => !prev)} className={`m-2 px-2 md:px-8 lg:px-14 gap-2 rounded-lg transition-colors bg-${selectedTheme}-300 hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md p-2 first-line duration-300 ease-linear ${
             isDevMenuOpen || loc === '/playground-jwt' || loc === '/playground-socket' ? `bg-${selectedTheme}-50 drop-shadow-xl` : `bg-transparent`
           }`}>
-            <div className={`flex flex-row justify-start items-center`}>
+            <div className={`grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-1`}>
               <FaCode className={`w-6 h-6 md:mr-2 lg:mr-2`} />
-              <p className={`hidden md:block lg:block`}>
+              <p className={`col-span-1 md:col-span-2 lg:col-span-2 hidden md:block lg:block`}>
                 Developer
               </p>
-              <MdKeyboardArrowDown className={`${isDevMenuOpen && 'rotate-180'} size-6 hidden md:block lg:block md:ml-2 lg:ml-2`} />
+              <MdKeyboardArrowDown className={`${isDevMenuOpen && 'rotate-180'} w-6 h-6 hidden md:block lg:block md:ml-2 lg:ml-2`} />
             </div>
           </button>
           {isDevMenuOpen && (
             <>
               <Menu path="playground-jwt" Icon={MdOutlineSmartToy} label="JWT" />
+              <Menu path="indexed-db" Icon={FaStore} label="IDB" />
               <Menu path="problems" Icon={GoReport} label="Problems" />
             </>
           )}

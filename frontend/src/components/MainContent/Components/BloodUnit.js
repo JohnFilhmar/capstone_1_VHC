@@ -15,7 +15,7 @@ const BloodUnit = () => {
         <div>
           <Header title={ title } icon={ <BiSolidDonateBlood /> } />
         </div>
-        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable data={records} modalForm={pathname} enImport={false} />
         </div>
       </div>

@@ -1,19 +1,31 @@
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
-import useCurrentTime from "./useCurrentTime";
+import useQuery from "./useQuery";
 // import useIndexedDB from "./useIndexedDb";
 
-const useSocket = ({ socketUrl, socketEmit, socketError }) => {
+const useSocket = ({ fetchUrl, newDataSocket, errorDataSocket, replaceData = true }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [SockError, setSockError] = useState(null);
-  const { mysqlTime } = useCurrentTime();
+  const { response, fetchData, error: fetchError } = useQuery();
+
+  useEffect(() => {
+    getData()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function convertKey(word) {
     const data = word.split('_');
     const newKey = data.map(dat => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase());
     return newKey.join(' ');
   };
+
+  useEffect(() => {
+    if (!socket.connected) {
+      socket.connect();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket]);
   
   function convertData(data) {
     const newData = data && data.map(obj => {
@@ -27,27 +39,44 @@ const useSocket = ({ socketUrl, socketEmit, socketError }) => {
     return newData;
   };
 
-  useEffect(() => {
-    socket.on(socketUrl, (Sdata) => {
-      if (Sdata && Sdata.length > 0) {
-        setData(convertData(Sdata));
-      }
+  async function getData() {
+    setLoading(true);
+    try {
+      await fetchData(`/${fetchUrl}`);
+    } catch (error) {
+      setSockError(fetchError || "Error fetching initial data");
       setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (response?.data) {
+      const convertedData = convertData(response.data);
+      setData(convertedData);
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
+
+  useEffect(() => {
+    socket.on(newDataSocket, (Sdata) => {
+      const receivedData = convertData(Sdata);
+      const newData = [
+        ...data,
+        ...receivedData,
+      ];
+      setData(replaceData ? newData : receivedData);
     });
-    socket.on(socketError, (error) => {
-      setSockError(error);
-      console.error('Error retrieving data:', error);
+    socket.on(errorDataSocket, (err) => {
+      setSockError(err);
+      console.error(err);
     });
-    const time = setTimeout(() => {
-      socket.emit(socketEmit, {dateTime: String(mysqlTime)});
-    },500);
     return () => {
-      clearTimeout(time);
-      socket.off(socketUrl);
-      socket.off(socketError);
+      socket.off(newDataSocket);
+      socket.off(errorDataSocket);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data]);
 
   return { data, SockError, loading }
   

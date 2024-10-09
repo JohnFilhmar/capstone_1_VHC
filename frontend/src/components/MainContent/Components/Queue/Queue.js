@@ -31,7 +31,7 @@ const Queue = () => {
   const [accessToken, setAccessToken] = useState(null);
   const { getAllItems } = useIndexedDB();
   
-  const { data: queue } = useSocket({ fetchUrl: "getQueue", socketUrl: "newQueue", socketEmit: "updateQueue", socketError: "newQueueError" });
+  const { data: queue } = useSocket({ fetchUrl: "getQueue", newDataSocket: "queueSocket", socketError: "queueSocketError", replaceData: false });
   
   useEffect(() => {
     const setToken = async () => {
@@ -80,7 +80,7 @@ const Queue = () => {
         dateTime: String(mysqlTime),
         staff_id: res.data.staff_id
       }
-      addData('nextQueue', payload);
+      await addData('nextQueue', payload);
       setTimeout(() => {
         socket.emit('updateQueue', {dateTime: String(mysqlTime)});
       },[500])
@@ -96,7 +96,7 @@ const Queue = () => {
         family_id: family_id, 
         staff_id: res.data.staff_id
       }
-      editData('dismissQueue', i, payload);
+      await editData('dismissQueue', i, payload);
       setTimeout(() => {
         socket.emit('updateQueue', {dateTime: String(mysqlTime)});
         socket.emit('updateAttended');
@@ -129,10 +129,10 @@ const Queue = () => {
         <div onClick={() => socket.emit("updateQueue", {dateTime: String(mysqlTime)})}>
           <Header title={ title } icon={<MdPeople />}/>
         </div>
-        <div className="min-h-[80vh] h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex items-center justify-end gap-3 m-1 my-2">
             {role && (role !== 'user') && (
-              <button key={0} onClick={toggleAttended} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
+              <button key={0} onClick={() => toggleAttended()} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
                 Attended
               </button>
             )}
@@ -160,7 +160,7 @@ const Queue = () => {
                 if (Object.values(q).includes(displayedData[viewStateIndex])) {
                   return (
                       <div key={i} className="flex flex-col gap-3 mx-2 my-3">
-                        <div className={`flex justify-between items-center px-10 border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
+                        <div className={`flex justify-between items-center border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
                           <p>{q["Queue Number"]}</p>
                           <p>{q["Citizen Fullname"]}</p>
                           <button onClick={() => handleDismiss(parseInt(q["Queue Number"]))} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
@@ -186,7 +186,7 @@ const Queue = () => {
                   if (Object.values(q).includes(item)) {
                     return (
                       <div key={i} className="flex flex-col gap-3 mx-2 my-3">
-                        <div className={`flex justify-between items-center px-10 border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
+                        <div className={`flex justify-between items-center border-[1px] bg-${selectedTheme}-100 rounded-lg font-semibold p-2 drop-shadow-md`}>
                           <p>{q["Queue Number"]}</p>
                           <p className="truncate">{q["Citizen Fullname"]}</p>
                           <button onClick={() => handleDismiss(parseInt(q["Queue Number"]))} className={`p-1 rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 font-semibold text-xs md:text-sm lg:text-base`}>Dismiss</button>
@@ -258,7 +258,7 @@ const Queue = () => {
           </div>
 
           <AddToQueue ATref={formRef} ATonClick={toggleForm} />
-          <Attended ATref={attendedRef} ATonClick={toggleAttended} queue={queue}/>
+          <Attended ATref={attendedRef} ATonClick={toggleAttended} />
 
         </div>
       </div>

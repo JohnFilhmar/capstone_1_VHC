@@ -64,7 +64,7 @@ const NewAccountForm = ({ close, children }) => {
     setIsWarningShown(false);
     cleanUp();
     const time = setTimeout(() => {
-      socket.emit("updateStaff");
+      socket.emit("newStaffSocket", payload.username);
     }, 500)
     return () => {
       clearTimeout(time);

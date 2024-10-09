@@ -3,11 +3,11 @@ const dbModel = require('../models/database_model');
 module.exports = function(io) {
   io.on('connection', (socket) => {
 
-    socket.on('updateAppointment', async () => {
+    socket.on('newAppointmentSocket', async (data) => {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const response = await dbModel.query("SELECT ca.appointment_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_number, ca.status, ca.created_at, ca.appointed_datetime FROM citizen_appointments ca INNER JOIN citizen c ON c.citizen_family_id = ca.citizen_family_id");
+        const response = await dbModel.query("SELECT ca.appointment_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_number, ca.status, ca.created_at, ca.appointed_datetime FROM citizen_appointments ca INNER JOIN citizen c ON c.citizen_family_id = ca.citizen_family_id WHERE ca.citizen_family_id = ? AND ca.appointed_datetime = ?", [data.citizen_family_id, data.appointedTime]);
         const convertDate = (Ddate) => {
           const date = new Date(Ddate);
           const year = date.getFullYear();
@@ -26,14 +26,18 @@ module.exports = function(io) {
               created_at: convertDate(res.created_at),
           };
         });
-        socket.emit('newAppointments', newResponse);
-        socket.broadcast.emit('newAppointments', newResponse);
+        socket.emit('appointmentSocket', newResponse);
+        socket.broadcast.emit('appointmentSocket', newResponse);
       } catch (error) {
-        socket.emit('newAppointmentsError', error.message);
-        socket.broadcast.emit('newAppointmentsError', error.message);
+        socket.emit('appointmentSocketError', error.message);
+        socket.broadcast.emit('appointmentSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }
+    });
+
+    socket.on('appointmentDecisionSocket', async () => {
+      
     });
 
   });
