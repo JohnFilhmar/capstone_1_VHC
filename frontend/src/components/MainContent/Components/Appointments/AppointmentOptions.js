@@ -71,7 +71,7 @@ const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
     try {
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
-        deleteData("/handleCancelAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
+        await deleteData("/handleCancelAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
       }
     } catch (error) {
       console.log(error);
@@ -79,7 +79,7 @@ const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
     }
     closeModal();
     const time = setTimeout(() => {
-      socket.emit('updateAppointment');
+      socket.emit('updateAppointmentSocket');
     },[500])
     return () => {
       clearTimeout(time);
@@ -91,7 +91,7 @@ const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
     try {
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
-        deleteData("/handleApproveAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
+        await deleteData("/handleApproveAppointment", PK, { staff_id: res.data.staff_id, dateTime: String(mysqlTime) });
       }
     } catch (error) {
       console.log(error);
@@ -99,7 +99,7 @@ const AppointmentOptions = ({ appointmentRef, toggle, PK }) => {
     }
     closeModal();
     const time = setTimeout(() => {
-      socket.emit('updateAppointment');
+      socket.emit('updateAppointmentSocket');
     },[500])
     return () => {
       clearTimeout(time);

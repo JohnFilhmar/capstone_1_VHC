@@ -91,9 +91,9 @@ const Dashboard = () => {
             
             {isLoading ? (
               <>
-                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
-                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
-                <div className={`bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2  rounded-md`}></div>
+                <div className={`animate-pulse bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
+                <div className={`animate-pulse bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2 lg:col-span-1 rounded-md`}></div>
+                <div className={`animate-pulse bg-${selectedTheme}-400 w-full h-48 md:h-[25rem] lg:h-96 col-span-2  rounded-md`}></div>
               </>
             ) : (
               <>

@@ -32,6 +32,9 @@ router.get('/searchPharmacyInventory/:id', pharmacyController.searchPharmacyInve
 router.get('/describePharmacy', pharmacyController.describePharmacy);
 router.post('/findMedicine', pharmacyController.findMedicine);
 router.post('/addMedicine', pharmacyController.addMedicine);
+router.post('/handleDeleteMedicine/:id', pharmacyController.handleDeleteMedicine);
+router.post('/updateMedicine', pharmacyController.updateMedicine);
+router.get('/getProductLogs/:id', pharmacyController.getProductLogs);
 
 // QUEUE
 router.post('/addToQueue', queueController.addToQueue);

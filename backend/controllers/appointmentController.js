@@ -1,16 +1,5 @@
 const dbModel = require('../models/database_model');
-
-const convertDate = (Ddate) => {
-  const date = new Date(Ddate);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = date.getHours() % 12 || 12;
-  const meridian = date.getHours() >= 12 ? 'PM' : 'AM';
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const formattedDateString = `${month}-${day}-${year} ${hours}:${minutes} ${meridian}`;
-  return formattedDateString;
-};
+const { convertDate } = require('../globalFunctions');
 
 class AppointmentController {
 
@@ -19,10 +8,10 @@ class AppointmentController {
     try {
 
       connection = await dbModel.getConnection();
-      const { appointedTime, description, dateTime, staff_id, citizen_family_id } = req.body;
+      const { appointedTime, description, dateTime, staff_id, citizen_family_id, phone_number } = req.body;
 
-      const insertAppointmentQuery = "INSERT INTO `citizen_appointments` (`citizen_family_id`, `description`, `appointed_datetime`, `status`, `created_at`) VALUES (?, ?, ?, ?, ?)";
-      const insertAppointmentResponse = await dbModel.query (insertAppointmentQuery, [citizen_family_id, description, appointedTime, 'pending', dateTime]);
+      const insertAppointmentQuery = "INSERT INTO `citizen_appointments` (`citizen_family_id`, `description`, `phone_number`, `appointed_datetime`, `status`, `created_at`) VALUES (?, ?, ?, ?, ?, ?)";
+      const insertAppointmentResponse = await dbModel.query (insertAppointmentQuery, [citizen_family_id, description, phone_number, appointedTime, 'pending', dateTime]);
 
       if (insertAppointmentResponse.affectedRows > 0) {
         const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
@@ -49,7 +38,17 @@ class AppointmentController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const response = await dbModel.query(`SELECT ca.appointment_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_number, ca.status, ca.created_at, ca.appointed_datetime FROM citizen_appointments ca INNER JOIN citizen c ON c.citizen_family_id = ca.citizen_family_id`);      
+      const response = await dbModel.query(`
+        SELECT 
+          ca.appointment_id, 
+          CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, 
+          ca.phone_number, 
+          ca.status, 
+          ca.created_at, 
+          ca.appointed_datetime 
+        FROM citizen_appointments ca 
+        INNER JOIN citizen c 
+        ON c.citizen_family_id = ca.citizen_family_id`);      
       const newResponse = response.map((res) => {
         return {
           ...res,
@@ -149,7 +148,7 @@ class AppointmentController {
 
       const getStatusQuery = "SELECT `status`, `citizen_family_id` FROM `citizen_appointments` WHERE `appointment_id` = ?";
       const [getStatusResponse] = await dbModel.query(getStatusQuery, req.params.id);
-      if (getStatusResponse.status !== 'pending') return res.status(200).json({ status: 200, message: 'Appointment Already Cancelled!'});
+      if (getStatusResponse.status !== 'pending') return res.status(200).json({ status: 200, message: 'Appointment Already Approved!'});
 
       const updateStatusQuery = "UPDATE `citizen_appointments` SET `status` = ? WHERE `appointment_id` = ?";
       const updateStatusResponse = await dbModel.query(updateStatusQuery, ['scheduled', appointmentId]);

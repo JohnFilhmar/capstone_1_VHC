@@ -94,7 +94,8 @@ const RecordForm = ( { close, children } ) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (familyId.length !== 19) return;
+      console.log(familyId.length);
+      if (familyId.length < 18) return;
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
         setStaffId(res.data.staff_id);
@@ -111,8 +112,12 @@ const RecordForm = ( { close, children } ) => {
           staff_id: res.data.staff_id
         };
         if(dontCloseUponSubmission) {
+          const time = setTimeout(() => {
+            console.log('Time out');
+          }, 7000);
           await addData('/addRecord',payload);
           cleanUp();
+          return () => clearTimeout(time);
         } else {
           await addData('/addRecord',payload);
           // close();
@@ -128,17 +133,16 @@ const RecordForm = ( { close, children } ) => {
   const handleChange = (e) => {
     const input = e.target.value; 
     let prefix = barangay.slice(0, 3).toUpperCase(); 
-    const cleanedValue = input.replace(/\D/g, '').slice(0, 13); 
+    const cleanedValue = input.replace(/\D/g, '').slice(0, 20); 
     const formattedValue = cleanedValue
-      .replace(/(\d{4})(\d{0,4})(\d{0,5})/, (_, g1, g2, g3) =>
-        [g1, g2, g3].filter(Boolean).join('-')
-      ); 
+    .replace(/(\d{4})(\d{0,4})(\d{0,})/, (_, g1, g2, g3) => 
+      [g1, g2, g3].filter(Boolean).join('-')
+    );
     setFamilyId(`${prefix}-${formattedValue}`);
   }; 
 
   function handleCloseMessage(e) {
     e.preventDefault();
-    console.log(isMessageShown);
     if (isMessageShown) {
       setIsMessageShown(false);
       alreadyExistsRef.current.close();
@@ -318,7 +322,9 @@ const RecordForm = ( { close, children } ) => {
         </div>
         <div className='block'>
           <div className="mb-2 block">
-            <label htmlFor="familyId" className='text-xs md:text-sm lg:text-base font-semibold'>Family ID</label>
+            <label htmlFor="familyId" className='text-xs md:text-sm lg:text-base font-semibold'>
+              Family ID <span className='text-blue-800'>(BAR-2304-0215-####...)</span>
+            </label>
           </div>
           <div className="flex gap-2">
             <input 
@@ -327,7 +333,6 @@ const RecordForm = ( { close, children } ) => {
               type="text" 
               value={familyId}
               onChange={handleChange}
-              maxLength={19}
               minLength={19}
               autoComplete='off'
               required

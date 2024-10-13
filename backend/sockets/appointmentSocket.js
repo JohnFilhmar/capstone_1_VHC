@@ -3,11 +3,21 @@ const dbModel = require('../models/database_model');
 module.exports = function(io) {
   io.on('connection', (socket) => {
 
-    socket.on('newAppointmentSocket', async (data) => {
+    socket.on('updateAppointmentSocket', async () => {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const response = await dbModel.query("SELECT ca.appointment_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_number, ca.status, ca.created_at, ca.appointed_datetime FROM citizen_appointments ca INNER JOIN citizen c ON c.citizen_family_id = ca.citizen_family_id WHERE ca.citizen_family_id = ? AND ca.appointed_datetime = ?", [data.citizen_family_id, data.appointedTime]);
+        const response = await dbModel.query(`
+        SELECT 
+          ca.appointment_id, 
+          CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, 
+          ca.phone_number, 
+          ca.status, 
+          ca.created_at, 
+          ca.appointed_datetime 
+        FROM citizen_appointments ca 
+        INNER JOIN citizen c 
+        ON c.citizen_family_id = ca.citizen_family_id`);
         const convertDate = (Ddate) => {
           const date = new Date(Ddate);
           const year = date.getFullYear();

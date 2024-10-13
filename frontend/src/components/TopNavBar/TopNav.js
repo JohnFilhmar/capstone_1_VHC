@@ -56,7 +56,7 @@ const TopNav = () => {
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
 
   const playNotificationSound = () => {
-    const audio = new Audio('notif_sound.mp3');
+    const audio = new Audio('/notif_sound.mp3');
     audio.play();
   };
 
@@ -64,17 +64,18 @@ const TopNav = () => {
     if (notifMessage) {
       playNotificationSound();
       popupNotif.current.show();
-      setTimeout(() => {
+      const time = setTimeout(() => {
         popupNotif.current.close();
         setNotifMessage(null);
       }, 5000);
+      return () => clearTimeout(time);
     }
   }, [notifMessage]);
 
   return (
     <div className={`top-0 left-0 right-0 flex justify-between items-center p-5 bg-${selectedTheme}-200 z-50`}>
       <div className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}>
-        <img src="MHO_logo.png" className='size-12 md:size-12 lg:size-16 drop-shadow-md' alt="..."/>
+        <img src="/MHO_logo.png" className='size-12 md:size-12 lg:size-16 drop-shadow-md' alt="..."/>
         <div className="self-center whitespace-nowrap font-bold">
           <p className="sm:text-lg md:text-xl lg:text-2xl">KalusugApp: VMHO</p>
           <div className={`p-1 flex gap-2 items-center justify-start text-xs rounded-lg`}>

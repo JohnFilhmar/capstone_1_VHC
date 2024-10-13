@@ -206,8 +206,7 @@ const useQuery = () => {
     setIsLoading(false);
     setTimeout(() => {
       setError(null);
-      setNotifMessage(null);
-    }, 3000);
+    }, 5000);
   };
 
   return {

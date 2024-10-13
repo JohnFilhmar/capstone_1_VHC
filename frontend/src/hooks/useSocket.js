@@ -57,6 +57,11 @@ const useSocket = ({ fetchUrl, newDataSocket, errorDataSocket, replaceData = tru
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);
+  
+  function playSound() {
+    const notif = new Audio('/queue_change.mp3');
+    notif.play();
+  }
 
   useEffect(() => {
     socket.on(newDataSocket, (Sdata) => {
@@ -66,6 +71,9 @@ const useSocket = ({ fetchUrl, newDataSocket, errorDataSocket, replaceData = tru
         ...receivedData,
       ];
       setData(replaceData ? newData : receivedData);
+      if (newDataSocket === 'queueSocket') {
+        playSound();
+      }
     });
     socket.on(errorDataSocket, (err) => {
       setSockError(err);

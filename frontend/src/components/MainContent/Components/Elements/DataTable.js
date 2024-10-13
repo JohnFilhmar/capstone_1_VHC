@@ -74,11 +74,16 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     return data?.slice().sort((a, b) => {
       const valA = (a[column] ? a[column].toString().toLowerCase() : '');
       const valB = (b[column] ? b[column].toString().toLowerCase() : '');
-  
-      if (order === 'asc') {
-        return valA.localeCompare(valB);
+      const numA = parseFloat(valA);
+      const numB = parseFloat(valB);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return order === 'asc' ? numA - numB : numB - numA;
       } else {
-        return valB.localeCompare(valA);
+        if (order === 'asc') {
+          return valA.localeCompare(valB);
+        } else {
+          return valB.localeCompare(valA);
+        }
       }
     });
   };

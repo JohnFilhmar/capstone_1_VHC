@@ -32,13 +32,14 @@ const Queue = () => {
   const { getAllItems } = useIndexedDB();
   
   const { data: queue } = useSocket({ fetchUrl: "getQueue", newDataSocket: "queueSocket", socketError: "queueSocketError", replaceData: false });
-  
+
   useEffect(() => {
     const setToken = async () => {
       const token = await getAllItems('tokens');
       setAccessToken(token?.accessToken);
     }
     setToken();
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   

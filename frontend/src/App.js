@@ -13,20 +13,19 @@ import BloodUnit from './components/MainContent/Components/BloodUnit';
 import Queue from "./components/MainContent/Components/Queue/Queue.js";
 import Appointments from "./components/MainContent/Components/Appointments/Appointments.js";
 import Accounts from "./components/MainContent/Components/Accounts/Accounts.js";
+import Equipments from "./components/MainContent/Components/Equipments/Equipments.js";
 import Mapping from "./components/MainContent/Components/Mapping/Mapping.js";
 import JsonWebToken from "./components/MainContent/Components/Playground/JsonWebToken.js";
 import Problems from "./components/MainContent/Components/Playground/Problems.js";
-import Equipments from "./components/MainContent/Components/Equipments/Equipments.js";
+import IndexedDb from "./components/MainContent/Components/Playground/IndexedDb.js";
 import Login from "./components/Login.js";
-// import Register from "./components/Register.js";
+import Register from "./components/Register.js";
 
+import api from "./axios.js";
+import useIndexedDB from "./hooks/useIndexedDb.js";
 import { socket } from "./socket.js";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import useIndexedDB from "./hooks/useIndexedDb.js";
-import api from "./axios.js";
 import { Spinner } from "flowbite-react";
-import Register from "./components/Register.js";
-import IndexedDb from "./components/MainContent/Components/Playground/IndexedDb.js";
 
 export const colorTheme = createContext();
 export const messaging = createContext();

@@ -67,12 +67,16 @@ const NewAppointmentForm = ({ close, children }) => {
             ...payload,
             staff_id: res.data.staff_id,
             appointedTime: convertToMySQLDateTime(payload.appointedTime),
-            citizen_family_id: famId
+            citizen_family_id: famId,
+            phone_number: phoneNumber
         };
         await addData("newAppointment", convertedPayload);
-        socket.emit('newAppointmentSocket', convertedPayload);
+        const time = setTimeout(() => {
+          socket.emit('updateAppointmentSocket', convertedPayload);
+        }, 500);
         cleanUp();
         close();
+        return () => clearTimeout(time);
       }
     } catch (error) {
       setErrorPrompt(error.message);

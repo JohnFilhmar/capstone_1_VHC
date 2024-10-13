@@ -4,6 +4,9 @@ require('dotenv').config();
 class Database {
   constructor() {
     this.pool = mysql.createPool({
+      connectionLimit: 100,
+      queueLimit: 0,
+      acquireTimeout: 10000,
       host: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_HOST : 'localhost',
       user: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_USER : 'root',
       password: process.env.PROJECT_STATE === 'production' ? process.env.MYSQL_PASS : '',

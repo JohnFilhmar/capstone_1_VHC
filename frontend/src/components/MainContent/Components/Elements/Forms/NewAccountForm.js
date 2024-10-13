@@ -134,6 +134,7 @@ const NewAccountForm = ({ close, children }) => {
             required 
             className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
             maxLength={50} 
+            minLength={8}
             id="username" 
             name="username"
             placeholder="Enter user name. . . . ." 

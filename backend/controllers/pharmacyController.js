@@ -1,4 +1,5 @@
 const dbModel = require('../models/database_model');
+const { convertDate } = require('../globalFunctions');
 
 class PharmacyController {
   
@@ -135,7 +136,7 @@ class PharmacyController {
         dbModel.releaseConnection(connection);
       }
     }
-  }
+  };
 
   async findMedicine(req, res) {
     let connection;
@@ -171,10 +172,18 @@ class PharmacyController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const { staff_id, itemName, quantity, container, lotNo, expiry, stockroom, dateTime } = req.body;
+      const { staff_id, itemName, itemStrength, quantity, container, lotNo, expiry, stockroom, dateTime } = req.body;
 
-      const addMedicineQuery = "INSERT INTO `pharmacy_inventory` (`item_name`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom`) VALUES (?, ?, ?, ?, ?, ?)";
-      const addmedicinePayload = [itemName, quantity, container, lotNo, expiry, stockroom];
+      const alreadyExistsQuery = "SELECT `item_name` FROM `pharmacy_inventory` WHERE `item_name` = ? AND `item_strength` = ?";
+      const alreadyExistsResponse = await dbModel.query(alreadyExistsQuery, [itemName.trim().trim(), itemStrength.trim()]);
+      if (alreadyExistsResponse.length !== 0) return res.status(403).json({ status: 403, message: "Item name already exists! Consider choosing another drug strength." });
+
+      const lotNoExistsQuery = "SELECT `lot_no` FROM `pharmacy_inventory` WHERE `lot_no` = ?";
+      const lotNoExistsResponse = await dbModel.query(lotNoExistsQuery, lotNo);
+      if (lotNoExistsResponse.length > 0) return res.status(403).json({ status: 403, message: "Lot No already exists! Enter the appropriate Lot No." });
+
+      const addMedicineQuery = "INSERT INTO `pharmacy_inventory` (`item_name`, `item_strength`, `quantity`, `container_type`, `lot_no`, `exp_date`, `quantity_stockroom`) VALUES (?, ?, ?, ?, ?, ?, ?)";
+      const addmedicinePayload = [itemName.trim(), itemStrength.trim(), quantity, container, lotNo, expiry, stockroom];
       await dbModel.query(addMedicineQuery, addmedicinePayload);
 
       const createStaffHistoryQuery = "INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
@@ -192,6 +201,125 @@ class PharmacyController {
     } finally {
       if (connection) {
         dbModel.releaseConnection(connection)
+      }
+    }
+  }
+
+  async handleDeleteMedicine(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+  
+      const deleteMedicineQuery = 'DELETE FROM `pharmacy_inventory` WHERE `item_id` = ?';
+      const deleteResponse = await dbModel.query(deleteMedicineQuery, req.params.id);
+  
+      if (deleteResponse.affectedRows === 0) {
+        return res.status(404).json({ status: 404, message: "Medicine not found!" });
+      }
+  
+      return res.status(200).json({ status: 200, message: "Medicine deleted successfully!" });
+      
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }  
+
+  async updateMedicine(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      
+      const { itemId, staff_id, itemName, itemStrength, quantity, container, lotNo, expiry, stockroom, dateTime } = req.body;
+
+      const alreadyExistsQuery = "SELECT `item_name` FROM `pharmacy_inventory` WHERE `item_name` = ? AND `item_strength` = ?";
+      const alreadyExistsResponse = await dbModel.query(alreadyExistsQuery, [itemName.trim().trim(), itemStrength.trim()]);
+      if (alreadyExistsResponse.length !== 0) return res.status(403).json({ status: 403, message: "Item name already exists!" });
+      
+      const updateMedicineQuery = `
+        UPDATE pharmacy_inventory 
+        SET 
+          item_name = ?, 
+          item_strength = ?, 
+          quantity = ?, 
+          container_type = ?, 
+          lot_no = ?, 
+          exp_date = ?, 
+          quantity_stockroom = ?
+        WHERE item_id = ?`;
+  
+      const updatePayload = [
+        itemName, 
+        itemStrength, 
+        quantity, 
+        container, 
+        lotNo, 
+        expiry, 
+        stockroom, 
+        itemId
+      ];
+  
+      const updateResponse = await dbModel.query(updateMedicineQuery, updatePayload);
+  
+      if (updateResponse.affectedRows === 0) {
+        return res.status(404).json({ status: 404, message: "Medicine not found!" });
+      }
+  
+      const createStaffHistoryQuery = `
+        INSERT INTO medicalstaff_history (staff_id, action, action_details, citizen_family_id, action_datetime) 
+        VALUES (?, ?, ?, ?, ?)`;
+  
+      const staffHistoryValues = [
+        staff_id, 
+        'updated medicine', 
+        `Updated item with ID ${itemId}`, 
+        null, 
+        dateTime
+      ];
+  
+      await dbModel.query(createStaffHistoryQuery, staffHistoryValues);
+  
+      return res.status(200).json({ status: 200, message: "Medicine updated successfully!" });
+      
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }  
+
+  async getProductLogs(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      
+      const itemId = req.params.id;
+      const getLogsQuery = 'SELECT * FROM `pharmacy_inventory_logs` WHERE `item_id` = ?';
+      const getLogsResponse = await dbModel.query(getLogsQuery, itemId);
+      return res.status(200).json({ status: 200, data: getLogsResponse });
+            
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      })
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
       }
     }
   }

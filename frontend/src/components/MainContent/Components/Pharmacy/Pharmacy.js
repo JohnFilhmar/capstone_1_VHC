@@ -17,14 +17,12 @@ const Pharmacy = () => {
   const [itemId, setItemId] = useState(null);
   const { error } = useQuery();
 
-  const { data: medicines, loading } = useSocket({ fetchUrl: "getPharmacyInventory", newDataSocket: "pharmacySocket", errorDataSocket: "pharmacySocketError" });
+  const { data: medicines, loading } = useSocket({
+    fetchUrl: "getPharmacyInventory",
+    newDataSocket: "pharmacySocket",
+    errorDataSocket: "pharmacySocketError",
+  });
 
-  // useEffect(() => {
-  //   console.log(medicines);
-  //   console.log(`socketloading : ${loading}`)
-  //   console.log(`queyloading : ${isLoading}`)
-  // }, [isLoading, loading]);
-  
   const toggleOptions = (itemId) => {
     setItemId(itemId);
     if (!isProductAuditOpen) {
@@ -39,16 +37,34 @@ const Pharmacy = () => {
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
-        <div onClick={() => socket.emit('updatePharmacy')}>
-          <Header title={ title } icon={<MdLocalPharmacy/>}/>
+        <div onClick={() => socket.emit("updatePharmacy")}>
+          <Header title={title} icon={<MdLocalPharmacy />} />
         </div>
         <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
-          <DataTable data={medicines} modalForm={pathname} isLoading={loading} toggleOption={toggleOptions} error={error} enImport={true} importUrlDestination={"submitCSVMedicinesRecord"} importTableName={pathname.charAt(0).toUpperCase() + pathname.slice(1)} />
+          <DataTable
+            data={medicines}
+            modalForm={pathname}
+            isLoading={loading}
+            toggleOption={toggleOptions}
+            optionPK={medicines.length > 0 && Object.keys(medicines[0])[0]}
+            error={error}
+            enImport={true}
+            importUrlDestination={"submitCSVMedicinesRecord"}
+            importTableName={
+              pathname.charAt(0).toUpperCase() + pathname.slice(1)
+            }
+            enExport={false}
+          />
         </div>
       </div>
-      <PharmacyAudit recordAudit={productAuditRef} toggle={toggleOptions} itemId={itemId} />
+      <PharmacyAudit
+        productRef={productAuditRef}
+        toggle={toggleOptions}
+        itemId={itemId}
+        data={medicines}
+      />
     </div>
   );
-}
- 
+};
+
 export default Pharmacy;
