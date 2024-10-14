@@ -1,4 +1,3 @@
-import { TextInput } from "flowbite-react";
 import { useContext, useEffect, useRef, useState } from "react";
 import { MdSearch, MdOutlineChevronLeft, MdOutlineChevronRight, MdOutlineKeyboardDoubleArrowLeft, MdOutlineKeyboardDoubleArrowRight, MdArrowDropUp, MdInfo, MdKeyboardArrowUp } from "react-icons/md";
 import { TbFileExport } from "react-icons/tb";
@@ -181,10 +180,10 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     return (
       <>
         <div className="flex justify-between items-center p-1 overflow-hidden">
-          <div className="flex justify-start items-center gap-3">
+          <div className="flex justify-start items-center gap-1 md:gap-2 lg:gap-3 text-xxs md:text-xs lg:text-sm">
             {enImport && (
               <button 
-                className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
+                className={`whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
                 onClick={() => toggleForm("import")}
                 disabled={error}
               >
@@ -193,20 +192,20 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
             )}
             {enAdd && (
               <button 
-                className={`text-xs md:text-sm lg:text-sm whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
+                className={`whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
                 onClick={() => toggleForm(modalForm)}
                 disabled={error}
               >
                 <p className={`font-bold text-${selectedTheme}-100`}>Add</p>
               </button>
             )}
-            <div className="flex items-center gap-1">
-              <p className={`block text-xs md:text-sm lg:text-sm text-${selectedTheme}-800 font-bold flex flex-row gap-[0.4rem]`}>Entries <span className="hidden md:block lg:block">per page</span></p>
-              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-0 md:p-1 lg:p-1`}>
+            <div className={`flex items-center gap-1 rounded-md bg-${selectedTheme}-200 p-1 md:p-1 lg:p-2 drop-shadow-md`}>
+              <p className={`block text-${selectedTheme}-800 font-bold`}>Rows</p>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
                 <MdKeyboardArrowUp />
               </button>
-              <p className={`text-xs md:text-sm lg:text-sm text-${selectedTheme}-800 font-bold`}>{rowCount}</p>
-              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && --prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-500 border-0 p-0 md:p-1 lg:p-1`}>
+              <p className={`text-${selectedTheme}-800 font-bold`}>{rowCount}</p>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && --prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
                 <MdKeyboardArrowUp className="rotate-180" />
               </button>
             </div>
@@ -221,16 +220,16 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
                   }}
                   className={`text-${selectedTheme}-500 hover:text-${selectedTheme}-600`}
                 >
-                  <MdSearch className="size-6" />
+                  <MdSearch className="size-6 hidden md:block lg:block" />
                 </button>
-                <TextInput
+                <input
                   id="tablesearch"
                   ref={inputRef}
                   type="text"
                   placeholder="Search here"
                   value={query}
                   onChange={(e) => searchTable(e)}
-                  className={`w-full`}
+                  className={`rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
                 />
               </div>
             </div>
@@ -251,7 +250,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
                   {displayedData.map((row, rowi) => (
                     <tr
                       key={rowi}
-                      className={`flex flex-row justify-between items-center bg-${selectedTheme}-200 divide-x-2 divide-transparent`}
+                      className={`flex flex-row justify-between items-center bg-${selectedTheme}-200 divide-x-2 divide-transparent hover:bg-${selectedTheme}-50`}
                     >
                       {Object.values(row).map((col, coli) => (
                         <td key={coli} className={`w-full p-2 font-semibold whitespace-nowrap overflow-hidden hover:overflow-visible hover:bg-${selectedTheme}-50 hover:text-gray-900 hover:drop-shadow-md hover:rounded-md transition-colors duration-300 hover:px-2`}>

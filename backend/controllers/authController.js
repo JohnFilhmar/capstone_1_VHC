@@ -26,7 +26,7 @@ class AuthController {
 
         const date = new Date();
         const dateTime = `
-          ${date.getFullYear()}-${String(date.getMonth() + 1).padStart('0', 2)}-${String(date.getDate()).padStart('0', 2)} ${String(date.getHours()).padStart('0', 2)}:${String(date.getMinutes()).padStart('0', 2)}:${String(date.getSeconds()).padStart('0', 2)}`;
+          ${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
         const insertHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
         const historyPayload = [
           findTokenResponse.staff_id,

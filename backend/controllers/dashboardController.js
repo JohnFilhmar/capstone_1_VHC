@@ -192,42 +192,41 @@ class DashboardController {
 
       const getBarangayIllnessRateQuery = `
         SELECT 
-  c.citizen_barangay AS barangay,
-  d.illnesses AS illness,
-  COUNT(d.illnesses) AS illness_count
-FROM 
-  citizen c
-JOIN 
-  citizen_clinical_record cr ON c.citizen_family_id = cr.citizen_family_id
-JOIN 
-  ccr_diagnosis d ON cr.record_id = d.record_id
-WHERE 
-  YEAR(cr.datetime_issued) = YEAR(CURDATE())  -- Filter for the current year
-GROUP BY 
-  c.citizen_barangay, d.illnesses
-HAVING 
-  illness_count = (
-    SELECT MAX(illness_count)
-    FROM (
-      SELECT 
-        COUNT(d2.illnesses) AS illness_count,
-        c2.citizen_barangay
-      FROM 
-        citizen c2
-      JOIN 
-        citizen_clinical_record cr2 ON c2.citizen_family_id = cr2.citizen_family_id
-      JOIN 
-        ccr_diagnosis d2 ON cr2.record_id = d2.record_id
-      WHERE 
-        YEAR(cr2.datetime_issued) = YEAR(CURDATE())  -- Filter for current year
-      GROUP BY 
-        c2.citizen_barangay, d2.illnesses
-    ) AS subquery
-    WHERE subquery.citizen_barangay = c.citizen_barangay
-  )
-ORDER BY 
-  barangay ASC, illness_count DESC;
-`;
+          c.citizen_barangay AS barangay,
+          d.illnesses AS illness,
+          COUNT(d.illnesses) AS illness_count
+        FROM 
+          citizen c
+        JOIN 
+          citizen_clinical_record cr ON c.citizen_family_id = cr.citizen_family_id
+        JOIN 
+          ccr_diagnosis d ON cr.record_id = d.record_id
+        WHERE 
+          YEAR(cr.datetime_issued) = YEAR(CURDATE())  -- Filter for the current year
+        GROUP BY 
+          c.citizen_barangay, d.illnesses
+        HAVING 
+          illness_count = (
+            SELECT MAX(illness_count)
+            FROM (
+              SELECT 
+                COUNT(d2.illnesses) AS illness_count,
+                c2.citizen_barangay
+              FROM 
+                citizen c2
+              JOIN 
+                citizen_clinical_record cr2 ON c2.citizen_family_id = cr2.citizen_family_id
+              JOIN 
+                ccr_diagnosis d2 ON cr2.record_id = d2.record_id
+              WHERE 
+                YEAR(cr2.datetime_issued) = YEAR(CURDATE())  -- Filter for current year
+              GROUP BY 
+                c2.citizen_barangay, d2.illnesses
+            ) AS subquery
+            WHERE subquery.citizen_barangay = c.citizen_barangay
+          )
+        ORDER BY 
+          barangay ASC, illness_count DESC;`;
       const getBarangayIllnessRateResponse = await dbModel.query(
         getBarangayIllnessRateQuery
       );

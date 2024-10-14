@@ -23,6 +23,8 @@ router.post('/proceedAddRecord', recordController.proceedAddRecord);
 router.get('/getRecords', recordController.getRecords);
 router.get('/findRecord/:id', recordController.findRecord);
 router.post('/findCitizen', recordController.findCitizen);
+router.post('/updateRecord', recordController.updateRecord);
+router.post('/deleteRecord/:id', recordController.deleteRecord);
 router.get('/describeRecords', recordController.describeRecords);
 
 // PHARMACY
@@ -47,7 +49,6 @@ router.post('/dismissQueue/:id', queueController.dismissQueue);
 router.post('/newAppointment', appointmentController.newAppointment);
 router.get('/getAppointments', appointmentController.getAppointments);
 router.get('/findAppointmentByNumber/:id', appointmentController.findAppointmentByNumber);
-router.post('/editAppointment', appointmentController.editAppointment);
 router.post('/handleCancelAppointment/:id', appointmentController.handleCancelAppointment);
 router.post('/handleApproveAppointment/:id', appointmentController.handleApproveAppointment);
 

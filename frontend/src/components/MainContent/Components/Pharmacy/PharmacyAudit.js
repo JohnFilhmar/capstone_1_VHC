@@ -168,7 +168,7 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
   async function handleSubmit(e) {
     e.preventDefault();
     const exp = new Date(payload.expiry);
-    const newExpiry = `${exp.getFullYear()}-${String(exp.getMonth() + 1).padStart('0', 2)}-${String(exp.getDate()).padStart('0', 2)}`;
+    const newExpiry = `${exp.getFullYear()}-${String(exp.getMonth() + 1).padStart(2, '0')}-${String(exp.getDate()).padStart(2, '0')}`;
 
     const res = await api.get('/getStaffId');
     if (res?.status === 200) {
@@ -201,10 +201,10 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-2 px-4 w-full">
           <div className="flex justify-between p-2 items-center">
             <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800`}>{toEdit ? 'Update Product' : 'Product Details'}</p>
-            <div className="flex gap-2 justify-end items-center">
+            <div className="flex gap-1 md:gap-2 lg:gap-3 justify-end items-center">
               <button 
                 onClick={(e) => handleToggleEdit(e)}
-                className={`font-semibold p-2 rounded-md transition-colors duration-200 ${!toEdit ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-red-200 bg-red-800 shadow-inner` }`}>
+                className={`font-semibold p-1 md:p-2 lg:p-3 rounded-md transition-colors duration-200 ${!toEdit ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-red-200 bg-red-800 shadow-inner` }`}>
                 {toEdit ? 'Cancel Edit' : 'Edit Product'}
               </button>
               <button 
@@ -370,7 +370,7 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
               <p className="drop-shadow-lg">
                 {!isLoading ? (notifMessage ? notifMessage : 'Update Item') : <Spinner/>}
               </p>
-            </button>
+          </button>
         </form>
         <div className="flex flex-col justify-start p-2 gap-2">
           <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800 w-full p-2`}>Product History</p>

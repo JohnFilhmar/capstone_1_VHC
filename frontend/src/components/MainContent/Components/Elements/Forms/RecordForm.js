@@ -130,7 +130,7 @@ const RecordForm = ( { close, children } ) => {
     }
   };
 
-  const handleChange = (e) => {
+  const handleFamilyIdChange = (e) => {
     const input = e.target.value; 
     let prefix = barangay.slice(0, 3).toUpperCase(); 
     const cleanedValue = input.replace(/\D/g, '').slice(0, 20); 
@@ -300,7 +300,7 @@ const RecordForm = ( { close, children } ) => {
               autoComplete='off'
             />
             <datalist id="barangaySuggestions">
-              {barangay.length >= 4 && barangays.map((bangay, index) => (
+              {barangay.length >= 2 && barangays.map((bangay, index) => (
                 <option key={index} value={bangay} onClick={() => setBarangay(bangay)} />
               ))}
             </datalist>
@@ -332,7 +332,7 @@ const RecordForm = ( { close, children } ) => {
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent text-slate-500 border-[1px] border-${selectedTheme}-800`}
               type="text" 
               value={familyId}
-              onChange={handleChange}
+              onChange={handleFamilyIdChange}
               minLength={19}
               autoComplete='off'
               required
@@ -341,7 +341,7 @@ const RecordForm = ( { close, children } ) => {
         </div>
         <button disabled={isLoading} type="submit" className={`font-semibold p-2 rounded-md w-full transition-colors duration-200 ${!isLoading ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-${selectedTheme}-700 bg-${selectedTheme}-100 shadow-inner` }`}><p className="drop-shadow-lg">{!isLoading ? (notifMessage ? notifMessage : 'Add New Record') : <Spinner/>}</p></button>
         <div className="flex items-center justify-end gap-2">
-          <Checkbox
+          <Checkbox 
             id="accept"
             checked={dontCloseUponSubmission}
             onChange={() => setDontCloseUponSubmission((prev) => !prev)}

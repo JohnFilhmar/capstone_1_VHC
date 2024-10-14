@@ -73,36 +73,6 @@ class AppointmentController {
       }
     }
   }
-  
-  async editAppointment(req, res) {
-    let connection;
-    try {
-      connection = await dbModel.getConnection();
-      const query = "";
-      const newResponse = response.map((res) => {
-        return {
-          ...res,
-          appointed_datetime: convertDate(res.appointed_datetime),
-          created_at: convertDate(res.created_at)
-        }
-      });
-      return res.status(200).json({
-        status: 200,
-        message: "Data retrieved successfully",
-        data: newResponse
-      });
-    } catch (error) {
-      return res.status(500).json({
-        status: 500,
-        message: error.message,
-        error: error
-      });
-    } finally {
-      if (connection) {
-        dbModel.releaseConnection(connection);
-      }
-    }
-  }
 
   async handleCancelAppointment(req, res) {
     let connection;

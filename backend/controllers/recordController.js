@@ -1,4 +1,5 @@
 const dbModel = require("../models/database_model");
+const { convertDate } = require('../globalFunctions');
 
 class RecordController {
   async describeRecords(req, res) {
@@ -417,7 +418,7 @@ class RecordController {
       connection = await dbModel.getConnection();
 
       const getCitizenHistoryQuery =
-        "SELECT c.citizen_family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
+        "SELECT c.citizen_family_id, c.citizen_firstname, c.citizen_middlename, c.citizen_lastname, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
       const family_id = req.params.id;
       const getCitizenHistoryResponse = await dbModel.query(
         getCitizenHistoryQuery,
@@ -438,6 +439,128 @@ class RecordController {
         status: 500,
         message: error.message,
         error: error.message,
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  }
+
+  async updateRecord(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const {
+        firstname,
+        middlename,
+        lastname,
+        gender,
+        birthdate,
+        barangay,
+        family_id,
+        dateTime,
+        staff_id
+      } = req.body;
+      const updateCitizenQuery = `
+        UPDATE citizen 
+        SET citizen_firstname = ?, 
+          citizen_middlename = ?, 
+          citizen_lastname = ?, 
+          citizen_gender = ?, 
+          citizen_birthdate = ?, 
+          citizen_barangay = ?
+        WHERE citizen_family_id = ?
+      `;
+      const citizenPayload = [
+        firstname,
+        middlename,
+        lastname,
+        gender,
+        birthdate,
+        barangay,
+        family_id
+      ];
+      await dbModel.query(updateCitizenQuery, citizenPayload);
+      const insertHistoryQuery = `
+        INSERT INTO citizen_history (family_id, action, action_details, staff_id, action_datetime)
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      const historyPayload = [
+        family_id,
+        'record updated',
+        'updated record details',
+        req.body.staff_id,
+        dateTime
+      ];
+      await dbModel.query(insertHistoryQuery, historyPayload);
+
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        staff_id,
+        'updated record',
+        'updated record details',
+        family_id,
+        dateTime
+      ]
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
+      
+      return res.status(200).json({ status: 200, message: 'Record updated successfully' });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
+      });
+    } finally {
+      if (connection) {
+        dbModel.releaseConnection(connection);
+      }
+    }
+  };
+
+  async deleteRecord(req, res) {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const { staff_id, dateTime } = req.body;
+      const { id: family_id } = req.params;
+      const checkRecordQuery = 'SELECT * FROM citizen WHERE citizen_family_id = ?';
+      const [record] = await dbModel.query(checkRecordQuery, [family_id]);
+      if (!record) {
+        return res.status(404).json({ status: 404, message: 'Record not found!' });
+      }
+      const deleteCitizenQuery = 'DELETE FROM citizen WHERE citizen_family_id = ?';
+      await dbModel.query(deleteCitizenQuery, [family_id]);
+      // const insertHistoryQuery = `
+      //     INSERT INTO citizen_history (family_id, action, action_details, staff_id, action_datetime)
+      //     VALUES (?, ?, ?, ?, ?)
+      // `;
+      // const historyPayload = [
+      //     family_id,
+      //     'record deleted',
+      //     'deleted this record from the database',
+      //     staff_id,
+      //     dateTime
+      // ];
+      // await dbModel.query(insertHistoryQuery, historyPayload);
+
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        staff_id,
+        'deleted record',
+        `deleted record ID: ${family_id}`,
+        null,
+        dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
+
+      return res.status(200).json({ status: 200, message: 'Record deleted successfully' });
+    } catch (error) {
+      return res.status(500).json({
+        status: 500,
+        message: error.message,
+        error: error
       });
     } finally {
       if (connection) {
