@@ -72,31 +72,75 @@ class DashboardController {
         0
       );
 
-      const getIllnessesCountsQuery = `
-        SELECT illnesses AS illness, COUNT(*) AS count
-          FROM ccr_diagnosis
-          GROUP BY illnesses
-          ORDER BY count DESC`;
-      const getIllnessesCountsResponse = await dbModel.query(
-        getIllnessesCountsQuery
+      const getCasesCountsQuery = `
+        SELECT 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(d.cases, ',', numbers.n), ',', -1)) AS case_name,
+          COUNT(*) AS case_count
+        FROM 
+          ccr_diagnosis d
+        JOIN (
+          SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+          UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
+          UNION ALL SELECT 9 UNION ALL SELECT 10
+        ) numbers ON CHAR_LENGTH(d.cases) - CHAR_LENGTH(REPLACE(d.cases, ',', '')) >= numbers.n - 1
+        GROUP BY 
+          case_name
+        UNION ALL
+        SELECT 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(a.description, ',', numbers.n), ',', -1)) AS case_name,
+          COUNT(*) AS case_count
+        FROM 
+          citizen_appointments a
+        JOIN (
+          SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+          UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
+          UNION ALL SELECT 9 UNION ALL SELECT 10
+        ) numbers ON CHAR_LENGTH(a.description) - CHAR_LENGTH(REPLACE(a.description, ',', '')) >= numbers.n - 1
+        WHERE 
+          a.status = 'scheduled' -- Filter only scheduled appointments
+        GROUP BY 
+          case_name
+        UNION ALL
+        SELECT 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cq.reason, ',', numbers.n), ',', -1)) AS case_name,
+          COUNT(*) AS case_count
+        FROM 
+          citizen_queue cq
+        JOIN (
+          SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+          UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
+          UNION ALL SELECT 9 UNION ALL SELECT 10
+        ) numbers ON CHAR_LENGTH(cq.reason) - CHAR_LENGTH(REPLACE(cq.reason, ',', '')) >= numbers.n - 1
+        GROUP BY 
+          case_name
+        ORDER BY 
+          case_count DESC
+        LIMIT 5;`;
+      const getCasesCountsResponse = await dbModel.query(
+        getCasesCountsQuery
       );
 
-      const getIllnessesRateCountQuery = `
-        SELECT 
-          YEAR(ccr.datetime_issued) AS year, 
-          cd.illnesses AS illness, 
-          COUNT(*) AS count
-        FROM 
-          ccr_diagnosis cd
-        JOIN 
-          citizen_clinical_record ccr ON cd.record_id = ccr.record_id
-        GROUP BY 
-          year, illness
-        ORDER BY 
-          year, count DESC
-        LIMIT 10;`;
-      const getIllnessesRateCountResponse = await dbModel.query(
-        getIllnessesRateCountQuery
+      const getCasesRateCountQuery = `
+      SELECT 
+        YEAR(ccr.datetime_issued) AS year, 
+        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cd.cases, ',', n.n), ',', -1)) AS case_name, 
+        COUNT(*) AS count
+      FROM 
+        ccr_diagnosis cd
+      JOIN 
+        citizen_clinical_record ccr ON cd.record_id = ccr.record_id
+      JOIN 
+        (SELECT a.N + b.N * 10 + 1 AS n
+        FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
+              (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+        ) n
+        ON CHAR_LENGTH(cd.cases) - CHAR_LENGTH(REPLACE(cd.cases, ',', '')) >= n.n - 1
+      GROUP BY 
+        year, case_name
+      ORDER BY 
+        year, count DESC;`;
+      const getCasesRateCountResponse = await dbModel.query(
+        getCasesRateCountQuery
       );
 
       const getAnnualPatientsQuery = `
@@ -190,47 +234,31 @@ class DashboardController {
         getDailyPatientsQuery
       );
 
-      const getBarangayIllnessRateQuery = `
+      const getBarangayCasesRateQuery = `
         SELECT 
           c.citizen_barangay AS barangay,
-          d.illnesses AS illness,
-          COUNT(d.illnesses) AS illness_count
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(d.cases, ',', numbers.n), ',', -1)) AS case_name,
+          COUNT(*) AS cases_count
         FROM 
           citizen c
         JOIN 
           citizen_clinical_record cr ON c.citizen_family_id = cr.citizen_family_id
         JOIN 
           ccr_diagnosis d ON cr.record_id = d.record_id
+        JOIN (
+          SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+          UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
+          UNION ALL SELECT 9 UNION ALL SELECT 10
+        ) numbers ON CHAR_LENGTH(d.cases) - CHAR_LENGTH(REPLACE(d.cases, ',', '')) >= numbers.n - 1
         WHERE 
-          YEAR(cr.datetime_issued) = YEAR(CURDATE())  -- Filter for the current year
+          YEAR(cr.datetime_issued) = YEAR(CURDATE())
         GROUP BY 
-          c.citizen_barangay, d.illnesses
-        HAVING 
-          illness_count = (
-            SELECT MAX(illness_count)
-            FROM (
-              SELECT 
-                COUNT(d2.illnesses) AS illness_count,
-                c2.citizen_barangay
-              FROM 
-                citizen c2
-              JOIN 
-                citizen_clinical_record cr2 ON c2.citizen_family_id = cr2.citizen_family_id
-              JOIN 
-                ccr_diagnosis d2 ON cr2.record_id = d2.record_id
-              WHERE 
-                YEAR(cr2.datetime_issued) = YEAR(CURDATE())  -- Filter for current year
-              GROUP BY 
-                c2.citizen_barangay, d2.illnesses
-            ) AS subquery
-            WHERE subquery.citizen_barangay = c.citizen_barangay
-          )
+          c.citizen_barangay, case_name
         ORDER BY 
-          barangay ASC, illness_count DESC;`;
-      const getBarangayIllnessRateResponse = await dbModel.query(
-        getBarangayIllnessRateQuery
+          barangay ASC, cases_count DESC;`;
+      const getBarangayCasesRateResponse = await dbModel.query(
+        getBarangayCasesRateQuery
       );
-
       return res.status(200).json({
         status: 200,
         message: 'Successfully Retrieved Data!',
@@ -239,12 +267,12 @@ class DashboardController {
           ...getStaffCountResponse,
           total_deliveries: total_deliveries,
           annual_deliveries: getDeliveriesResponse,
-          illnesses_count: getIllnessesCountsResponse,
-          illnesses_rate: getIllnessesRateCountResponse,
+          cases_count: getCasesCountsResponse,
+          cases_rate: getCasesRateCountResponse,
           annual_patients: getAnnualPatientsResponse,
           monthly_patients: getMonthlyPatientsResponse,
           daily_patients: getDailyPatientsResponse,
-          barangay_illness_rate: getBarangayIllnessRateResponse
+          barangay_cases_rate: getBarangayCasesRateResponse
         }
       });
     } catch (error) {

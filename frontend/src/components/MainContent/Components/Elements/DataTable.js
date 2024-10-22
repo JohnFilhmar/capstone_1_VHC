@@ -229,7 +229,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
                   placeholder="Search here"
                   value={query}
                   onChange={(e) => searchTable(e)}
-                  className={`rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
+                  className={`w-20 md:w-24 lg:w-28 rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
                 />
               </div>
             </div>
@@ -283,7 +283,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
               )}
               {data && data.length === 0 && (
                <tr>
-                 <td className={`flex justify-center items-center text-center bg-blue-300 rounded-md h-96 p-2 font-bold`}>
+                 <td className={`flex justify-center items-center text-center bg-${selectedTheme}-300 rounded-md h-[39rem] p-2 font-bold`}>
                    <MdInfo className="size-6 md:size-7 lg:size-8"/>
                    <p>Table is empty. Add new data.</p>
                  </td>

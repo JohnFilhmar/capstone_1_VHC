@@ -4,9 +4,9 @@ import { MdAnalytics } from 'react-icons/md';
 import { useContext } from 'react';
 import { colorTheme } from '../../../../App';
 import Header from '../../Header';
-import IllnessRate from './IllnessRate';
 import MostDiseases from './MostDiseases';
-import BarangayIllnessRate from './BarangayIllnessRate';
+import CasesRate from './CasesRate';
+import BarangayCasesRate from './BarangayCasesRate';
 
 const Analytics = () => {
   const [selectedTheme] = useContext(colorTheme);
@@ -33,7 +33,7 @@ const Analytics = () => {
                     Most Cases Reported
                   </p>
                 </div>
-                <MostDiseases data={storedData.illnesses_count} />
+                <MostDiseases data={storedData.cases_count} />
               </div>
               <div
                 className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}
@@ -42,10 +42,10 @@ const Analytics = () => {
                   <p
                     className={`p-4 font-bold text-start text-lg md:text-xl lg:text-2xl text-${selectedTheme}-700`}
                   >
-                    Annual Cases Rate
+                    Top Annual Cases Rate
                   </p>
                 </div>
-                <IllnessRate data={storedData.illnesses_rate} />
+                <CasesRate data={storedData.cases_rate} />
               </div>
             </div>
             <div
@@ -58,7 +58,7 @@ const Analytics = () => {
                   Barangay Cases Rate
                 </p>
               </div>
-              <BarangayIllnessRate dataset={storedData.barangay_illness_rate} />
+              <BarangayCasesRate dataset={storedData.barangay_cases_rate} />
             </div>
           </div>
         </div>

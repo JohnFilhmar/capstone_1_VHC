@@ -60,6 +60,7 @@ const SideMenu = () => {
   const loc = location.pathname;
   const { getAllItems } = useIndexedDB();
   const [idbAccessToken, setIdbAccessToken] = useState(null);
+  
   async function getTokens() {
     const tokens = await getAllItems('tokens');
     setIdbAccessToken(tokens.accessToken);
@@ -83,7 +84,7 @@ const SideMenu = () => {
       <Menu path="pharmacy" Icon={MdLocalPharmacy} label="Pharmacy" />
       <Menu path="equipments" Icon={FaStethoscope} label="Equipments" />
       <Menu path="blood_unit" Icon={BiSolidDonateBlood} label="Blood Unit" />
-      {role && (role !== 'user') && (
+      {role && (role !== 'staff') && (
         <Menu path="accounts" Icon={FaUsers} label="Accounts" />
       )}
 

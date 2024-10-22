@@ -12,8 +12,7 @@ import { FaBaby } from 'react-icons/fa';
 import MultiLineChart from './MultiLineChart';
 
 const DashIcon = ({ Icon, title, value, isLoading }) => {
-  // eslint-disable-next-line no-unused-vars
-  const [selectedTheme, setSelectedTheme] = useContext(colorTheme);
+  const [selectedTheme] = useContext(colorTheme);
 
   if (isLoading) {
     return (
@@ -48,8 +47,7 @@ const DashIcon = ({ Icon, title, value, isLoading }) => {
 };
 
 const Dashboard = () => {
-  // eslint-disable-next-line no-unused-vars
-  const [selectedTheme, setSelectedTheme] = useContext(colorTheme);
+  const [selectedTheme] = useContext(colorTheme);
   const { response, isLoading, fetchData } = useQuery();
   const [data, setData] = useState({
     patient_count: 0,

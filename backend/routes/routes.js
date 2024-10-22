@@ -8,6 +8,7 @@ const queueController = require('../controllers/queueController');
 const appointmentController = require('../controllers/appointmentController');
 const clinicRecordController = require('../controllers/clinicRecordController');
 const dashboardController = require('../controllers/dashboardController');
+const bloodController = require('../controllers/bloodController');
 
 // USER AUTHENTICATION/REGISTRATION
 router.get('/getStaffId', staffController.getStaffId);
@@ -51,6 +52,9 @@ router.get('/getAppointments', appointmentController.getAppointments);
 router.get('/findAppointmentByNumber/:id', appointmentController.findAppointmentByNumber);
 router.post('/handleCancelAppointment/:id', appointmentController.handleCancelAppointment);
 router.post('/handleApproveAppointment/:id', appointmentController.handleApproveAppointment);
+
+// BLOOD DONORS
+router.get('/getBlood', bloodController.getBlood);
 
 // CLINIC 
 router.post('/addClinicRecord', clinicRecordController.addCinicRecord);

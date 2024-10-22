@@ -77,7 +77,8 @@ const NewAccountForm = ({ close, children }) => {
     }
   }, [payload.password]);
 
-  function generateStrongPassword() {
+  function generateStrongPassword(e) {
+    e.preventDefault();
     const upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
     const numbers = "0123456789";
@@ -191,21 +192,34 @@ const NewAccountForm = ({ close, children }) => {
 
           {isWarningShown && 
           <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
-            {warning} <button className="font-bold text-blue-800" onClick={() => generateStrongPassword()}>Click this to create a strong random password.</button>
+            {warning} <button className="font-bold text-blue-800" onClick={(e) => generateStrongPassword(e)}>Click this to create a strong random password.</button>
           </p>}
 
         <fieldset className="flex flex-row gap-3 p-2">
           <legend className="mr-4 text-xs md:text-sm lg:text-base">Choose a role</legend>
           <div className="flex items-center gap-2">
-            <Radio
-              id="user"
-              name="role"
-              value="user"
-              className='text-xs md:text-sm lg:text-base'
-              checked={payload.role === 'staff'}
-              onChange={handleChange}
-            />
-            <Label htmlFor="user">Staff</Label>
+            <div className="flex items-center gap-2">
+              <Radio
+                id="staff"
+                name="role"
+                value="staff"
+                className='text-xs md:text-sm lg:text-base'
+                checked={payload.role === 'staff'}
+                onChange={handleChange}
+              />
+              <Label htmlFor="staff">Staff</Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Radio
+                id="admin"
+                name="role"
+                value="admin"
+                className='text-xs md:text-sm lg:text-base'
+                checked={payload.role === 'admin'}
+                onChange={handleChange}
+              />
+              <Label htmlFor="admin">Admin</Label>
+            </div>
           </div>
         </fieldset>
         <div>

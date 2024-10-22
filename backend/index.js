@@ -10,7 +10,6 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const routeAuth = require("./middlewares/routeAuth");
 const authController = require("./controllers/authController");
-const emailController = require("./controllers/emailController");
 const roleAuth = require("./middlewares/roleAuth");
 require('dotenv').config();
 

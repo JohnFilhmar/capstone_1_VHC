@@ -8,7 +8,6 @@ import DataTable from "../Elements/DataTable";
 import api from "../../../../axios";
 import useCurrentTime from "../../../../hooks/useCurrentTime";
 import { Label, Radio, Spinner } from "flowbite-react";
-import { BiSolidTrashAlt } from "react-icons/bi";
 
 export const prescriptionContext = createContext();
 
@@ -20,7 +19,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
   const [warningMessage, setWarningMessage] = useState(null);
   const { mysqlTime } = useCurrentTime();
 
-  const { searchResults, isLoading, error, searchData, addData, postData, deleteData } = useQuery();
+  const { searchResults, isLoading, error, searchData, addData, postData } = useQuery();
   const [formVisibility, setFormVisibility] = useState(false);
   const [medicinePrescriptions, setMedicinePrescriptions] = useState([]);
 
@@ -188,9 +187,9 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     if (!vital_signs.height || !vital_signs.weight) {
       return { valid: false, message: "Both height and weight must have a value." };
     }
-    const { primary_diagnosis, secondary_diagnosis, illnesses, symptoms, severity } = diagnosis_plan;
-    if (!primary_diagnosis || !secondary_diagnosis || !illnesses || !symptoms || !severity) {
-      return { valid: false, message: "Diagnosis plan requires primary diagnosis, secondary diagnosis, illnesses, symptoms, and severity." };
+    const { primary_diagnosis, secondary_diagnosis, cases, symptoms, severity } = diagnosis_plan;
+    if (!primary_diagnosis || !secondary_diagnosis || !cases || !symptoms || !severity) {
+      return { valid: false, message: "Diagnosis plan requires primary diagnosis, secondary diagnosis, cases, symptoms, and severity." };
     }
     return null
   };

@@ -123,7 +123,7 @@ const CitizenForm = ({ userData }) => {
       "diagnosis_plan": {
           "primary_diagnosis": "",
           "secondary_diagnosis": "",
-          "illnesses": "",
+          "cases": "",
           "severity": "moderate",
           "symptoms": "",
           "tests_conducted": "",

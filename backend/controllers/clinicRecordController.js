@@ -70,9 +70,9 @@ class ClinicRecordController {
         await dbModel.query(insertPregnancyHistoryQuery, insertPregnancyHistoryPayload);
       }
       
-      const { primary_diagnosis, secondary_diagnosis, illnesses, severity, symptoms, tests_conducted, diagnosis_details, follow_up_recommendations } = diagnosis_plan;
-      const insertDiagnosisQuery = "INSERT INTO `ccr_diagnosis`(`record_id`, `primary_diagnosis`, `secondary_diagnosis`, `illnesses`, `severity`, `symptoms`, `tests_conducted`, `diagnosis_details`, `follow_up_recommendations`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-      const insertDiagnosisPayload = [record_id, primary_diagnosis, secondary_diagnosis, illnesses, severity, symptoms, tests_conducted, diagnosis_details, follow_up_recommendations];
+      const { primary_diagnosis, secondary_diagnosis, cases, severity, symptoms, tests_conducted, diagnosis_details, follow_up_recommendations } = diagnosis_plan;
+      const insertDiagnosisQuery = "INSERT INTO `ccr_diagnosis`(`record_id`, `primary_diagnosis`, `secondary_diagnosis`, `cases`, `severity`, `symptoms`, `tests_conducted`, `diagnosis_details`, `follow_up_recommendations`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      const insertDiagnosisPayload = [record_id, primary_diagnosis, secondary_diagnosis, cases, severity, symptoms, tests_conducted, diagnosis_details, follow_up_recommendations];
       await dbModel.query(insertDiagnosisQuery, insertDiagnosisPayload);
       
       for (const medicine of prescriptions) {

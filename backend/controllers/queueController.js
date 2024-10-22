@@ -12,14 +12,14 @@ class QueueController {
         famId,
         dateTime,
         status,
-        reason
+        String(reason).toLowerCase()
       ];
 
       const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const historyPayload = [
         famId,
         `queued for ${status}`,
-        `added to queue as ${status}`,
+        `added to queue as ${status} by ${staff_id} at ${String(dateTime)}`,
         staff_id,
         dateTime
       ];
@@ -28,8 +28,8 @@ class QueueController {
       const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const staffHistoryPayload = [
         staff_id,
-        'added to queue',
-        'added a patient to queue',
+        'added a patient to the queue',
+        `added to patient ${famId} to the queue`,
         famId,
         dateTime
       ];
@@ -171,12 +171,22 @@ class QueueController {
       const insertHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const historyPayload = [
         getFIFO.citizen_family_id,
-        'serving',
-        `citizen is being served`,
+        'being served in the queue',
+        `citizen is being served in the queue by ${req.body.staff_id} at ${req.body.dateTime}`,
         req.body.staff_id,
         req.body.dateTime
       ];
       await dbModel.query(insertHistoryQuery, historyPayload);
+      
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        req.body.staff_id,
+        'served a patient from the queue',
+        `served the patient ${getFIFO.citizen_family_id} from the queue at ${req.body.dateTime}`,
+        getFIFO.citizen_family_id,
+        req.body.dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
 
       res.status(200).json({
         status: 200,
@@ -222,8 +232,8 @@ class QueueController {
         
       const citizenHistoryPayload = [
         currentStatus.citizen_family_id,
-        'dismissed',
         'dismissed from the queue',
+        `dismissed from the queue by ${req.body.staff_id} at ${req.body.dateTime}`,
         req.body.staff_id,
         req.body.dateTime
       ];      
@@ -232,8 +242,8 @@ class QueueController {
       const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const staffHistoryPayload = [
         req.body.staff_id,
-        'dismissed a patient',
         'dismissed a patient from the queue',
+        `dismissed patient ${currentStatus.citizen_family_id} from the queue at ${req.body.dateTime}`,
         currentStatus.citizen_family_id,
         req.body.dateTime
       ];

@@ -11,7 +11,17 @@ class AppointmentController {
       const { appointedTime, description, dateTime, staff_id, citizen_family_id, phone_number } = req.body;
 
       const insertAppointmentQuery = "INSERT INTO `citizen_appointments` (`citizen_family_id`, `description`, `phone_number`, `appointed_datetime`, `status`, `created_at`) VALUES (?, ?, ?, ?, ?, ?)";
-      const insertAppointmentResponse = await dbModel.query (insertAppointmentQuery, [citizen_family_id, description, phone_number, appointedTime, 'pending', dateTime]);
+      const insertAppointmentResponse = await dbModel.query (insertAppointmentQuery, [citizen_family_id, String(description).toLowerCase(), phone_number, appointedTime, 'pending', dateTime]);
+      
+      const insertCitizenHistoryQuery = 'INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const historyPayload = [
+        citizen_family_id,
+        `created an appointment`,
+        `created an appointment by ${staff_id} at ${dateTime}`,
+        staff_id,
+        dateTime
+      ];
+      await dbModel.query(insertCitizenHistoryQuery, historyPayload);
 
       if (insertAppointmentResponse.affectedRows > 0) {
         const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";

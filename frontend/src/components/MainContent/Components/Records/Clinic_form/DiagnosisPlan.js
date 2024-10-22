@@ -4,12 +4,12 @@ import { FaMinus, FaPlus, FaStethoscope } from "react-icons/fa";
 const DiagnosisPlan = ({ selectedTheme }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [symptoms, setSymptoms] = useState([]);
-  const [illnesses, setIllnesses] = useState([]);
+  const [cases, setCases] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [diagnosisPlan, setDiagnosisPlan] = useState({
     primary_diagnosis: '',
     secondary_diagnosis: '',
-    illnesses: '',
+    cases: '',
     severity: 'moderate',
     symptoms: '',
     tests_conducted: '',
@@ -42,7 +42,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
   };
   const handleIllnessChange = (e) => {
     const input = e.target.value;
-    setDiagnosisPlan((prev) => ({ ...prev, illnesses: input }));
+    setDiagnosisPlan((prev) => ({ ...prev, cases: input }));
 
     if (input.length > 2) {
       const time = setTimeout(() => {
@@ -55,13 +55,13 @@ const DiagnosisPlan = ({ selectedTheme }) => {
   };
   const handleAddIllness = (e) => {
     e.preventDefault();
-    if ((diagnosisPlan.illnesses).length > 3) {
-      setIllnesses(prev => [...prev, diagnosisPlan.illnesses]);
+    if ((diagnosisPlan.cases).length > 3) {
+      setCases(prev => [...prev, diagnosisPlan.cases]);
     }
   }
-  const handleIllnessSelect = (illness) => {
-    setIllnesses((prev) => [...prev, illness]);
-    setDiagnosisPlan((prev) => ({ ...prev, illnesses: '' }));
+  const handleIllnessSelect = (cases) => {
+    setCases((prev) => [...prev, cases]);
+    setDiagnosisPlan((prev) => ({ ...prev, cases: '' }));
     setSuggestions([]);
   };
 
@@ -69,7 +69,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
     setSymptoms(symptoms.filter((_, i) => i !== index));
   };
   const removeIllness = (index) => {
-    setIllnesses(illnesses.filter((_, i) => i !== index));
+    setCases(cases.filter((_, i) => i !== index));
   };
   
   useEffect(() => {
@@ -81,7 +81,7 @@ const DiagnosisPlan = ({ selectedTheme }) => {
         ...oldClinicForm,
         diagnosis_plan: {
           ...diagnosisPlan,
-          illnesses: illnesses.map(s => `${s}`).join(','),
+          cases: cases.map(s => `${s}`).join(','),
           symptoms: symptoms.map(s => `${s}`).join(','),
         }
       };
@@ -135,13 +135,13 @@ const DiagnosisPlan = ({ selectedTheme }) => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           <div className="p-2 relative">
-            <label htmlFor="illnesses" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>
+            <label htmlFor="cases" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>
               Case/es:
             </label>
             <div className="flex tag-input">
-              {illnesses.map((illness, i) => (
+              {cases.map((cases, i) => (
                 <div key={i} className="tag">
-                  {illness}
+                  {cases}
                   <button type="button" onClick={() => removeIllness(i)}>
                     &times;
                   </button>
@@ -150,10 +150,10 @@ const DiagnosisPlan = ({ selectedTheme }) => {
               <div className="flex items-center justify-between w-full gap-2">
                 <input
                   type="text"
-                  id="illnesses-input"
-                  name="illnesses"
+                  id="cases-input"
+                  name="cases"
                   placeholder="Type the case of the patient..."
-                  value={diagnosisPlan.illnesses}
+                  value={diagnosisPlan.cases}
                   onChange={handleIllnessChange}
                   className="w-full text-xs md:text-sm lg:text-base text-gray-600 rounded-md"
                 />

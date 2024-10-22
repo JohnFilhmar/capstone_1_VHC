@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState } from 'react';
 import { colorTheme } from '../../../../App';
 import RecordForm from './Forms/RecordForm';
 import PharmacyForm from './Forms/PharmacyForm';
-import DonorForm from './Forms/DonorForm';
+import BloodForm from './Forms/BloodForm';
 import NewAppointmentForm from './Forms/NewAppointmentForm';
 import NewAccountForm from './Forms/NewAccountForm';
 import ConfirmForm from '../../../../hooks/ConfirmForm';
@@ -18,7 +18,7 @@ const SelectedForm = ({ formType, toggle, tableName }) => {
       case 'pharmacy':
         return <PharmacyForm close={toggle} />;
       case 'blood_unit':
-        return <DonorForm close={toggle} />;
+        return <BloodForm close={toggle} />;
       case 'appointments':
         return <NewAppointmentForm close={toggle} />;
       case 'accounts':

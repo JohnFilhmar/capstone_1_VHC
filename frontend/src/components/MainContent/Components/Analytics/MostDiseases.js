@@ -1,14 +1,20 @@
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { useContext } from 'react';
-import { colorTheme } from '../../../../App';
 import tinycolor from 'tinycolor2';
 
 const MostDiseases = ({ data }) => {
-  const [selectedTheme] = useContext(colorTheme);
 
-  const labels = data.map(item => item.illness.length > 8 ? item.illness.substring(0, 8) + "..." : item.illness);
-  const illnessCounts = data.map(item => item.count);
+  const labels = data.map(item => item.case_name.length > 8 ? item.case_name.substring(0, 8) + "..." : item.case_name);
+  const casesCounts = data.map(item => item.case_count);
+  const maxCount = Math.max(...casesCounts);
+
+  const getColorForCount = (count) => {
+    const percentage = count / maxCount;
+    return tinycolor.mix('blue', 'red', percentage * 100)
+                    .darken(20)
+                    .setAlpha(0.7)
+                    .toRgbString();
+  };
 
   ChartJS.register(
     CategoryScale,
@@ -29,7 +35,7 @@ const MostDiseases = ({ data }) => {
           title: function(tooltipItems) {
             if (tooltipItems.length) {
               const index = tooltipItems[0].dataIndex;
-              return data[index].illness;
+              return data[index].case_name;
             }
             return '';
           }
@@ -50,8 +56,10 @@ const MostDiseases = ({ data }) => {
     labels,
     datasets: [
       {
-        data: illnessCounts,
-        backgroundColor: tinycolor(selectedTheme).toRgbString(), 
+        data: casesCounts,
+        borderColor: "#000000",
+        backgroundColor: casesCounts.map(count => getColorForCount(count)),
+        borderWidth: 2
       }
     ],
   };
