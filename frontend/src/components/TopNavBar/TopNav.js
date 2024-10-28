@@ -10,7 +10,7 @@ import Profile from "./Profile";
 import Settings from "./Settings/Settings";
 import Help from "./Help/Help";
 import Themes from "./Settings/Themes";
-import { colorTheme, notificationMessage } from "../../App";
+import { colorTheme, isLoggedInContext, notificationMessage } from "../../App";
 import Chatbox from "./Messaging/Chatbox";
 import useWindowSize from "../../hooks/useWindowSize";
 import ReportForm from "./Help/ReportForm";
@@ -54,6 +54,7 @@ const TopNav = () => {
     toggleFeedback,
   } = useNavigationState();
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
+  const [isLoggedIn] = useContext(isLoggedInContext);
 
   const playNotificationSound = () => {
     const audio = new Audio('/notif_sound.mp3');
@@ -85,47 +86,51 @@ const TopNav = () => {
         </div>
       </div>
       <div className="flex justify-end items-center gap-2 md:gap-3 lg:gap-4">
-        <Tooltip content="Messages" animation="duration-500">
-          <button 
-            to='/' 
-            onClick={() => {
-              setJump1(!jump1);
-              setFadeDown3(!fadeDown3);
-              setFadeDown2(false);
-              toggleMessage();
-            }}
-            className="relative"
-          >
-            <AiFillMessage 
-              className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
-              ${
-                jump1 && 'animate-jump'
-              }`}
-              onAnimationEnd={() => setJump1(!jump1)}
-            />
-            <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
-          </button>
-        </Tooltip>
-        <Tooltip content="Notifications" animation="duration-500">
-          <button 
-            to='/' 
-            onClick={() => {
-              setJump2(!jump2); 
-              setFadeDown2(!fadeDown2);
-              toggleNotif();
-            }}
-            className="relative"
-          >
-            <BsBellFill
-              className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
-              ${
-                jump2 && 'animate-jump'
-              }`}
-              onAnimationEnd={() => setJump2(!jump2)}
-            />
-            <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
-          </button>
-        </Tooltip>
+        {isLoggedIn && (
+          <>
+          <Tooltip content="Messages" animation="duration-500">
+            <button 
+              to='/' 
+              onClick={() => {
+                setJump1(!jump1);
+                setFadeDown3(!fadeDown3);
+                setFadeDown2(false);
+                toggleMessage();
+              }}
+              className="relative"
+            >
+              <AiFillMessage 
+                className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                ${
+                  jump1 && 'animate-jump'
+                }`}
+                onAnimationEnd={() => setJump1(!jump1)}
+              />
+              <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
+            </button>
+          </Tooltip>
+          <Tooltip content="Notifications" animation="duration-500">
+            <button 
+              to='/' 
+              onClick={() => {
+                setJump2(!jump2); 
+                setFadeDown2(!fadeDown2);
+                toggleNotif();
+              }}
+              className="relative"
+            >
+              <BsBellFill
+                className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                ${
+                  jump2 && 'animate-jump'
+                }`}
+                onAnimationEnd={() => setJump2(!jump2)}
+              />
+              <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
+            </button>
+          </Tooltip>
+          </>
+        )}
         <Tooltip content="Profile" animation="duration-500">
           <button onClick={() => toggleProfile()}>
             <Avatar img='default_profile.svg' rounded size={avatarSize} />

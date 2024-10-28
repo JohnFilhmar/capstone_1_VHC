@@ -1,14 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import faker from 'faker';
 import Header from "../../Header";
 import { useLocation } from "react-router-dom";
 import { MdPeopleAlt, MdBloodtype, MdDashboard } from "react-icons/md";
-import { RiNurseFill } from "react-icons/ri";
 import PatientChart from './PatientChart';
 import DonorChart from './DonorChart';
 import { colorTheme } from '../../../../App';
 import useQuery from '../../../../hooks/useQuery';
-import { FaBaby } from 'react-icons/fa';
 import MultiLineChart from './MultiLineChart';
 
 const DashIcon = ({ Icon, title, value, isLoading }) => {
@@ -78,12 +75,12 @@ const Dashboard = () => {
         <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-60 md:mb-72 lg:mb-80">
           
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 col-span-2 gap-2 justify-between items-start">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 col-span-2 gap-4 justify-between items-start text-nowrap">
 
-              <DashIcon Icon={MdPeopleAlt} isLoading={isLoading} title="Patients" value={data?.patient_count || 0}/>
-              <DashIcon Icon={RiNurseFill} isLoading={isLoading} title="Staff" value={data?.staff_count || 0}/>
-              <DashIcon Icon={FaBaby} isLoading={isLoading} title="Deliveries" value={data?.total_deliveries || 0}/>
-              <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="Donated" value={faker.datatype.number({ min: 0, max: 500 })}/>
+              <DashIcon Icon={MdPeopleAlt} isLoading={isLoading} title="Daily Patients" value={data?.patient_count || 0}/>
+              {/* <DashIcon Icon={RiNurseFill} isLoading={isLoading} title="Staff" value={data?.staff_count || 0}/>
+              <DashIcon Icon={FaBaby} isLoading={isLoading} title="Deliveries" value={data?.total_deliveries || 0}/> */}
+              <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="Monthly Donated Blood" value={data?.blood_count || 0}/>
 
             </div>
             
@@ -96,7 +93,7 @@ const Dashboard = () => {
             ) : (
               <>
               <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
-              <DonorChart title="Most Frequent Donor"/>
+              <DonorChart title="Most Frequent Donor" annual_blood={data?.annual_blood}/>
               <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
               </>
             )}

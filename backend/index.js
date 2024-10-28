@@ -4,13 +4,15 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
-const routes = require("./routes/routes");
+const unprotectedRoute = require("./routes/unprotectedRoutes");
+const protectedRoute = require("./routes/protectedRoutes");
 const initializeWebSocket = require("./sockets/eventDispatcher");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const routeAuth = require("./middlewares/routeAuth");
 const authController = require("./controllers/authController");
 const roleAuth = require("./middlewares/roleAuth");
+
 require('dotenv').config();
 
 const app = express();
@@ -41,10 +43,8 @@ const serverOptions = {
 };
 app.use(express.static("public"));
 
-app.use("/api/authStaff", authController.authStaff);
-app.use("/api/authToken", authController.authToken);
-app.use("/api/verifyEmail/:token", authController.verifyEmail);
-app.use("/api", routeAuth, roleAuth, routes);
+app.use("/api", unprotectedRoute);
+app.use("/api", routeAuth, roleAuth, protectedRoute);
 
 const server = https.createServer(serverOptions, app);
 // const server = http.createServer(app);

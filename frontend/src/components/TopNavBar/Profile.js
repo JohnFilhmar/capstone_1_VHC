@@ -3,17 +3,20 @@ import { IoMdSettings } from "react-icons/io";
 import { MdHelp, MdKeyboardArrowRight } from "react-icons/md";
 import { ImExit } from "react-icons/im";
 import { useContext, useEffect, useState } from "react";
-import { colorTheme } from "../../App";
+import { colorTheme, isLoggedInContext } from "../../App";
 import useWindowSize from "../../hooks/useWindowSize";
 import OptionButton from "./OptionButton";
 import useQuery from "../../hooks/useQuery";
 import useCurrentTime from "../../hooks/useCurrentTime";
 import useIndexedDB from "../../hooks/useIndexedDb";
 import { jwtDecode } from "jwt-decode";
+import { BiSolidLogInCircle } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
 
 const Profile = ({ prof, toggle, toggleOptions, toggleHelp }) => {
   // eslint-disable-next-line no-unused-vars
   const [selectedTheme] = useContext(colorTheme);
+  const [isLoggedIn] = useContext(isLoggedInContext);
   const [rotateSetting, setRotateSetting] = useState(false);
   const [username, setUsername] = useState(null);
   const [role, setRole] = useState(null);
@@ -21,19 +24,24 @@ const Profile = ({ prof, toggle, toggleOptions, toggleHelp }) => {
   const { logoutUser } = useQuery();
   const { mysqlTime } = useCurrentTime();
   const { getAllItems } = useIndexedDB();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getToken = async () => {
       const token  = await getAllItems('tokens');
-      setUsername(jwtDecode(token.accessToken).username);
-      setRole(jwtDecode(token.accessToken).role);
+      setUsername(token?.accessToken && jwtDecode(token?.accessToken).username);
+      setRole(token?.accessToken && jwtDecode(token?.accessToken).role);
     }
     getToken();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   const Logout = async () => {
-    await logoutUser({ username: username, dateTime: mysqlTime });
+    if (isLoggedIn) {
+      await logoutUser({ username: username, dateTime: mysqlTime });
+    } else {
+      navigate('/login');
+    }
   };
   
   return (
@@ -42,7 +50,7 @@ const Profile = ({ prof, toggle, toggleOptions, toggleHelp }) => {
           <button onClick={() => toggle()} className={`hover:drop-shadow-lg flex justify-start items-center mb-2 text-${selectedTheme}-600 p-1 m-2 drop-shadow-lg rounded-lg bg-${selectedTheme}-100 transition-colors duration-200 hover:bg-${selectedTheme}-50`}>
             <div className="flex justify-between items-center m-2">
               <Avatar img="default_profile.svg" rounded status="online" size={avatarSize} statusPosition="bottom-right" />
-              <p className="font-semibold p-1 text-xs md:text-sm lg:text-base capitalize">{username}<span className="font-thin">({role})</span></p>
+              <p className="font-semibold p-1 text-xs md:text-sm lg:text-base capitalize">{isLoggedIn ? username : 'Guest'}<span className="font-thin">{isLoggedIn && `(${role})`}</span></p>
             </div>
           </button>
           <div className="w-60 md:w-70 lg:w-80 flex flex-col gap-2">
@@ -58,7 +66,7 @@ const Profile = ({ prof, toggle, toggleOptions, toggleHelp }) => {
               </div>
             </button>
             <OptionButton Icon={MdHelp} label={'Help & Support'} isExtending={true} buttonClick={() => {toggleHelp(); toggle();}} />
-            <OptionButton Icon={ImExit} label={'Logout'} isExtending={false} buttonClick={Logout} />
+            <OptionButton Icon={isLoggedIn ? ImExit : BiSolidLogInCircle} label={isLoggedIn ? 'Logout' : 'Login'} isExtending={false} buttonClick={Logout} />
           </div>
         </div>
     </dialog>

@@ -1,12 +1,11 @@
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import faker from 'faker';
 import useDropdown from '../Elements/DropdownButton';
 import { useContext } from 'react';
 import { colorTheme } from '../../../../App';
 import tinycolor from 'tinycolor2';
 
-const DonorChart = ({ title }) => {
+const DonorChart = ({ title, annual_blood }) => {
   const [selectedTheme] = useContext(colorTheme);
 
   ChartJS.register(
@@ -34,25 +33,29 @@ const DonorChart = ({ title }) => {
       },
     },
   };
-  const topDonors = Array.from({ length: 4 }, () => ({
-    firstName: faker.name.firstName(),
-    units: faker.datatype.number({ min: 0, max: 1000 }),
-  }));
-  const sortedData = topDonors.sort(( a, b) => b.units - a.units);
+  const getColorForCount = (count) => {
+    const percentage = count / Math.max(...(annual_blood?.map(blood => blood.count)));
+    return tinycolor.mix('blue', 'red', percentage * 100)
+                    .darken(20)
+                    .setAlpha(0.7)
+                    .toRgbString();
+  };
+  const sortedData = annual_blood?.sort((a, b) => b.count - a.count);
+  console.log(sortedData);
   const DonorData = {
-    labels: sortedData.map((don) => don.firstName),
+    labels: sortedData?.map((don) => don.firstname.length > 5 ? `${don.firstname.substring(0,5)}...` : don.firstname),
     datasets: [
       {
-        data: sortedData.map((don) => don.units),
-        backgroundColor: tinycolor(selectedTheme).toRgbString(),
+        data: sortedData?.map((don) => don.count),
+        backgroundColor: annual_blood?.map(blood => blood.count).map(count => getColorForCount(count)),
         // backgroundColor: 'rgba(135, 206, 235, 1)',
       },
     ],
   };
 
   const { DropdownButton } = useDropdown({
-    options: ['All', 'February', 'August', 'November'],
-    defaultOption: 'All',
+    options: ['All Time', 'This Year', 'February', 'August', 'November'],
+    defaultOption: 'All Time',
     onSelect: (selected) => {
       console.log(`Custom logic for ${selected}`);
     },

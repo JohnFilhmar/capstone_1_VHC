@@ -17,14 +17,14 @@ const Analytics = () => {
   const storedData = dd ? JSON.parse(dd) : [];
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="flex flex-col p-2 mt-4 mb-4">
+    <div className="w-full h-full flex flex-col">
+      <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <Header title={title} icon={<MdAnalytics />} />
         <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col gap-4 justify-start items-center">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 w-full h-full">
               <div
-                className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}
+                className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md p-2`}
               >
                 <div className="flex justify-start items-center">
                   <p
@@ -36,7 +36,7 @@ const Analytics = () => {
                 <MostDiseases data={storedData.cases_count} />
               </div>
               <div
-                className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md`}
+                className={`flex flex-col w-full h-full bg-${selectedTheme}-50 rounded-lg drop-shadow-md p-2`}
               >
                 <div className="flex justify-start items-center">
                   <p

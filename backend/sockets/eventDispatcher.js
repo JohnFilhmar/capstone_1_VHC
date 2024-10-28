@@ -6,6 +6,7 @@ const queueSocket = require('./queueSocket');
 const staffSocket = require('./staffSocket');
 const pharmacySocket = require('./pharmacySocket');
 const authenticationSocket = require('./authenticationSocket');
+const bloodSocket = require('./bloodSocket');
 
 function initializeWebSocket(io) {
   
@@ -14,6 +15,7 @@ function initializeWebSocket(io) {
   queueSocket(io);
   staffSocket(io);
   pharmacySocket(io);
+  bloodSocket(io);
   authenticationSocket(io);
 
   return io;

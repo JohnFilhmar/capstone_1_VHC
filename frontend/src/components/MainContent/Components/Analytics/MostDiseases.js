@@ -47,7 +47,7 @@ const MostDiseases = ({ data }) => {
         display: true,
       },
       y: {
-        display: true,
+        display: false,
       },
     },
   };

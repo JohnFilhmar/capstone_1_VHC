@@ -145,24 +145,34 @@ class DashboardController {
 
       const getAnnualPatientsQuery = `
         SELECT 
-          YEAR(appointed_datetime) AS year, 
-          COUNT(DISTINCT citizen_family_id) AS patient_count
-        FROM 
-          citizen_appointments
-        WHERE 
-          status = 'scheduled'
+          year, 
+          SUM(count) AS patient_count
+        FROM (
+          SELECT 
+            YEAR(appointed_datetime) AS year, 
+            COUNT(DISTINCT citizen_family_id) AS count
+          FROM 
+            citizen_appointments 
+          WHERE 
+            status = 'scheduled'
+            AND YEAR(appointed_datetime) >= YEAR(CURDATE()) - 4
+          GROUP BY 
+            year
+          UNION ALL
+          SELECT 
+            YEAR(time_arrived) AS year, 
+            COUNT(DISTINCT citizen_family_id) AS count
+          FROM 
+            citizen_queue
+          WHERE 
+            YEAR(time_arrived) >= YEAR(CURDATE()) - 4
+          GROUP BY 
+            year
+        ) AS combined_data
         GROUP BY 
           year
-        UNION ALL
-        SELECT 
-          YEAR(time_arrived) AS year, 
-          COUNT(DISTINCT citizen_family_id) AS patient_count
-        FROM 
-          citizen_queue
-        GROUP BY 
-          year
-        ORDER BY
-        year`;
+        ORDER BY 
+          year ASC;`;
       const getAnnualPatientsResponse = await dbModel.query(
         getAnnualPatientsQuery
       );
@@ -259,6 +269,25 @@ class DashboardController {
       const getBarangayCasesRateResponse = await dbModel.query(
         getBarangayCasesRateQuery
       );
+
+      const getBloodCountQuery = `SELECT COUNT(*) as blood_count FROM citizen_blood;`
+      const [getBloodCountResponse] = await dbModel.query(getBloodCountQuery);
+      
+      const getTopBloodDonorQuery = `
+      SELECT 
+        c.citizen_firstname AS firstname, 
+        COUNT(cb.citizen_family_id) AS count
+      FROM 
+        citizen_blood cb
+      JOIN 
+        citizen c ON c.citizen_family_id = cb.citizen_family_id
+      GROUP BY 
+        c.citizen_firstname
+      ORDER BY 
+        count DESC
+      LIMIT 5;`
+      const getTopBloodDonorResponse = await dbModel.query(getTopBloodDonorQuery);
+      
       return res.status(200).json({
         status: 200,
         message: 'Successfully Retrieved Data!',
@@ -272,7 +301,9 @@ class DashboardController {
           annual_patients: getAnnualPatientsResponse,
           monthly_patients: getMonthlyPatientsResponse,
           daily_patients: getDailyPatientsResponse,
-          barangay_cases_rate: getBarangayCasesRateResponse
+          barangay_cases_rate: getBarangayCasesRateResponse,
+          ...getBloodCountResponse,
+          annual_blood: getTopBloodDonorResponse
         }
       });
     } catch (error) {

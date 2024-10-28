@@ -44,6 +44,7 @@ class RecordController {
         lastName,
         gender,
         birthdate,
+        bloodType,
         barangay,
         phone_number,
         dateTime,
@@ -94,7 +95,7 @@ class RecordController {
       }
 
       const insertCitizenQuery =
-        "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_bloodtype`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const citizenPayload = [
         family_id,
         firstName,
@@ -102,6 +103,7 @@ class RecordController {
         lastName,
         gender,
         birthdate,
+        bloodType,
         barangay,
         phone_number,
       ];
@@ -144,6 +146,7 @@ class RecordController {
         lastName,
         gender,
         birthdate,
+        bloodType,
         barangay,
         phone_number,
         dateTime,
@@ -191,7 +194,7 @@ class RecordController {
       }
 
       const insertCitizenQuery =
-        "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        "INSERT INTO `citizen`(`citizen_family_id`, `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_bloodtype`, `citizen_barangay`, `citizen_number`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
       const citizenPayload = [
         `${family_id}~${count}`,
         firstName,
@@ -199,6 +202,7 @@ class RecordController {
         lastName,
         gender,
         birthdate,
+        bloodType,
         barangay,
         phone_number,
       ];
@@ -236,7 +240,7 @@ class RecordController {
     try {
       connection = await dbModel.getConnection();
       const response = await dbModel.query(
-        "SELECT `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_barangay`, `citizen_family_id`, `citizen_number` FROM `citizen`"
+        "SELECT `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_bloodtype`, `citizen_barangay`, `citizen_family_id`, `citizen_number` FROM `citizen`"
       );
       const newResponse = response.map((res) => {
         const date = new Date(res.citizen_birthdate);
@@ -273,21 +277,46 @@ class RecordController {
     let connection;
     try {
       connection = await dbModel.getConnection();
-      const searchTerms = req.body.name.split(" ");
-      const findCitizenIdQuery = `
-        SELECT citizen_family_id, CONCAT(citizen_firstname, " ", citizen_lastname) AS full_name, citizen_barangay, citizen_gender, citizen_number
-        FROM citizen
-        WHERE 
-        CONCAT(citizen_firstname, " ", citizen_lastname) LIKE CONCAT('%', ?, '%')
-        LIMIT 5`;
-      const citizen = await dbModel.query(findCitizenIdQuery, [req.body.name]);
-      if (citizen.length === 0)
-        return res
-          .status(404)
-          .json({ status: 404, message: "Citizen Not Found!" });
+      const { name, famId } = req.body;
+      let citizen = null;
+      if (name) {
+        const findCitizenIdQuery = `
+          SELECT citizen_family_id, CONCAT(citizen_firstname, " ", citizen_lastname) AS full_name, citizen_barangay, citizen_gender, citizen_number, citizen_birthdate, citizen_bloodtype
+          FROM citizen
+          WHERE 
+          CONCAT(citizen_firstname, " ", citizen_lastname) LIKE CONCAT('%', ?, '%')
+          LIMIT 5`;
+        citizen = await dbModel.query(findCitizenIdQuery, [name]);
+        if (citizen.length === 0)
+          return res
+            .status(404)
+            .json({ status: 404, message: "Citizen Not Found!" });
+      }
+      if (famId) {
+        const findCitizenIdQuery = `
+          SELECT citizen_family_id, CONCAT(citizen_firstname, " ", citizen_lastname) AS full_name, citizen_barangay, citizen_gender, citizen_number, citizen_birthdate, citizen_bloodtype
+          FROM citizen 
+          WHERE 
+          citizen_family_id LIKE CONCAT('%', ?, '%')
+          LIMIT 5`;
+        citizen = await dbModel.query(findCitizenIdQuery, [famId]);
+        if (citizen.length === 0)
+          return res
+            .status(404)
+            .json({ status: 404, message: "Citizen Not Found!" });
+      }
+      const formattedCitizenBirthDate = citizen.map(prev => {
+        const date = prev.citizen_birthdate;
+        const newDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        return {
+          ...prev,
+          citizen_gender: String(prev.citizen_gender).toLowerCase(),
+          citizen_birthdate: newDate
+        }
+      });
       return res
         .status(200)
-        .json({ status: 200, citizen: citizen });
+        .json({ status: 200, citizen: formattedCitizenBirthDate });
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -418,7 +447,7 @@ class RecordController {
       connection = await dbModel.getConnection();
 
       const getCitizenHistoryQuery =
-        "SELECT c.citizen_family_id, c.citizen_firstname, c.citizen_middlename, c.citizen_lastname, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
+        "SELECT c.citizen_family_id, c.citizen_firstname, c.citizen_middlename, c.citizen_lastname, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, c.citizen_bloodtype, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
       const family_id = req.params.id;
       const getCitizenHistoryResponse = await dbModel.query(
         getCitizenHistoryQuery,
@@ -457,6 +486,7 @@ class RecordController {
         lastname,
         gender,
         birthdate,
+        bloodtype,
         barangay,
         family_id,
         dateTime,
@@ -469,6 +499,7 @@ class RecordController {
           citizen_lastname = ?, 
           citizen_gender = ?, 
           citizen_birthdate = ?, 
+          citizen_bloodtype = ?,
           citizen_barangay = ?
         WHERE citizen_family_id = ?
       `;
@@ -478,6 +509,7 @@ class RecordController {
         lastname,
         gender,
         birthdate,
+        bloodtype,
         barangay,
         family_id
       ];
@@ -490,7 +522,7 @@ class RecordController {
         family_id,
         'record updated',
         'updated record details',
-        req.body.staff_id,
+        staff_id,
         dateTime
       ];
       await dbModel.query(insertHistoryQuery, historyPayload);

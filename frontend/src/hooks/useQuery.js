@@ -180,9 +180,10 @@ const useQuery = () => {
         setNotifMessage(response.data.message);
         setResponse(response?.data);
         setIsLoading(false);
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 2000);
+        const time = setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+        return () => clearTimeout(time);
       }
     } catch (error) {
       handleError(error);

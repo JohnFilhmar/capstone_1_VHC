@@ -8,26 +8,83 @@ import useDropdown from '../Elements/DropdownButton';
 const PatientChart = ({ title, annual_patients, monthly_patients, daily_patients }) => {
   const [selectedTheme] = useContext(colorTheme);
 
-  const periods = {
-    yearly: annual_patients?.map(item => item.year) || [],
-    monthly: monthly_patients?.map(item => item.month) || [],
-    daily: daily_patients?.map(item => item.day_name) || [],
-  };
-
-  const [labels, setLabels] = useState(periods.yearly);
+  const [periods, setPeriods] = useState({});
+  const [labels, setLabels] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [predictedData, setPredictedData] = useState([]);
 
-  // Update the chart data based on the selected period
+  function predictNextValues(data, valuesToPredict = 2) {
+    const n = data.length;
+    const avgIndex = (n - 1) / 2;
+    const avgData = data.reduce((sum, count) => sum + count, 0) / n;
+    let numerator = 0;
+    let denominator = 0;
+    data.forEach((count, i) => {
+      numerator += (i - avgIndex) * (count - avgData);
+      denominator += Math.pow(i - avgIndex, 2);
+    });
+    const slope = numerator / denominator;
+    const intercept = avgData - (slope * avgIndex);
+    const predictions = [];
+    for (let i = n; i < n + valuesToPredict; i++) {
+      const predictedCount = slope * i + intercept;
+      predictions.push(Math.round(predictedCount));
+    }
+    return predictions;
+  }
+
   useEffect(() => {
-    const selectedPeriod = labels === periods.yearly
-      ? annual_patients?.map(item => item.patient_count)
-      : labels === periods.monthly
-      ? monthly_patients?.map(item => item.patient_count)
-      : daily_patients?.map(item => item.patient_count);
+    setPeriods({
+      yearly: (() => {
+        const years = annual_patients?.map(item => item.year) || [];
+        const requiredYears = 4;
+        if (years.length < requiredYears) {
+          const lastYear = Number(years[0]) - 1;
+          const missingLength = requiredYears - years.length;
+          const missingYears = Array.from({ length: missingLength },(_, index) => {
+            return lastYear - index;
+          });
+          years.push(...[1,2].map(i => Number(years[years.length-1]) + i));
+          return [...missingYears.sort(), ...years];
+        }
+        return years;
+      })(), // Immediately invoked function expression (IIFE)
+      monthly: (() => {
+        const months = monthly_patients?.map(item => item.month);
+        const requiredMonths = 6;
+        if (months?.length < requiredMonths) {
+          const monthNum = new Date(`2000-${months[0]}-01`);
+          const lastMonth = Number(monthNum.getMonth());
+          const missingMonthLength = requiredMonths - months.length;
+          const missingMonths = Array.from({ length: missingMonthLength }, (_, index) => {
+            const newMonth = new Date(`2000-${lastMonth-index}-01`);
+            return newMonth.toLocaleString('default', {month: 'long'});
+          });
+          months.push(...[1,2].map(i => (new Date(`${monthNum + 1}-2000`).toLocaleString('default', {month: 'long'}))));
+          const monthSet = [...missingMonths.sort((a,b) => new Date(`${a} 2000`) - new Date(`${b} 2000`)), ...months];
+          return monthSet.map(month => month.length > 3 ? month.substring(0, 3) : month);
+        }
+        return months;
+      })() || [],
+      daily: ['Sat', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sun'],
+    });
+    setChartData(() => {
+      const patientCounts = annual_patients?.map(patient => patient.patient_count) || [];
+      const zerosNeeded = 4 - patientCounts?.length;
+      const zeroArray = (zerosNeeded && Array(zerosNeeded).fill(0)) || [];
+      const paddedData = [...zeroArray, ...patientCounts];
+      setPredictedData([...predictNextValues(paddedData, 2)]);
+      return paddedData;
+    });    
+  }, [annual_patients, monthly_patients, daily_patients]);
 
-    setChartData(selectedPeriod);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [labels, annual_patients, monthly_patients, daily_patients]);
+  useEffect(() => {
+    setLabels(periods.yearly);
+  }, [periods]);
+
+  useEffect(() => {
+    console.log(labels);
+  }, [labels]);
 
   ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -46,7 +103,7 @@ const PatientChart = ({ title, annual_patients, monthly_patients, daily_patients
       y: {
         display: true,
         title: {
-          display: true,
+          display: false, // display side title of Y axis
           text: 'Patient Count',
         },
         beginAtZero: true,
@@ -58,16 +115,33 @@ const PatientChart = ({ title, annual_patients, monthly_patients, daily_patients
       },
     },
   };
+  
+  const getRandomSoftColor = () => {
+    return tinycolor({ h: Math.random() * 360, s: 0.5, l: 0.7 }).toRgbString(); 
+  };
 
   const PatientData = {
     labels,
     datasets: [
       {
-        data: chartData,
-        backgroundColor: tinycolor(selectedTheme).toRgbString(),
-        borderColor: tinycolor(selectedTheme).toRgbString(),
+        label: 'Patient Count',
+        data: [...chartData, ...predictedData],
+        backgroundColor: getRandomSoftColor(),
+        borderColor: '#000000',
         fill: false,
+        borderWidth: 2,
+        segment: {
+          borderDash: ctx => (ctx.p0.parsed.x >= chartData.length - 1 ? [5, 5] : []),
+        },
       },
+      // {
+      //   label: 'Predicted Future Patient Count',
+      //   data: predictedData,
+      //   borderColor: "#000000",
+      //   backgroundColor: getRandomSoftColor(),
+      //   borderWidth: 1,
+      //   borderDash: [5, 5],
+      // }
     ],
   };
 

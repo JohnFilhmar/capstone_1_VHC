@@ -19,7 +19,7 @@ import JsonWebToken from "./components/MainContent/Components/Playground/JsonWeb
 import Problems from "./components/MainContent/Components/Playground/Problems.js";
 import IndexedDb from "./components/MainContent/Components/Playground/IndexedDb.js";
 import Login from "./components/Login.js";
-import Register from "./components/Register.js";
+// import Register from "./components/Register.js";
 
 import api from "./axios.js";
 import useIndexedDB from "./hooks/useIndexedDb.js";
@@ -66,60 +66,61 @@ const App = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
+  const verifyAccessToken = async () => {
     let time;
-    const verifyAccessToken = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get('/verifyToken', {
-          headers: { Authorization: `Bearer ${tokens}` },
-          withCredentials: true,
-          secure: true
-        });  
-        if (res?.status === 401) {
-          setNotifMessage(res.data.message);
-          await clearStore('tokens');
-        } else if (res?.status === 200) {
-          await updateItem('tokens', 'accessToken', res.data.accessToken);
-          setIsLoggedIn(true);
-          if (location.pathname !== '/dashboard') {
-            navigate('/dashboard');
-          }
-          setIsLoading(false);
-        } else {
-          setNotifMessage('Something went wrong checking your session');
-          time = setTimeout(async () => {
-            setNotifMessage(null);
-            await clearStore('tokens');
-            if (location.pathname !== '/login') {
-              navigate('/login');
-            }
-          }, 3000);
-          setIsLoading(false);
-          return () => clearTimeout(time);
+    try {
+      setIsLoading(true);
+      const res = await api.get('/verifyToken', {
+        headers: { Authorization: `Bearer ${tokens}` },
+        withCredentials: true,
+        secure: true
+      });  
+      if (res?.status === 401) {
+        setNotifMessage(res.data.message);
+        await clearStore('tokens');
+      } else if (res?.status === 200) {
+        await updateItem('tokens', 'accessToken', res.data.accessToken);
+        setIsLoggedIn(true);
+        if (location.pathname !== '/dashboard') {
+          navigate('/dashboard');
         }
-      } catch (error) {
-        if (error?.response?.data.status === 401) {
-          await clearStore('tokens');
-        }
-        console.error('Verification error:', error);
-        if (location.pathname !== '/login') {
-          navigate('/login');
-        }
-        setNotifMessage('Something went wrong');
-        time = setTimeout(() => {
+        setIsLoading(false);
+      } else {
+        setNotifMessage('Something went wrong checking your session');
+        time = setTimeout(async () => {
           setNotifMessage(null);
-        }, 8000);
+          await clearStore('tokens');
+          if (location.pathname !== '/login') {
+            navigate('/login');
+          }
+        }, 3000);
         setIsLoading(false);
         return () => clearTimeout(time);
       }
-    };
-    if (tokens) {
-      verifyAccessToken();
+    } catch (error) {
+      if (error?.response?.data.status === 401) {
+        await clearStore('tokens');
+      }
+      console.error('Verification error:', error);
+      if (location.pathname !== '/login') {
+        navigate('/login');
+      }
+      setNotifMessage('Something went wrong');
+      time = setTimeout(() => {
+        setNotifMessage(null);
+      }, 8000);
+      setIsLoading(false);
+      return () => clearTimeout(time);
     }
     return () => {
       if (time) clearTimeout(time);
     };
+  };
+
+  useEffect(() => {
+    if (tokens) {
+      verifyAccessToken();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
   
@@ -136,8 +137,8 @@ const App = () => {
     <div className="flex flex-col h-screen overflow-hidden">
       <notificationMessage.Provider value={[notifMessage, setNotifMessage]}>
         <colorTheme.Provider value={[selectedTheme, setSelectedTheme, colors]}>
-          <>
-            {isLoggedIn ? (
+          <isLoggedInContext.Provider value={[isLoggedIn]}>
+            {isLoggedIn && (
               <>
               <messaging.Provider value={[ currentChat, setCurrentChats ]}>
                 <TopNav />
@@ -167,13 +168,31 @@ const App = () => {
                 </div>
               </div>
               </>
-            ) : (
-              <Routes>
-                <Route path="*" element={<Login />}/>
-                <Route path="register" element={<Register />} />
-              </Routes>
             )}
-          </>
+            {!isLoggedIn && (
+              <>
+              <messaging.Provider value={[ currentChat, setCurrentChats ]}>
+                <TopNav />
+              </messaging.Provider>
+              <div className="flex h-full">
+                <div className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}>
+                  <SideMenu />
+                </div>
+                <div className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}>
+                  <Routes>
+                    <Route path='home' element={<Home />}/>
+                    <Route path='dashboard' element={<Dashboard />}/>
+                    <Route path='analytics' element={<Analytics />}/>
+                    <Route path='mapping' element={<Mapping />}/>
+                    <Route path="login" element={<Login />}/>
+                    {/* <Route path="register" element={<Register />} /> */}
+                    <Route path='*' element={<Notfound />}/>
+                  </Routes>
+                </div>
+              </div>
+              </>
+            )}
+          </isLoggedInContext.Provider>
         </colorTheme.Provider>
       </notificationMessage.Provider>
     </div>

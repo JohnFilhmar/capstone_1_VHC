@@ -15,6 +15,7 @@ const RecordForm = ( { close, children } ) => {
   const [barangay, setBarangay] = useState('');
   const [gender, setGender] = useState('male');
   const [birthdate, setBirthdate] = useState("2001-01-01")
+  const [bloodType, setBloodType] = useState('N/A');
   const [familyId, setFamilyId] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
@@ -94,7 +95,6 @@ const RecordForm = ( { close, children } ) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log(familyId.length);
       if (familyId.length < 18) return;
       const res = await api.get('/getStaffId');
       if (res?.status === 200) {
@@ -105,6 +105,7 @@ const RecordForm = ( { close, children } ) => {
           lastName: lastname,
           gender: gender,
           birthdate: birthdate,
+          bloodType: bloodType,
           barangay: barangay,
           family_id: familyId,
           phone_number: phoneNumber,
@@ -284,6 +285,76 @@ const RecordForm = ( { close, children } ) => {
               value={birthdate}
               onChange={(e) => setBirthdate(e.target.value)}
             />
+          </div>
+          <div className="grow">
+            <label
+              htmlFor="bloodtype"
+              className="text-xs md:text-sm lg:text-base font-semibold"
+            >
+              BloodType:{" "}
+            </label>
+            <select
+              name="bloodtype"
+              id="bloodtype"
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              value={bloodType}
+              onChange={(e) => setBloodType(e.target.value)}
+            >
+              <option
+                value="N/A"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                N/A
+              </option>
+              <option
+                value="O+"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                O+
+              </option>
+              <option
+                value="O-"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                O-
+              </option>
+              <option
+                value="A+"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                A+
+              </option>
+              <option
+                value="A-"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                A-
+              </option>
+              <option
+                value="B+"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                B+
+              </option>
+              <option
+                value="B-"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                B-
+              </option>
+              <option
+                value="AB+"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                AB+
+              </option>
+              <option
+                value="AB-"
+                className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+              >
+                AB-
+              </option>
+            </select>
           </div>
         </div>
         <div className='flex flex-col md:flex-row lg:flex-row gap-3'>

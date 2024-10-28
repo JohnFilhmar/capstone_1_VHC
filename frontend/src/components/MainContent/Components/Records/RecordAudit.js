@@ -29,6 +29,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     lastname: '',
     gender: 'male',
     birthdate: '',
+    bloodtype: 'N/A',
     barangay: '',
     phoneNumber: '',
   });
@@ -90,6 +91,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
         lastname: receivedData.citizen_lastname,
         gender: String(receivedData.citizen_gender).toLowerCase(),
         birthdate: newBDate,
+        bloodtype: receivedData.citizen_bloodtype,
         barangay: receivedData.citizen_barangay,
         phoneNumber: receivedData.citizen_phone_number,
       });
@@ -146,6 +148,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
       lastname: '',
       gender: 'male',
       birthdate: '',
+      bloodtype: 'N/A',
       barangay: '',
       phoneNumber: '',
     });
@@ -409,6 +412,79 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
                   value={payload.birthdate}
                   onChange={(e) => setPayload(prev => ({ ...prev, birthdate: e.target.value }))}
                 />
+              </div>
+              <div className="w-full">
+                <label
+                  htmlFor="bloodtype"
+                  className='text-xs md:text-sm lg:text-base font-semibold'
+                >
+                  BloodType:
+                </label>
+                <select
+                  name="bloodtype"
+                  id="bloodtype"
+                  className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`} 
+                  required
+                  value={payload.bloodtype}
+                  onChange={(e) => {
+                    setPayload(prev => ({ ...prev, bloodtype: e.target.value }));
+                  }}
+                >
+                  <option
+                    value="N/A"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    N/A
+                  </option>
+                  <option
+                    value="O+"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    O+
+                  </option>
+                  <option
+                    value="O-"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    O-
+                  </option>
+                  <option
+                    value="A+"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    A+
+                  </option>
+                  <option
+                    value="A-"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    A-
+                  </option>
+                  <option
+                    value="B+"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    B+
+                  </option>
+                  <option
+                    value="B-"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    B-
+                  </option>
+                  <option
+                    value="AB+"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    AB+
+                  </option>
+                  <option
+                    value="AB-"
+                    className="w-full rounded-lg text-xs md:text-sm lg:text-base"
+                  >
+                    AB-
+                  </option>
+                </select>
               </div>
               <div className='w-full'>
                 <label htmlFor="barangay" className='text-xs md:text-sm lg:text-base font-semibold'>Barangay: </label>

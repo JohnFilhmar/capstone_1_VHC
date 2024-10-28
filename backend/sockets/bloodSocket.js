@@ -1,25 +1,36 @@
+const { convertDate } = require('../globalFunctions');
 const dbModel = require('../models/database_model');
 
 module.exports = function(io) {
   io.on('connection', (socket) => {
 
-    socket.on('newBloodSocket', async () => {
+    socket.on('newBloodSocket', async (data) => {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const query = "SELECT * FROM `citizen_blood` WHERE `citizen_family_id` = ?";
-        const response = await dbModel.query(query, req.body.citizen_family_id);
+        const query = `
+        SELECT 
+          cb.donation_id, CONCAT(c.citizen_firstname, ' ', c.citizen_lastname) AS full_name, c.citizen_gender, c.citizen_birthdate, c.citizen_bloodtype, c.citizen_barangay, c.citizen_number, cb.donated_at
+        FROM 
+          citizen_blood cb 
+        INNER JOIN 
+          citizen c 
+        ON 
+          c.citizen_family_id = cb.citizen_family_id
+        WHERE
+          cb.citizen_family_id = ?
+        ORDER BY cb.donation_id DESC
+        LIMIT 1;`;
+        const response = await dbModel.query(query, data.citizen_family_id);
         const newResponse = response.map((res) => {
-          const date = res.dontated_at;
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
-          const formattedDate = `${month}-${day}-${year}`;
+          console.log(res);
           return {
             ...res,
-            dontated_at: formattedDate
+            citizen_birthdate: convertDate(res.citizen_birthdate, false),
+            donated_at: convertDate(res.donated_at, false),
           };
         });
+        console.log(newResponse);
         socket.emit('bloodSocket', newResponse);
         socket.broadcast.emit('bloodSocket', newResponse);
       } catch (error) {

@@ -47,7 +47,7 @@ const CasesRate = ({ data }) => {
       y: {
         display: true,
         title: {
-          display: true,
+          display: false,
           text: 'Count',
         },
         beginAtZero: true,
@@ -81,7 +81,7 @@ const CasesRate = ({ data }) => {
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         fill: true,
-        borderWidth: 2,
+        borderWidth: 1,
         borderDash: [5, 5],
       },
     ],

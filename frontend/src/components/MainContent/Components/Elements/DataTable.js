@@ -229,7 +229,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
                   placeholder="Search here"
                   value={query}
                   onChange={(e) => searchTable(e)}
-                  className={`w-20 md:w-24 lg:w-28 rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
+                  className={`w-20 md:w-28 lg:w-36 rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
                 />
               </div>
             </div>

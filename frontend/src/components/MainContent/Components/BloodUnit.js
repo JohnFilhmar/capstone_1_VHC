@@ -15,7 +15,7 @@ const BloodUnit = () => {
   const { data: blood_donors, loading } = useSocket({
     fetchUrl: "getBlood",
     newDataSocket: "bloodSocket",
-    errorDataSocket: "bloodSocketError",
+    errorDataSocket: "bloodSocketError"
   });
 
   return (
@@ -32,6 +32,7 @@ const BloodUnit = () => {
             error={error}
             enImport={false}
             enExport={false}
+            enOptions={false}
           />
         </div>
       </div>

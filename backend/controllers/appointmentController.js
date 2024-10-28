@@ -25,7 +25,7 @@ class AppointmentController {
 
       if (insertAppointmentResponse.affectedRows > 0) {
         const insertHistoryQuery = "INSERT INTO `citizen_history` (`family_id`, `action`, `action_details`, `staff_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)";
-        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [citizen_family_id, 'appointment', 'requested for an appointment', staff_id, dateTime]);
+        const insertHistoryResponse = await dbModel.query(insertHistoryQuery, [citizen_family_id, 'requested for an appointment', `requested for an appointment from ${staff_id} at ${dateTime}`, staff_id, dateTime]);
         if (insertHistoryResponse.affectedRows > 0) {
           return res.status(200).json({ status: 200, message: "Appointment Successfully Created!" });
         }
