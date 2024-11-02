@@ -10,27 +10,35 @@ const initializeWebSocket = require("./sockets/eventDispatcher");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const routeAuth = require("./middlewares/routeAuth");
-const authController = require("./controllers/authController");
 const roleAuth = require("./middlewares/roleAuth");
 
 require('dotenv').config();
 
 const app = express();
 const state = process.env.PROJECT_STATE;
-const allowedOrigins = process.env.ALLOWED_ORIGIN;
+const allowedOrigin = process.env.ALLOWED_ORIGIN;
 const port = state === "production" ? 3000 : 5000;
 
 const corsOptions = {
-  origin: [
-    allowedOrigins,
-    state === "development" && "https://localhost:3000",
-    "https://192.168.1.2:3000",
-    "https://192.168.220.1:3000",
-  ],
+  origin: [state === "development" ? "https://localhost:3000" : allowedOrigin],
   credentials: true,
   methods: ['GET','POST','OPTIONS'],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+
+app.use((req, res, next) => {
+  if (state === 'production') {
+    res.setHeader("Content-Security-Policy", "default-src 'self'; connect-src 'self' wss://api.kalusugapp.com");
+  } else {
+    res.setHeader("Content-Security-Policy", "default-src 'self'; connect-src 'self' ws://localhost:3000 wss://localhost:5000");
+  }
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader("Cross-Origin-Resource-Policy", "same-origin");
+  next();
+});
 
 app.use(cors(corsOptions));
 app.use(express.json());

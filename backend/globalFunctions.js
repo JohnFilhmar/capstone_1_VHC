@@ -8,7 +8,7 @@ function convertDate(Ddate, isDateTime = true) {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   let formattedDateString = '';
   if (isDateTime) {
-    formattedDateString = `${month}-${day}-${year} ${hours}:${minutes} ${meridian}`;
+    formattedDateString = `${month}-${day}-${year} ${hours}:${minutes}${meridian.toLowerCase()}`;
   } else {
     formattedDateString = `${year}-${month}-${day}`;
   }

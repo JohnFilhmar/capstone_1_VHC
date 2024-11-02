@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Avatar, Tooltip } from "flowbite-react";
 import { BsBellFill } from "react-icons/bs";
 import { AiFillMessage } from "react-icons/ai";
@@ -18,14 +17,20 @@ import FeedbackForm from "./Help/FeedbackForm";
 import PopupNotification from "./Notifications/PopupNotification";
 import Newchat from "./Messaging/Newchat";
 import useCurrentTime from "../../hooks/useCurrentTime";
+import { socket } from "../../socket";
+import useIndexedDB from "../../hooks/useIndexedDb";
+import { jwtDecode } from "jwt-decode";
 
 const TopNav = () => {
   const [selectedTheme] = useContext(colorTheme);
-  const {avatarSize} = useWindowSize();
+  const [notifMessage, setNotifMessage] = useContext(notificationMessage);
+  const [isLoggedIn] = useContext(isLoggedInContext);
+  
   const [jump1, setJump1] = useState(false);
   const [jump2, setJump2] = useState(false);
   const [fadeDown2, setFadeDown2] = useState(false);
   const [fadeDown3, setFadeDown3] = useState(false);
+  
   const { DateComponent, TimeComponent } = useCurrentTime();
   const { 
     messages,
@@ -53,13 +58,51 @@ const TopNav = () => {
     toggleReportForm,
     toggleFeedback,
   } = useNavigationState();
-  const [notifMessage, setNotifMessage] = useContext(notificationMessage);
-  const [isLoggedIn] = useContext(isLoggedInContext);
+  const {avatarSize} = useWindowSize();
+  
+  const { getAllItems } = useIndexedDB();
+  const [uuid, setUuid] = useState(null);
+  const [connectedToMessaging, setConnectedToMessaging] = useState(false);
 
   const playNotificationSound = () => {
     const audio = new Audio('/notif_sound.mp3');
-    audio.play();
+    if (audio) {
+      audio.play().catch(error => {
+        console.error("Audio playback failed:", error);
+      });
+    }
   };
+  
+  const getToken = async () => {
+    const token  = await getAllItems('tokens');
+    setUuid(token?.accessToken && jwtDecode(token?.accessToken).uuid);
+  }
+  useEffect(() => {
+    getToken();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (isLoggedIn) {
+      // get room joining status
+      socket.on('messagingSocket', (data) => {
+        console.log(data);
+        if (data?.status === 'ok') {
+          setConnectedToMessaging(true);
+        } else {
+          setConnectedToMessaging(false);
+        }
+      });
+      return () => socket.off('messagingSocket');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket]);
+
+  useEffect(() => {
+    if (uuid) {
+      // join room with self uuid to wait messages
+      socket.emit('joinRoom', uuid);
+    }
+  }, [uuid]);
 
   useEffect(() => {
     if (notifMessage) {
@@ -71,6 +114,7 @@ const TopNav = () => {
       }, 5000);
       return () => clearTimeout(time);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notifMessage]);
 
   return (
@@ -137,10 +181,13 @@ const TopNav = () => {
           </button>
         </Tooltip>
       </div>
-
-      <Messages message={messages} toggle={() => toggleMessage()} openChatbox={() => openChatbox()} createNewChat={() => openNewChat()} />
-      <Chatbox chatbox={chatbox} toggle={() => closeChatbox()} />
-      <Newchat newchat={newChat} closeNewChat={() => closeNewChat()} />
+      {isLoggedIn && (
+        <>
+        <Messages connected={connectedToMessaging} message={messages} toggle={() => toggleMessage()} openChatbox={() => openChatbox()} createNewChat={() => openNewChat()} />
+        <Chatbox chatbox={chatbox} toggle={() => closeChatbox()} />
+        <Newchat newchat={newChat} closeNewChat={() => closeNewChat()} openChatbox={() => openChatbox()} />
+        </>
+      )}
 
       <Notifs notifs={notification} toggle={() => toggleNotif()} />
       <PopupNotification popupNotifRef={popupNotif} toggle={() => togglePopupNotif()} />

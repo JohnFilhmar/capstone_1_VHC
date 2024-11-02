@@ -27,8 +27,8 @@ import { socket } from "./socket.js";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Spinner } from "flowbite-react";
 
-export const colorTheme = createContext();
 export const messaging = createContext();
+export const colorTheme = createContext();
 export const notificationMessage = createContext();
 export const isLoggedInContext = createContext();
 
@@ -36,13 +36,20 @@ const App = () => {
   const [selectedTheme, setSelectedTheme] = useState(localStorage.getItem('theme'));
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentChat, setCurrentChats] = useState(null);
+  const [isPageFullyLoaded, setIsPageFullyLoaded] = useState(false);
+
   const [notifMessage, setNotifMessage] = useState(null);
+
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [messengerList, setMessengerList] = useState(null);
+
   const [tokens, setTokens] = useState(null);
   const { getAllItems, clearStore, updateItem } = useIndexedDB();
+
   const colors = [
     'gray', 'red', 'orange', 'lime', 'green', 'teal', 'cyan', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink'
   ];
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -51,6 +58,10 @@ const App = () => {
     setTokens(idb?.accessToken);
   }
   useEffect(() => {
+    const handlePageLoad = () => {
+      setIsPageFullyLoaded(true);
+    };
+    window.addEventListener('load', handlePageLoad);
     getIdbTokens();
     const time = setTimeout(() => {
       setIsLoading(false);
@@ -58,13 +69,19 @@ const App = () => {
     if (!colors.includes(localStorage.getItem('theme'))) {
       localStorage.setItem('theme','blue');
     }
-    socket.connect();
     return () => {
-      socket.disconnect();
       clearTimeout(time);
+      window.removeEventListener('load', handlePageLoad);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      socket.connect();
+    }
+    return () => socket.disconnect();
+  }, [isLoggedIn]);
 
   const verifyAccessToken = async () => {
     let time;
@@ -74,16 +91,31 @@ const App = () => {
         headers: { Authorization: `Bearer ${tokens}` },
         withCredentials: true,
         secure: true
-      });  
+      });
       if (res?.status === 401) {
         setNotifMessage(res.data.message);
         await clearStore('tokens');
       } else if (res?.status === 200) {
         await updateItem('tokens', 'accessToken', res.data.accessToken);
         setIsLoggedIn(true);
-        if (location.pathname !== '/dashboard') {
-          navigate('/dashboard');
+        if (location.pathname !== '/home') {
+          navigate('/home');
         }
+        const dd = await api.get('/getDashBoardData', {
+          headers: { Authorization: `Bearer ${tokens}` },
+          withCredentials: true,
+          secure: true
+        });
+        if (dd?.status === 200) {
+          localStorage.setItem('dashboardData', JSON.stringify(dd.data.data));
+        }
+        const { data: messenger } = await api.get('/getChatUsernames', {
+          headers: { Authorization: `Bearer ${tokens}` },
+          withCredentials: true,
+          secure: true
+        });
+        setMessengerList(messenger.data);
+        // setMessengerList(messe)
         setIsLoading(false);
       } else {
         setNotifMessage('Something went wrong checking your session');
@@ -116,7 +148,7 @@ const App = () => {
       if (time) clearTimeout(time);
     };
   };
-
+  
   useEffect(() => {
     if (tokens) {
       verifyAccessToken();
@@ -124,7 +156,7 @@ const App = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
   
-  if (isLoading) {
+  if (isLoading || !isPageFullyLoaded) {
     return (
       <div className="font-bold text-center flex justify-center items-center bg-white h-screen w-screen">
         <Spinner className="size-32"/>
@@ -140,7 +172,7 @@ const App = () => {
           <isLoggedInContext.Provider value={[isLoggedIn]}>
             {isLoggedIn && (
               <>
-              <messaging.Provider value={[ currentChat, setCurrentChats ]}>
+              <messaging.Provider value={[selectedChat, setSelectedChat, messengerList, setMessengerList]}>
                 <TopNav />
               </messaging.Provider>
               <div className="flex h-full">
@@ -171,7 +203,7 @@ const App = () => {
             )}
             {!isLoggedIn && (
               <>
-              <messaging.Provider value={[ currentChat, setCurrentChats ]}>
+              <messaging.Provider value={[selectedChat, setSelectedChat, messengerList, setMessengerList]}>
                 <TopNav />
               </messaging.Provider>
               <div className="flex h-full">
@@ -183,7 +215,6 @@ const App = () => {
                     <Route path='home' element={<Home />}/>
                     <Route path='dashboard' element={<Dashboard />}/>
                     <Route path='analytics' element={<Analytics />}/>
-                    <Route path='mapping' element={<Mapping />}/>
                     <Route path="login" element={<Login />}/>
                     {/* <Route path="register" element={<Register />} /> */}
                     <Route path='*' element={<Notfound />}/>

@@ -7,6 +7,7 @@ const queueController = require('../controllers/queueController');
 const appointmentController = require('../controllers/appointmentController');
 const clinicRecordController = require('../controllers/clinicRecordController');
 const bloodController = require('../controllers/bloodController');
+const messageController = require('../controllers/messageController');
 
 // USER AUTHENTICATION/REGISTRATION
 protectedRoute.get('/getStaffId', staffController.getStaffId);
@@ -57,5 +58,12 @@ protectedRoute.post('/addDonor', bloodController.addDonor);
 
 // CLINIC 
 protectedRoute.post('/addClinicRecord', clinicRecordController.addCinicRecord);
+
+// MESSAGING
+protectedRoute.post('/sendMessage', messageController.sendMessage);
+protectedRoute.post('/searchUsername', messageController.searchUsername);
+protectedRoute.get('/getChatUsernames', messageController.getChatUsernames);
+protectedRoute.post('/updateMessageToRead/:id', messageController.updateMessageToRead);
+protectedRoute.get('/getConversation/:id', messageController.getConversation);
 
 module.exports = protectedRoute;

@@ -46,21 +46,26 @@ const DashIcon = ({ Icon, title, value, isLoading }) => {
 const Dashboard = () => {
   const [selectedTheme] = useContext(colorTheme);
   const { response, isLoading, fetchData } = useQuery();
-  const [data, setData] = useState({
-    patient_count: 0,
-    staff_count: 0,
-    deliveries: 0
-  });
+  const [data, setData] = useState(null);
 
   const location = useLocation();
   const pathname = location.pathname.slice(1);
   const title = pathname.charAt(0).toUpperCase() + pathname.slice(1);
 
   useEffect(() => {
-    fetchData('/getDashBoardData');
+    const storedData = localStorage.getItem('dashboardData');
+    if (storedData) {
+      setData(JSON.parse(storedData));
+      const parsedData = storedData && JSON.parse(storedData);
+      if (!parsedData) {
+        fetchData('/getDashBoardData');
+      } else {
+        fetchData('/getDashBoardData');
+        setData(JSON.parse(storedData))
+      }
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
     if (response?.status === 200) {
       localStorage.setItem('dashboardData', JSON.stringify(response.data));
@@ -80,7 +85,7 @@ const Dashboard = () => {
               <DashIcon Icon={MdPeopleAlt} isLoading={isLoading} title="Daily Patients" value={data?.patient_count || 0}/>
               {/* <DashIcon Icon={RiNurseFill} isLoading={isLoading} title="Staff" value={data?.staff_count || 0}/>
               <DashIcon Icon={FaBaby} isLoading={isLoading} title="Deliveries" value={data?.total_deliveries || 0}/> */}
-              <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="Monthly Donated Blood" value={data?.blood_count || 0}/>
+              <DashIcon Icon={MdBloodtype} isLoading={isLoading} title="All Time Donated Blood" value={data?.blood_count || 0}/>
 
             </div>
             
@@ -94,7 +99,7 @@ const Dashboard = () => {
               <>
               <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
               <DonorChart title="Most Frequent Donor" annual_blood={data?.annual_blood}/>
-              <MultiLineChart title="Annual Data Changes" data={data.annual_deliveries}/>
+              <MultiLineChart title="Annual Data Changes" data={data?.annual_deliveries}/>
               </>
             )}
 

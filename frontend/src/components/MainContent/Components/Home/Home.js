@@ -14,7 +14,7 @@ const Home = () => {
           <Header title={ title } icon={<MdHome />}/>
         </div>
         <div className="min-h-full h-full overflow-y-auto scroll-smooth p-2 mt-2">
-        
+          
         </div>
       </div>
     </div>

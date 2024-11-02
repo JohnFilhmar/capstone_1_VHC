@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import useQuery from "../hooks/useQuery";
 import { Spinner } from "flowbite-react";
@@ -117,7 +117,7 @@ const Login = () => {
                   placeholder="Enter your username. . ."
                   value={payload.username}
                   onChange={handleChange}
-                  className={`bg-${selectedTheme}-700/90 text-sm md:text-base lg:text-lg text-${selectedTheme}-50 rounded-sm p-2 font-semibold drop-shadow-sm w-[80%]`}
+                  className={`bg-${selectedTheme}-200/90 text-sm md:text-base lg:text-lg text-${selectedTheme}-800 rounded-sm p-2 font-semibold drop-shadow-sm w-[80%]`}
                   maxLength={255}
                   minLength={8}
                   autoComplete="off"
@@ -133,7 +133,7 @@ const Login = () => {
                     placeholder="Enter your secure password. . ."
                     value={payload.password}
                     onChange={handleChange}
-                    className={`bg-${selectedTheme}-700/90 text-sm md:text-base lg:text-lg text-${selectedTheme}-50 rounded-sm p-2 font-semibold drop-shadow-sm w-full`}
+                    className={`bg-${selectedTheme}-200/90 text-sm md:text-base lg:text-lg text-${selectedTheme}-800 rounded-sm p-2 font-semibold drop-shadow-sm w-full`}
                     maxLength={255}
                     minLength={8}
                     autoComplete="off"

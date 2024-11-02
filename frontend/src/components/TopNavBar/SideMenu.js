@@ -79,9 +79,9 @@ const SideMenu = () => {
       <Menu path="home" Icon={MdHome} label="Home" />
       <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
       <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
-      <Menu path="mapping" Icon={FaMapMarkedAlt} label="Mapping" />
       {isLoggedIn && (
         <>
+        <Menu path="mapping" Icon={FaMapMarkedAlt} label="Mapping" />
         <Menu path="appointments" Icon={IoCalendar} label="Appointments" />
         <Menu path="queue" Icon={MdPeople} label="Queues" />
         <Menu path="records" Icon={MdFolder} label="Records" />

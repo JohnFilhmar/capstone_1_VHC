@@ -120,14 +120,15 @@ const useNavigationState = () => {
   };
 
   const checkProfileIfOpen = () => {
-    if(isProfOpen){
+    if (isMessageOpen) {
       messages.current.close();
+    }
+    if(isProfOpen){
       setIsMessageOpen(false);
     } else if (isNotifOpen){
       notification.current.close();
       setIsNotifOpen(false);
     } else if(isMessageOpen){
-      messages.current.close();
       setIsMessageOpen(false);
     }
   }

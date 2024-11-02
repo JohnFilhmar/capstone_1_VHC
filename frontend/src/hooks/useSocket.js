@@ -19,13 +19,6 @@ const useSocket = ({ fetchUrl, newDataSocket, errorDataSocket, replaceData = tru
     const newKey = data.map(dat => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase());
     return newKey.join(' ');
   };
-
-  useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
   
   function convertData(data) {
     const newData = data && data.map(obj => {

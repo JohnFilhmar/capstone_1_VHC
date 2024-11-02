@@ -127,7 +127,7 @@ const useQuery = () => {
   const userAuth = async (payload) => {
     try {
       setIsLoading(true);
-      const response = await api.post(`/authStaff`, payload, {
+      const response = await api.post(`authStaff`, payload, {
         headers: { Authorization: `Bearer ${accessToken}` },
         withCredentials: true,
       });
@@ -150,7 +150,7 @@ const useQuery = () => {
     try {
       setIsLoading(true);
       const response = await api.post(
-        "/authToken",
+        "authToken",
         { username: jwtDecode(accessToken).username },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
@@ -171,7 +171,7 @@ const useQuery = () => {
   const logoutUser = async (payload) => {
     try {
       setIsLoading(true);
-      const response = await api.post("/logoutUser", payload, {
+      const response = await api.post("logoutUser", payload, {
         headers: { Authorization: `Bearer ${accessToken}` },
         withCredentials: true,
       });
