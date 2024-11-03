@@ -11,20 +11,31 @@ module.exports = function (io) {
         socket.broadcast.emit("broadcastEmit", newResponse);
       } catch (error) {
         socket.emit("targetError", error.message);
-        socket.broadcast.emit("broadcastError", error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }
     });
 
+    socket.on("checkRooms", (callback) => {
+      const joinedRooms = Array.from(socket.rooms);
+      callback(joinedRooms);
+    })
+    
     socket.on("joinRoom", (UUID) => {
       socket.join(UUID);
       socket.emit("messagingSocket", { status: "ok" });
     });
 
-    socket.on("sendMessage", ({ roomId, data }) => {
-      console.log(data);
-      // io.to(roomId).emit("messageSocket", { data });
+    socket.on("sendMessage", async ({ roomId, data }) => {
+      let connection;
+      try {
+        connection = await dbModel.getConnection();
+        io.to(roomId).emit("messageSocket", data);
+      } catch (error) {
+        socket.emit("targetError", error.message);
+      } finally {
+        dbModel.releaseConnection(connection);
+      }
     });
   });
 };

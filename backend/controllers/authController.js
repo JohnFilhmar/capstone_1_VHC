@@ -106,22 +106,26 @@ class AuthController {
         });
       }
 
-      const generateToken = (secret, expiresIn) => {
-        const username = staff.username;
-        const role = staff.role;
-        const data = { username, role };
-        return jwt.sign(data, secret, { expiresIn });
-      };
-      const refreshToken = jwt.sign({
-        username: staff.username,
-        role: staff.role
-      }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "1d" });
-      const accessToken = jwt.sign({
-        user_id: staff.user_id,
-        username: staff.username,
-        role: staff.role,
-        uuid: staff.uuid
-      }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "5m" });
+      const refreshToken = jwt.sign(
+        {
+          user_id: staff.staff_id,
+          username: staff.username,
+          role: staff.role,
+          uuid: staff.uuid,
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: "1d" }
+      );
+      const accessToken = jwt.sign(
+        {
+          user_id: staff.staff_id,
+          username: staff.username,
+          role: staff.role,
+          uuid: staff.uuid,
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "5m" }
+      );
 
       const updateRefreshTokenQuery =
         "UPDATE `medicalstaff` SET `refresh_token` = ? WHERE `staff_id` = ?";
@@ -297,7 +301,12 @@ class AuthController {
           }
 
           const newRefreshToken = jwt.sign(
-            { user_id: user.user_id, username: user.username, role: user.role, uuid: user.uuid },
+            {
+              user_id: user.user_id,
+              username: user.username,
+              role: user.role,
+              uuid: user.uuid,
+            },
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: "7d" }
           );

@@ -265,10 +265,9 @@ const Appointments = () => {
                 className={`grid grid-cols-7 text-xs md:text-sm lg:text-base font-semibold divide-x-[1px] divide-y-[1px] divide-${selectedTheme}-800`}
               >
                 {weeks.map((day, i) => {
-                  const windowWidth = window.innerWidth * 0.009;
                   return (
                     <div key={i} className={`p-1`}>
-                      <p>{windowWidth <= 4 ? day.substring(0, 3) : day}</p>
+                      <p>{day.length > 3 ? day.substring(0, 3) : day}</p>
                     </div>
                   );
                 })}

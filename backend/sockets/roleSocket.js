@@ -19,7 +19,6 @@ module.exports = function(io) {
         socket.broadcast.emit('newSocket', newResponse);
       } catch (error) {
         socket.emit('newSocketError', error.message);
-        socket.broadcast.emit('newSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

@@ -40,7 +40,6 @@ module.exports = function(io) {
         socket.broadcast.emit('appointmentSocket', newResponse);
       } catch (error) {
         socket.emit('appointmentSocketError', error.message);
-        socket.broadcast.emit('appointmentSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

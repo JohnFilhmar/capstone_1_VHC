@@ -23,7 +23,6 @@ module.exports = function(io) {
         socket.broadcast.emit('recordSocket', newResponse);
       } catch (error) {
         socket.emit('recordSocketError', error.message);
-        socket.broadcast.emit('recordSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

@@ -50,7 +50,6 @@ module.exports = function(io) {
         socket.broadcast.emit('queueSocket', newResponse);
       } catch (error) {
         socket.emit('queueSocketError', error.message);
-        socket.broadcast.emit('queueSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }
@@ -66,7 +65,6 @@ module.exports = function(io) {
         socket.broadcast.emit('newAttended', response);
       } catch (error) {
         socket.emit('newAttendedError', error.message);
-        socket.broadcast.emit('newAttendedError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

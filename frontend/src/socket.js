@@ -37,9 +37,10 @@ const URL =
 const initializeSocket = () => {
   const socket = io(URL, {
     reconnection: true,
-    reconnectionDelay: 15000,
+    reconnectionDelay: 2000,
     reconnectionDelayMax: 10000,
-    reconnectionAttempts: 20,
+    reconnectionAttempts: Infinity,
+    timeout: 10000,
     secure: true,
     autoConnect: true,
   });

@@ -12,7 +12,7 @@ const Newchat = ({ newchat, closeNewChat, openChatbox }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState(null);
   // eslint-disable-next-line no-unused-vars
-  const [selectedChat, setSelectedChat] = useContext(messaging);
+  const {selectedChat, setSelectedChat, conversation, setConversation} = useContext(messaging);
 
   useEffect(() => {
     let time;
@@ -38,8 +38,10 @@ const Newchat = ({ newchat, closeNewChat, openChatbox }) => {
     setSelectedChat({
       hearer: selected.user_id,
       name: selected.username,
-      profile_image: selected.profile_image
-    })
+      profile_image: selected.profile_image,
+      target_uuid: selected.uuid
+    });
+    setConversation([]);
     setSearchQuery("");
     setSearchResults(null);
     closeNewChat();

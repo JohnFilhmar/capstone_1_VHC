@@ -35,7 +35,6 @@ module.exports = function(io) {
         socket.broadcast.emit('bloodSocket', newResponse);
       } catch (error) {
         socket.emit('bloodSocketError', error.message);
-        socket.broadcast.emit('bloodSocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

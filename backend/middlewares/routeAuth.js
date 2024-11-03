@@ -1,22 +1,26 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const routeAuth = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const accessToken = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  const accessToken = authHeader && authHeader.split(" ")[1];
   if (!accessToken) {
-    res.clearCookie('refreshToken', { httpOnly: true, sameSite: 'Strict', secure: true });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      sameSite: "Strict",
+      secure: true,
+    });
     return res.status(401).json({ message: "Access token is missing" });
   }
   jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
     if (err) {
-      res.clearCookie('refreshToken', {
+      res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: true,
-        sameSite: 'Strict'
+        sameSite: "Strict",
       });
-      return res.status(403).json({ status: 403, message: "Token invalid!" })
-    };
+      return res.status(403).json({ status: 403, message: "Token invalid!" });
+    }
     next();
   });
 };

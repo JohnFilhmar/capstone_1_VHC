@@ -1,15 +1,15 @@
 import { createContext, useEffect, useState } from "react";
 
-import Notfound from './components/Notfound';
-import TopNav from './components/TopNavBar/TopNav';
-import SideMenu from './components/TopNavBar/SideMenu';
+import Notfound from "./components/Notfound";
+import TopNav from "./components/TopNavBar/TopNav";
+import SideMenu from "./components/TopNavBar/SideMenu";
 
-import Home from './components/MainContent/Components/Home/Home.js';
-import Dashboard from './components/MainContent/Components/Dashboard/Dashboard';
-import Records from './components/MainContent/Components/Records/Records';
+import Home from "./components/MainContent/Components/Home/Home.js";
+import Dashboard from "./components/MainContent/Components/Dashboard/Dashboard";
+import Records from "./components/MainContent/Components/Records/Records";
 import Analytics from "./components/MainContent/Components/Analytics/Analytics";
-import Pharmacy from './components/MainContent/Components/Pharmacy/Pharmacy.js';
-import BloodUnit from './components/MainContent/Components/BloodUnit';
+import Pharmacy from "./components/MainContent/Components/Pharmacy/Pharmacy.js";
+import BloodUnit from "./components/MainContent/Components/BloodUnit";
 import Queue from "./components/MainContent/Components/Queue/Queue.js";
 import Appointments from "./components/MainContent/Components/Appointments/Appointments.js";
 import Accounts from "./components/MainContent/Components/Accounts/Accounts.js";
@@ -26,6 +26,7 @@ import useIndexedDB from "./hooks/useIndexedDb.js";
 import { socket } from "./socket.js";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Spinner } from "flowbite-react";
+import { jwtDecode } from "jwt-decode";
 
 export const messaging = createContext();
 export const colorTheme = createContext();
@@ -33,97 +34,148 @@ export const notificationMessage = createContext();
 export const isLoggedInContext = createContext();
 
 const App = () => {
-  const [selectedTheme, setSelectedTheme] = useState(localStorage.getItem('theme'));
+  const [selectedTheme, setSelectedTheme] = useState(
+    localStorage.getItem("theme")
+  );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPageFullyLoaded, setIsPageFullyLoaded] = useState(false);
 
   const [notifMessage, setNotifMessage] = useState(null);
 
+  const [isConnected, setIsConnected] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messengerList, setMessengerList] = useState(null);
+  const [conversation, setConversation] = useState(null);
 
   const [tokens, setTokens] = useState(null);
   const { getAllItems, clearStore, updateItem } = useIndexedDB();
 
   const colors = [
-    'gray', 'red', 'orange', 'lime', 'green', 'teal', 'cyan', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink'
+    "gray",
+    "red",
+    "orange",
+    "lime",
+    "green",
+    "teal",
+    "cyan",
+    "blue",
+    "indigo",
+    "violet",
+    "purple",
+    "fuchsia",
+    "pink",
   ];
 
   const navigate = useNavigate();
   const location = useLocation();
 
   async function getIdbTokens() {
-    const idb = await getAllItems('tokens');
+    const idb = await getAllItems("tokens");
     setTokens(idb?.accessToken);
   }
+
   useEffect(() => {
+    socket.connect();
+    socket.emit('joinRoom', tokens && jwtDecode(tokens).uuid);
     const handlePageLoad = () => {
       setIsPageFullyLoaded(true);
     };
-    window.addEventListener('load', handlePageLoad);
+    window.addEventListener("load", handlePageLoad);
     getIdbTokens();
     const time = setTimeout(() => {
       setIsLoading(false);
     }, 3000);
-    if (!colors.includes(localStorage.getItem('theme'))) {
-      localStorage.setItem('theme','blue');
+    if (!colors.includes(localStorage.getItem("theme"))) {
+      localStorage.setItem("theme", "blue");
     }
     return () => {
       clearTimeout(time);
-      window.removeEventListener('load', handlePageLoad);
+      window.removeEventListener("load", handlePageLoad);
+      socket.disconnect();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (isLoggedIn) {
-      socket.connect();
-    }
-    return () => socket.disconnect();
-  }, [isLoggedIn]);
+      const uuid = tokens && jwtDecode(tokens).uuid;
+      socket.on('connect', () => {
+        const myFun = (rooms) => {
+          if (uuid && rooms && !rooms.includes(uuid)) {
+            socket.emit('joinRoom', tokens && jwtDecode(tokens).uuid);
+          }
+        };
+        socket.emit('checkRooms', myFun);
+      })
+      
+      socket.on('messagingSocket', (data) => {
 
+        if (data?.status === 'ok') {
+          setIsConnected(true);
+        } else {
+          setIsConnected(false);
+        }
+      });
+
+      socket.on("messageSocket", (data) => {
+        const user_id = tokens && jwtDecode(tokens).user_id; 
+        if (user_id !== data.sender_id) {
+          setConversation((prev) => [...prev, data]);
+        }
+      });
+
+      return () => {
+        socket.off('connect');
+        socket.off('messagingSocket');
+        socket.off('messageSocket');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, isLoggedIn]);
+  
   const verifyAccessToken = async () => {
     let time;
     try {
       setIsLoading(true);
-      const res = await api.get('/verifyToken', {
+      const res = await api.get("/verifyToken", {
         headers: { Authorization: `Bearer ${tokens}` },
         withCredentials: true,
-        secure: true
+        secure: true,
       });
       if (res?.status === 401) {
         setNotifMessage(res.data.message);
-        await clearStore('tokens');
+        await clearStore("tokens");
       } else if (res?.status === 200) {
-        await updateItem('tokens', 'accessToken', res.data.accessToken);
+        await updateItem("tokens", "accessToken", res.data.accessToken);
         setIsLoggedIn(true);
-        if (location.pathname !== '/home') {
-          navigate('/home');
+        if (location.pathname !== "/home") {
+          navigate("/home");
         }
-        const dd = await api.get('/getDashBoardData', {
+        const dd = await api.get("/getDashBoardData", {
           headers: { Authorization: `Bearer ${tokens}` },
           withCredentials: true,
-          secure: true
+          secure: true,
         });
         if (dd?.status === 200) {
-          localStorage.setItem('dashboardData', JSON.stringify(dd.data.data));
+          localStorage.setItem("dashboardData", JSON.stringify(dd.data.data));
         }
-        const { data: messenger } = await api.get('/getChatUsernames', {
+        const { data: messenger } = await api.get("/getChatUsernames", {
           headers: { Authorization: `Bearer ${tokens}` },
           withCredentials: true,
-          secure: true
+          secure: true,
         });
-        setMessengerList(messenger.data);
-        // setMessengerList(messe)
+        if (messenger?.data) {
+          setMessengerList(messenger.data);
+        }
         setIsLoading(false);
       } else {
-        setNotifMessage('Something went wrong checking your session');
+        setNotifMessage("Something went wrong checking your session");
         time = setTimeout(async () => {
           setNotifMessage(null);
-          await clearStore('tokens');
-          if (location.pathname !== '/login') {
-            navigate('/login');
+          await clearStore("tokens");
+          if (location.pathname !== "/login") {
+            navigate("/login");
           }
         }, 3000);
         setIsLoading(false);
@@ -131,13 +183,13 @@ const App = () => {
       }
     } catch (error) {
       if (error?.response?.data.status === 401) {
-        await clearStore('tokens');
+        await clearStore("tokens");
       }
-      console.error('Verification error:', error);
-      if (location.pathname !== '/login') {
-        navigate('/login');
+      console.error("Verification error:", error);
+      if (location.pathname !== "/login") {
+        navigate("/login");
       }
-      setNotifMessage('Something went wrong');
+      setNotifMessage("Something went wrong");
       time = setTimeout(() => {
         setNotifMessage(null);
       }, 8000);
@@ -148,85 +200,106 @@ const App = () => {
       if (time) clearTimeout(time);
     };
   };
-  
+
   useEffect(() => {
     if (tokens) {
       verifyAccessToken();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens]);
-  
+
   if (isLoading || !isPageFullyLoaded) {
     return (
       <div className="font-bold text-center flex justify-center items-center bg-white h-screen w-screen">
-        <Spinner className="size-32"/>
+        <Spinner className="size-32" />
       </div>
     );
   }
-  
+
   return (
     <>
-    <div className="flex flex-col h-screen overflow-hidden">
-      <notificationMessage.Provider value={[notifMessage, setNotifMessage]}>
-        <colorTheme.Provider value={[selectedTheme, setSelectedTheme, colors]}>
-          <isLoggedInContext.Provider value={[isLoggedIn]}>
-            {isLoggedIn && (
-              <>
-              <messaging.Provider value={[selectedChat, setSelectedChat, messengerList, setMessengerList]}>
+      <div className="flex flex-col h-screen overflow-hidden">
+        <notificationMessage.Provider value={[notifMessage, setNotifMessage]}>
+          <colorTheme.Provider
+            value={[selectedTheme, setSelectedTheme, colors]}
+          >
+            <isLoggedInContext.Provider value={[isLoggedIn]}>
+              <messaging.Provider
+                value={{
+                  isConnected,
+                  setIsConnected,
+                  messengerList,
+                  setMessengerList,
+                  selectedChat,
+                  setSelectedChat,
+                  conversation,
+                  setConversation,
+                }}
+              >
                 <TopNav />
               </messaging.Provider>
-              <div className="flex h-full">
-                <div className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}>
-                  <SideMenu />
-                </div>
-                <div className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}>
-                  <Routes>
-                    <Route path='home' element={<Home />}/>
-                    <Route path='dashboard' element={<Dashboard />}/>
-                    <Route path='analytics' element={<Analytics />}/>
-                    <Route path='mapping' element={<Mapping />}/>
-                    <Route path='appointments' element={<Appointments />}/>
-                    <Route path='queue' element={<Queue />}/>
-                    <Route path='records' element={<Records />}/>
-                    <Route path='pharmacy' element={<Pharmacy />}/>
-                    <Route path='equipments' element={<Equipments />}/>
-                    <Route path='blood_unit' element={<BloodUnit />}/>
-                    <Route path='accounts' element={<Accounts />}/>
-                    <Route path='playground-jwt' element={<JsonWebToken />}/>
-                    <Route path='indexed-db' element={<IndexedDb />}/>
-                    <Route path='problems' element={<Problems />}/>
-                    <Route path='*' element={<Notfound />}/>
-                  </Routes>
-                </div>
-              </div>
-              </>
-            )}
-            {!isLoggedIn && (
-              <>
-              <messaging.Provider value={[selectedChat, setSelectedChat, messengerList, setMessengerList]}>
-                <TopNav />
-              </messaging.Provider>
-              <div className="flex h-full">
-                <div className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}>
-                  <SideMenu />
-                </div>
-                <div className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}>
-                  <Routes>
-                    <Route path='home' element={<Home />}/>
-                    <Route path='dashboard' element={<Dashboard />}/>
-                    <Route path='analytics' element={<Analytics />}/>
-                    <Route path="login" element={<Login />}/>
-                    {/* <Route path="register" element={<Register />} /> */}
-                    <Route path='*' element={<Notfound />}/>
-                  </Routes>
-                </div>
-              </div>
-              </>
-            )}
-          </isLoggedInContext.Provider>
-        </colorTheme.Provider>
-      </notificationMessage.Provider>
-    </div>
+              {isLoggedIn && (
+                <>
+                  <div className="flex h-full">
+                    <div
+                      className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}
+                    >
+                      <SideMenu />
+                    </div>
+                    <div
+                      className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
+                    >
+                      <Routes>
+                        <Route path="home" element={<Home />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="mapping" element={<Mapping />} />
+                        <Route path="appointments" element={<Appointments />} />
+                        <Route path="queue" element={<Queue />} />
+                        <Route path="records" element={<Records />} />
+                        <Route path="pharmacy" element={<Pharmacy />} />
+                        <Route path="equipments" element={<Equipments />} />
+                        <Route path="blood_unit" element={<BloodUnit />} />
+                        <Route path="accounts" element={<Accounts />} />
+                        <Route
+                          path="playground-jwt"
+                          element={<JsonWebToken />}
+                        />
+                        <Route path="indexed-db" element={<IndexedDb />} />
+                        <Route path="problems" element={<Problems />} />
+                        <Route path="*" element={<Notfound />} />
+                      </Routes>
+                    </div>
+                  </div>
+                </>
+              )}
+              {!isLoggedIn && (
+                <>
+                  <div className="flex h-full">
+                    <div
+                      className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}
+                    >
+                      <SideMenu />
+                    </div>
+                    <div
+                      className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
+                    >
+                      <Routes>
+                        <Route path="home" element={<Home />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="login" element={<Login />} />
+                        {/* <Route path="register" element={<Register />} /> */}
+                        <Route path="*" element={<Notfound />} />
+                      </Routes>
+                    </div>
+                  </div>
+                </>
+              )}
+            </isLoggedInContext.Provider>
+          </colorTheme.Provider>
+        </notificationMessage.Provider>
+      </div>
     </>
   );
 };

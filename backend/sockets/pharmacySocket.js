@@ -28,7 +28,6 @@ module.exports = function(io) {
         socket.broadcast.emit('pharmacySocket', newResponse);
       } catch (error) {
         socket.emit('pharmacySocketError', error.message);
-        socket.broadcast.emit('pharmacySocketError', error.message);
       } finally {
         dbModel.releaseConnection(connection);
       }

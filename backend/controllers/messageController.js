@@ -28,21 +28,25 @@ class Controller {
           (sender_id, receiver_id, message, datetime_sent, is_read)
         VALUES
           (?, ?, ?, ?, ?)`;
-      // await dbModel.query(sendMessageQuery, [sender_id, hearer, message, dateTime, false]);
+      await dbModel.query(sendMessageQuery, [
+        sender_id,
+        hearer,
+        message,
+        dateTime,
+        false,
+      ]);
 
-      return res
-        .status(200)
-        .json({
-          status: 200,
-          sent: "ok",
-          data: {
-            sender_id,
-            receiver_id: hearer,
-            message,
-            datetime_sent: dateTime,
-            user_id: sender_id,
-          },
-        });
+      return res.status(200).json({
+        status: 200,
+        sent: "ok",
+        data: {
+          sender_id,
+          receiver_id: hearer,
+          message,
+          datetime_sent: dateTime,
+          user_id: sender_id,
+        },
+      });
     } catch (error) {
       return res.status(500).json({
         status: 500,
@@ -70,7 +74,8 @@ class Controller {
         SELECT 
           staff_id,
           username, 
-          image_path
+          image_path,
+          uuid
         FROM 
           medicalstaff 
         WHERE 
@@ -292,12 +297,7 @@ class Controller {
         decoded.username
       );
       const getConversationQuery = `
-        SELECT 
-          sender_id,
-          receiver_id,
-          message,
-          datetime_sent
-        FROM (
+        WITH latest_messages AS (
           SELECT 
             m.sender_id,
             m.receiver_id,
@@ -310,8 +310,15 @@ class Controller {
             OR (m.sender_id = ? AND m.receiver_id = ?)
           ORDER BY 
             m.datetime_sent DESC
-          LIMIT 10
-        ) AS latest_messages
+          LIMIT 20
+        )
+        SELECT 
+          sender_id,
+          receiver_id,
+          message,
+          datetime_sent
+        FROM 
+          latest_messages
         ORDER BY 
           datetime_sent ASC;`;
 

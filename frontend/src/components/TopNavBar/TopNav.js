@@ -9,7 +9,12 @@ import Profile from "./Profile";
 import Settings from "./Settings/Settings";
 import Help from "./Help/Help";
 import Themes from "./Settings/Themes";
-import { colorTheme, isLoggedInContext, notificationMessage } from "../../App";
+import {
+  colorTheme,
+  isLoggedInContext,
+  // messaging,
+  notificationMessage,
+} from "../../App";
 import Chatbox from "./Messaging/Chatbox";
 import useWindowSize from "../../hooks/useWindowSize";
 import ReportForm from "./Help/ReportForm";
@@ -17,22 +22,22 @@ import FeedbackForm from "./Help/FeedbackForm";
 import PopupNotification from "./Notifications/PopupNotification";
 import Newchat from "./Messaging/Newchat";
 import useCurrentTime from "../../hooks/useCurrentTime";
-import { socket } from "../../socket";
-import useIndexedDB from "../../hooks/useIndexedDb";
-import { jwtDecode } from "jwt-decode";
+// import { socket } from "../../socket";
+// import useIndexedDB from "../../hooks/useIndexedDb";
+// import { jwtDecode } from "jwt-decode";
 
 const TopNav = () => {
   const [selectedTheme] = useContext(colorTheme);
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
   const [isLoggedIn] = useContext(isLoggedInContext);
-  
+
   const [jump1, setJump1] = useState(false);
   const [jump2, setJump2] = useState(false);
   const [fadeDown2, setFadeDown2] = useState(false);
   const [fadeDown3, setFadeDown3] = useState(false);
-  
+
   const { DateComponent, TimeComponent } = useCurrentTime();
-  const { 
+  const {
     messages,
     chatbox,
     newChat,
@@ -54,55 +59,29 @@ const TopNav = () => {
     toggleProfile,
     toggleSettings,
     toggleTheme,
-    toggleHelp, 
+    toggleHelp,
     toggleReportForm,
     toggleFeedback,
   } = useNavigationState();
-  const {avatarSize} = useWindowSize();
+  const { avatarSize } = useWindowSize();
   
-  const { getAllItems } = useIndexedDB();
-  const [uuid, setUuid] = useState(null);
-  const [connectedToMessaging, setConnectedToMessaging] = useState(false);
+  // const {
+  //   isConnected,
+  //   setIsConnected,
+  //   messengerList,
+  //   setMessengerList,
+  //   conversation,
+  //   setConversation,
+  // } = useContext(messaging);
 
   const playNotificationSound = () => {
-    const audio = new Audio('/notif_sound.mp3');
+    const audio = new Audio("/notif_sound.mp3");
     if (audio) {
-      audio.play().catch(error => {
+      audio.play().catch((error) => {
         console.error("Audio playback failed:", error);
       });
     }
   };
-  
-  const getToken = async () => {
-    const token  = await getAllItems('tokens');
-    setUuid(token?.accessToken && jwtDecode(token?.accessToken).uuid);
-  }
-  useEffect(() => {
-    getToken();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => {
-    if (isLoggedIn) {
-      // get room joining status
-      socket.on('messagingSocket', (data) => {
-        console.log(data);
-        if (data?.status === 'ok') {
-          setConnectedToMessaging(true);
-        } else {
-          setConnectedToMessaging(false);
-        }
-      });
-      return () => socket.off('messagingSocket');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket]);
-
-  useEffect(() => {
-    if (uuid) {
-      // join room with self uuid to wait messages
-      socket.emit('joinRoom', uuid);
-    }
-  }, [uuid]);
 
   useEffect(() => {
     if (notifMessage) {
@@ -114,17 +93,29 @@ const TopNav = () => {
       }, 5000);
       return () => clearTimeout(time);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notifMessage]);
 
   return (
-    <div className={`top-0 left-0 right-0 flex justify-between items-center p-5 bg-${selectedTheme}-200 z-50`}>
-      <div className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}>
-        <img src="/MHO_logo.png" className='size-12 md:size-12 lg:size-16 drop-shadow-md' alt="..."/>
+    <div
+      className={`top-0 left-0 right-0 flex justify-between items-center p-5 bg-${selectedTheme}-200 z-50`}
+    >
+      <div
+        className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}
+      >
+        <img
+          src="/MHO_logo.png"
+          className="size-12 md:size-12 lg:size-16 drop-shadow-md"
+          alt="..."
+        />
         <div className="self-center whitespace-nowrap font-bold">
           <p className="sm:text-lg md:text-xl lg:text-2xl">KalusugApp: VMHO</p>
-          <div className={`p-1 flex gap-2 items-center justify-start text-xs rounded-lg`}>
-            <span className="hidden md:block lg:block"><DateComponent /></span>
+          <div
+            className={`p-1 flex gap-2 items-center justify-start text-xs rounded-lg`}
+          >
+            <span className="hidden md:block lg:block">
+              <DateComponent />
+            </span>
             <TimeComponent />
           </div>
         </div>
@@ -132,75 +123,107 @@ const TopNav = () => {
       <div className="flex justify-end items-center gap-2 md:gap-3 lg:gap-4">
         {isLoggedIn && (
           <>
-          <Tooltip content="Messages" animation="duration-500">
-            <button 
-              to='/' 
-              onClick={() => {
-                setJump1(!jump1);
-                setFadeDown3(!fadeDown3);
-                setFadeDown2(false);
-                toggleMessage();
-              }}
-              className="relative"
-            >
-              <AiFillMessage 
-                className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
-                ${
-                  jump1 && 'animate-jump'
-                }`}
-                onAnimationEnd={() => setJump1(!jump1)}
-              />
-              <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
-            </button>
-          </Tooltip>
-          <Tooltip content="Notifications" animation="duration-500">
-            <button 
-              to='/' 
-              onClick={() => {
-                setJump2(!jump2); 
-                setFadeDown2(!fadeDown2);
-                toggleNotif();
-              }}
-              className="relative"
-            >
-              <BsBellFill
-                className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
-                ${
-                  jump2 && 'animate-jump'
-                }`}
-                onAnimationEnd={() => setJump2(!jump2)}
-              />
-              <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}></div>
-            </button>
-          </Tooltip>
+            <Tooltip content="Messages" animation="duration-500">
+              <button
+                to="/"
+                onClick={() => {
+                  setJump1(!jump1);
+                  setFadeDown3(!fadeDown3);
+                  setFadeDown2(false);
+                  toggleMessage();
+                }}
+                className="relative"
+              >
+                <AiFillMessage
+                  className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                ${jump1 && "animate-jump"}`}
+                  onAnimationEnd={() => setJump1(!jump1)}
+                />
+                <div
+                  className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}
+                ></div>
+              </button>
+            </Tooltip>
+            <Tooltip content="Notifications" animation="duration-500">
+              <button
+                to="/"
+                onClick={() => {
+                  setJump2(!jump2);
+                  setFadeDown2(!fadeDown2);
+                  toggleNotif();
+                }}
+                className="relative"
+              >
+                <BsBellFill
+                  className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                ${jump2 && "animate-jump"}`}
+                  onAnimationEnd={() => setJump2(!jump2)}
+                />
+                <div
+                  className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}
+                ></div>
+              </button>
+            </Tooltip>
           </>
         )}
         <Tooltip content="Profile" animation="duration-500">
           <button onClick={() => toggleProfile()}>
-            <Avatar img='default_profile.svg' rounded size={avatarSize} />
+            <Avatar img="default_profile.svg" rounded size={avatarSize} />
           </button>
         </Tooltip>
       </div>
       {isLoggedIn && (
         <>
-        <Messages connected={connectedToMessaging} message={messages} toggle={() => toggleMessage()} openChatbox={() => openChatbox()} createNewChat={() => openNewChat()} />
-        <Chatbox chatbox={chatbox} toggle={() => closeChatbox()} />
-        <Newchat newchat={newChat} closeNewChat={() => closeNewChat()} openChatbox={() => openChatbox()} />
+          <Messages
+            message={messages}
+            toggle={() => toggleMessage()}
+            openChatbox={() => openChatbox()}
+            createNewChat={() => openNewChat()}
+          />
+          <Chatbox chatbox={chatbox} toggle={() => closeChatbox()} />
+          <Newchat
+            newchat={newChat}
+            closeNewChat={() => closeNewChat()}
+            openChatbox={() => openChatbox()}
+          />
         </>
       )}
 
       <Notifs notifs={notification} toggle={() => toggleNotif()} />
-      <PopupNotification popupNotifRef={popupNotif} toggle={() => togglePopupNotif()} />
+      <PopupNotification
+        popupNotifRef={popupNotif}
+        toggle={() => togglePopupNotif()}
+      />
 
-      <Profile prof={profile} toggle={() => toggleProfile()} toggleOptions={() => toggleSettings()} toggleHelp={() => toggleHelp()} />
-      <Settings settings={settings} toggle={ () => {toggleSettings(); toggleProfile();} } toggleTheme={ () => toggleTheme() }/>
-      <Themes theme={theme} toggle={ () => toggleTheme() }/>
+      <Profile
+        prof={profile}
+        toggle={() => toggleProfile()}
+        toggleOptions={() => toggleSettings()}
+        toggleHelp={() => toggleHelp()}
+      />
+      <Settings
+        settings={settings}
+        toggle={() => {
+          toggleSettings();
+          toggleProfile();
+        }}
+        toggleTheme={() => toggleTheme()}
+      />
+      <Themes theme={theme} toggle={() => toggleTheme()} />
 
-      <Help help={help} toggle={ () => toggleHelp() } toggleReportForm={() => toggleReportForm()} toggleFeedback={() => toggleFeedback()} />
-      <ReportForm reportFormRef={reportForm} toggle={ () => toggleReportForm() }/>
-      <FeedbackForm feedbackRef={feedback} toggle={ () => toggleFeedback() }/>
+      <Help
+        help={help}
+        toggle={() => toggleHelp()}
+        toggleReportForm={() => toggleReportForm()}
+        toggleFeedback={() => toggleFeedback()}
+      />
+      <ReportForm
+        reportFormRef={reportForm}
+        toggle={() => toggleReportForm()}
+      />
+      <FeedbackForm feedbackRef={feedback} toggle={() => toggleFeedback()} />
     </div>
   );
-}
+};
 
 export default TopNav;

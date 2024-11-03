@@ -15,26 +15,42 @@ import TextareaAutosize from "react-textarea-autosize";
 import useCurrentTime from "../../../hooks/useCurrentTime";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { socket } from "../../../socket";
+import useIndexedDB from "../../../hooks/useIndexedDb";
+import { jwtDecode } from "jwt-decode";
 
 const Chatbox = ({ chatbox, toggle }) => {
   const [selectedTheme] = useContext(colorTheme);
+  const { selectedChat, setSelectedChat, conversation, setConversation } = useContext(messaging);
+
+  const chatsRef = useRef(null);
+  const textInputRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  const { error, isLoading, response, postData } =
+    useQuery();
   const { avatarSize } = useWindowSize();
+  const { getAllItems } = useIndexedDB();
+  const { mysqlTime } = useCurrentTime();
+
   const [size, setSize] = useState(true);
   const [chatText, setChatText] = useState("");
   const [files, setFiles] = useState({});
   const [fileIdCounter, setFileIdCounter] = useState(0);
-  const chatsRef = useRef(null);
-  const { searchResults, error, isLoading, searchData, response, postData } =
-    useQuery();
-  const textInputRef = useRef(null);
-  const { mysqlTime } = useCurrentTime();
-  const [selectedChat, setSelectedChat] = useContext(messaging);
-  const [conversation, setConversation] = useState(null);
-  const messagesEndRef = useRef(null);
+  const [decodedToken, setDecodedToken] = useState(null);
 
-  const toggleSize = () => {
-    setSize((prev) => !prev);
-  };
+  async function getToken() {
+    const token = await getAllItems("tokens");
+    if (token) {
+      setDecodedToken(token?.accessToken && jwtDecode(token.accessToken));
+    }
+  }
+  useEffect(() => {
+    getToken();
+    if (chatsRef.current) {
+      chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const sendMessage = async () => {
     if (chatText.length > 0) {
@@ -44,43 +60,26 @@ const Chatbox = ({ chatbox, toggle }) => {
         dateTime: mysqlTime,
         target_uuid: selectedChat.target_uuid,
       };
-      socket.emit("sendMessage", {
+      const id = decodedToken.user_id;
+      const messagePayload = {
         roomId: selectedChat.target_uuid,
         data: {
-          sender_id: NaN,
-          receiver_id: NaN,
+          sender_id: id,
+          receiver_id: selectedChat.hearer,
           message: chatText.trim(),
           datetime_sent: mysqlTime,
-          user_id: NaN
-        }
-      });
+          user_id: id,
+        },
+      };
+      socket.emit("sendMessage", messagePayload);
       await postData("/sendMessage", payload);
     }
   };
-
-  useEffect(() => {
-    socket.on('messagingSocket', (data) => {
-      if (data?.status === 'ok') {
-        console.log('connected to chatbox');
-      }
-    });
-    socket.on('messageSocket', (data) => {
-      console.log(data);
-    });
-    if (chatsRef.current) {
-      chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
-    }
-    return () => {
-      socket.off('messagingSocket');
-      socket.off('messageSocket');
-    }
-  }, []);
-
   useEffect(() => {
     if (response?.sent === "ok") {
       setChatText("");
       setFiles({});
-      conversation.push(response.data);
+      setConversation((prev) => [...prev, response.data]);
       const time = setTimeout(() => {
         scrollToBottom();
       }, 100);
@@ -105,40 +104,26 @@ const Chatbox = ({ chatbox, toggle }) => {
     delete updatedFiles[fileId];
     setFiles(updatedFiles);
   };
-
   function closeChatBox() {
     toggle();
     setSelectedChat(null);
     setConversation(null);
   }
 
-  useEffect(() => {
-    async function getConversation() {
-      await searchData("/getConversation", selectedChat?.hearer);
-    }
-    if (selectedChat) {
-      getConversation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedChat]);
-
-  useEffect(() => {
-    if (searchResults) {
-      setConversation(
-        searchResults?.data.length > 0 ? searchResults.data : null
-      );
-      const time = setTimeout(() => {
-        scrollToBottom();
-      }, 500);
-      return () => clearTimeout(time);
-    }
-  }, [searchResults]);
-
   function scrollToBottom() {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }
+
+  useEffect(() => {
+    if (conversation) {
+      const time = setTimeout(() => {
+        scrollToBottom();
+      }, 100);
+      return () => clearTimeout(time);
+    }
+  }, [conversation]);
 
   return (
     <dialog
@@ -176,7 +161,15 @@ const Chatbox = ({ chatbox, toggle }) => {
               size ? `text-${selectedTheme}-700` : `text-${selectedTheme}-50`
             }`}
           >
-            <button onClick={() => toggleSize()}>
+            <button
+              onClick={() => {
+                setSize((prev) => !prev);
+                const time = setTimeout(() => {
+                  scrollToBottom();
+                },100);
+                return () => clearTimeout(time);
+              }}
+            >
               {size ? (
                 <MdOutlineKeyboardArrowDown
                   className={`rounded-3xl transition-colors duration-200 w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 p-1`}
@@ -223,12 +216,14 @@ const Chatbox = ({ chatbox, toggle }) => {
                     <div
                       key={i}
                       className={`flex justify-${
-                        message.sender_id === message.user_id ? "end" : "start"
+                        decodedToken.user_id === message.sender_id
+                          ? "end"
+                          : "start"
                       } items-center m-[0.18rem] text-wrap drop-shadow`}
                     >
                       <p
                         className={`basis-[70%] p-2 rounded-2xl ${
-                          message.sender_id === message.user_id
+                          decodedToken.user_id === message.sender_id
                             ? `bg-${selectedTheme}-800 text-${selectedTheme}-300`
                             : "bg-gray-300 text-gray-800"
                         } leading-tight tracking-tight`}
@@ -307,13 +302,7 @@ const Chatbox = ({ chatbox, toggle }) => {
                     </label>
                   </Tooltip>
                 </div>
-                <form
-                  className="grow"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    sendMessage();
-                  }}
-                >
+                <div className="grow">
                   <TextareaAutosize
                     className="block w-full overflow-x-auto p-1 rounded-sm"
                     placeholder="Aa"
@@ -326,14 +315,13 @@ const Chatbox = ({ chatbox, toggle }) => {
                     style={{ resize: "none" }}
                     onKeyDown={(e) => {
                       if (e.code === "Enter") {
-                        e.preventDefault();
                         if (!(isLoading || error || !conversation)) {
                           sendMessage();
                         }
                       }
                     }}
                   />
-                </form>
+                </div>
                 <div className="self-end">
                   <Tooltip content="Send" animation="duration-500">
                     <button
