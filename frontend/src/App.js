@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 
 import Notfound from "./components/Notfound";
 import TopNav from "./components/TopNavBar/TopNav";
@@ -46,7 +46,16 @@ const App = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [messengerList, setMessengerList] = useState(null);
+  const [isMessengerListOpen, setIsMessengerListOpen] = useState(false);
+  const isMessengerListOpenRef = useRef(isMessengerListOpen);
   const [conversation, setConversation] = useState(null);
+  const [isConversationOpen, setIsConversationOpen] = useState(false);
+  const isConversationOpenRef = useRef(isConversationOpen);
+
+  useEffect(() => {
+    isMessengerListOpenRef.current = isMessengerListOpen;
+    isConversationOpenRef.current = isConversationOpen;
+  }, [isConversationOpen, isMessengerListOpen]);
 
   const [tokens, setTokens] = useState(null);
   const { getAllItems, clearStore, updateItem } = useIndexedDB();
@@ -110,7 +119,6 @@ const App = () => {
       })
       
       socket.on('messagingSocket', (data) => {
-
         if (data?.status === 'ok') {
           setIsConnected(true);
         } else {
@@ -120,9 +128,28 @@ const App = () => {
 
       socket.on("messageSocket", (data) => {
         const user_id = tokens && jwtDecode(tokens).user_id; 
-        if (user_id !== data.sender_id) {
+        if (isConversationOpenRef.current && user_id !== data.sender_id) {
           setConversation((prev) => [...prev, data]);
         }
+        setMessengerList((prev) => {
+          const updatedList = prev.map((item) => {
+            if (item.sender_id === data.sender_id) {
+              return {
+                ...item,
+                is_read: false,
+                sender_id: data.sender_id,
+                receiver_id: data.receiver_id,
+                message: data.message,
+                datetime_sent: data.datetime_sent,
+              };
+            }
+            return item;
+          });
+          return updatedList;
+        });
+        // if (isMessengerListOpenRef.current) {
+        //   console.log(messengerList);
+        // }
       });
 
       return () => {
@@ -230,10 +257,14 @@ const App = () => {
                   setIsConnected,
                   messengerList,
                   setMessengerList,
+                  isMessengerListOpen,
+                  setIsMessengerListOpen,
                   selectedChat,
                   setSelectedChat,
                   conversation,
                   setConversation,
+                  isConversationOpen, 
+                  setIsConversationOpen
                 }}
               >
                 <TopNav />

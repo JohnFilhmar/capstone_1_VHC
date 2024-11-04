@@ -190,7 +190,7 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
         <div className={`flex justify-between items-center p-2 text-${selectedTheme}-600 border-b-[1px] border-solid border-${selectedTheme}-500 shadow-md shadow-${selectedTheme}-600 mb-2`}>
           <div className="flex items-center p-1 gap-1">
             <RiMedicineBottleFill className='w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8' />
-            <strong className="font-semibold drop-shadow-md text-sm md:text-base lg:text-lg">Product</strong>
+            <strong className="font-semibold drop-shadow-md text-sm md:text-base lg:text-lg">Pharmacy</strong>
           </div>
           <button 
             onClick={() => handleClose()}
@@ -200,12 +200,12 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-2 px-4 w-full">
           <div className="flex justify-between p-2 items-center">
-            <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800`}>{toEdit ? 'Update Product' : 'Product Details'}</p>
+            <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800`}>{toEdit ? 'Update Drug' : 'Drug Details'}</p>
             <div className="flex gap-1 md:gap-2 lg:gap-3 justify-end items-center">
               <button 
                 onClick={(e) => handleToggleEdit(e)}
                 className={`font-semibold p-1 md:p-2 lg:p-3 rounded-md transition-colors duration-200 ${!toEdit ? `text-${selectedTheme}-100 bg-${selectedTheme}-700 hover:drop-shadow-md hover:bg-${selectedTheme}-800 focus:bg-${selectedTheme}-600 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 active:shadow-inner active:ring-2 active:ring-${selectedTheme}-600` : `text-red-200 bg-red-800 shadow-inner` }`}>
-                {toEdit ? 'Cancel Edit' : 'Edit Product'}
+                {toEdit ? 'Cancel Edit' : 'Edit Drug'}
               </button>
               <button 
                 onClick={(e) => handelDeleteMedicine(e)}
@@ -373,7 +373,7 @@ const PharmacyAudit = ({ productRef, toggle, itemId, data }) => {
           </button>
         </form>
         <div className="flex flex-col justify-start p-2 gap-2">
-          <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800 w-full p-2`}>Product History</p>
+          <p className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800 w-full p-2`}>Drug History</p>
             <DataTable
               data={productLogs}
               enAdd={false}

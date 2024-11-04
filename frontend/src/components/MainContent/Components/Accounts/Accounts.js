@@ -41,7 +41,7 @@ const Accounts = () => {
             </div>
             
             <div className={`w-full`}>
-              <DataTable data={records} modalForm={pathname} isLoading={loading} error={error} enImport={false} enExport={false} enOptions={false} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} />
+              <DataTable data={records} modalForm={pathname} isLoading={loading} error={error} enImport={false} enExport={false} enOptions={true} toggleOption={toggleOptions} optionPK={records.length > 0 && Object.keys(records[0])[0]} />
             </div>
 
             <AccountOptions AOref={AccountOptionRef} close={toggleOptions} />

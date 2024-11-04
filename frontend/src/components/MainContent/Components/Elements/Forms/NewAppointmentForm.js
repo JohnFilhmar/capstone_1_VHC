@@ -197,7 +197,6 @@ const NewAppointmentForm = ({ close, children }) => {
                 className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
                 maxLength={12}
                 minLength={11}
-                disabled={phoneNumber?.length > 10}
               />
             </div>
           </div>

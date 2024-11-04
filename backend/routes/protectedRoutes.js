@@ -8,6 +8,7 @@ const appointmentController = require('../controllers/appointmentController');
 const clinicRecordController = require('../controllers/clinicRecordController');
 const bloodController = require('../controllers/bloodController');
 const messageController = require('../controllers/messageController');
+const equipmentController = require('../controllers/equipmentController');
 
 // USER AUTHENTICATION/REGISTRATION
 protectedRoute.get('/getStaffId', staffController.getStaffId);
@@ -51,6 +52,10 @@ protectedRoute.get('/getAppointments', appointmentController.getAppointments);
 protectedRoute.get('/findAppointmentByNumber/:id', appointmentController.findAppointmentByNumber);
 protectedRoute.post('/handleCancelAppointment/:id', appointmentController.handleCancelAppointment);
 protectedRoute.post('/handleApproveAppointment/:id', appointmentController.handleApproveAppointment);
+
+// EQUIPMENTS
+protectedRoute.get('/getEquipments', equipmentController.getEquipments);
+protectedRoute.post('/addEquipment', equipmentController.addEquipment);
 
 // BLOOD DONORS
 protectedRoute.get('/getBlood', bloodController.getBlood);

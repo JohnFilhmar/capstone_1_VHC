@@ -8,6 +8,7 @@ import NewAppointmentForm from './Forms/NewAppointmentForm';
 import NewAccountForm from './Forms/NewAccountForm';
 import ConfirmForm from '../../../../hooks/ConfirmForm';
 import ImportFileForm from './Forms/ImportFileForm';
+import EquipmentForm from "./Forms/EquipmentForm";
 
 const SelectedForm = ({ formType, toggle, tableName }) => {
   const [selectedTheme] = useContext(colorTheme);
@@ -21,6 +22,8 @@ const SelectedForm = ({ formType, toggle, tableName }) => {
         return <BloodForm close={toggle} />;
       case 'appointments':
         return <NewAppointmentForm close={toggle} />;
+      case 'equipments':
+        return <EquipmentForm close={toggle} />;
       case 'accounts':
         return <NewAccountForm close={toggle} />;
       case 'import':
@@ -41,6 +44,7 @@ const SelectedForm = ({ formType, toggle, tableName }) => {
             {formType === 'blood_unit' && 'Add new donatee'}
             {formType === 'appointments' && 'Create new appointment'}
             {formType === 'accounts' && 'Add new user'}
+            {formType === 'equipments' && 'Add new equipment'}
             {formType === 'import' && 'Import File'}
           </p>
         </div>

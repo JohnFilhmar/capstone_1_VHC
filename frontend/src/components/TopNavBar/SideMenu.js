@@ -33,7 +33,7 @@ const Menu = ({ path, Icon, label }) => {
     <Link
       to={path}
       onClick={handleClick}
-      className={`m-2 px-2 md:px-8 lg:px-14 gap-2 rounded-lg transition-colors hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md p-2 first-line duration-300 ease-linear ${
+      className={`m-1 md:m-2 lg:m-2 px-2 md:px-4 lg:px-10 gap-1 rounded-lg transition-colors hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md p-2 first-line duration-300 ease-linear ${
         loc === `/${path}`
           ? `bg-${selectedTheme}-100 drop-shadow-xl`
           : `bg-transparent`
@@ -94,7 +94,7 @@ const SideMenu = () => {
 
         {role && role === 'developer' && (
           <>
-            <button onClick={() => setIsDevMenuOpen(prev => !prev)} className={`m-2 px-2 md:px-8 lg:px-14 gap-2 rounded-lg transition-colors bg-${selectedTheme}-300 hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md p-2 first-line duration-300 ease-linear ${
+            <button onClick={() => setIsDevMenuOpen(prev => !prev)} className={`m-1 px-2 md:px-4 lg:px-10 gap-1 rounded-lg transition-colors bg-${selectedTheme}-300 hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md p-2 first-line duration-300 ease-linear ${
               isDevMenuOpen || loc === '/playground-jwt' || loc === '/playground-socket' ? `bg-${selectedTheme}-50 drop-shadow-xl` : `bg-transparent`
             }`}>
               <div className={`grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-1`}>

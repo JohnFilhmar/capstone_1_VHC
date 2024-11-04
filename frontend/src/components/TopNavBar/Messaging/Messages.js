@@ -12,14 +12,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
   const { avatarSize, responsiveTextSize } = useWindowSize();
   const { editData, searchResults, searchData } = useQuery();
   // eslint-disable-next-line no-unused-vars
-  const {
-    isConnected,
-    selectedChat,
-    setSelectedChat,
-    messengerList,
-    conversation,
-    setConversation,
-  } = useContext(messaging);
+  const { isConnected, selectedChat, setSelectedChat, messengerList, isMessengerListOpen, setIsMessengerListOpen, conversation, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
 
   const selectMessage = async (id) => {
     const selectedMessage = messengerList.find(
@@ -37,7 +30,9 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
     });
     await searchData("/getConversation", selectedMessage?.hearer);
     socket.emit("joinRoom", selectedMessage.target_uuid);
+    if (!isConversationOpen) setIsConversationOpen(true);
     toggle();
+    if (isMessengerListOpen) setIsMessengerListOpen(false);
     openChatbox();
   };
 
@@ -63,13 +58,19 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
             <AiFillMessage className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 p-1" />
             <p className="font-semibold p-1">Messages</p>
             <Tooltip
-              content={isConnected ? "Connected" : "Disconnected"}
+              content={isConnected ? "Connected" : "Disconnected, click to reconnect"}
               animation="duration-500"
             >
               <div
+                onClick={() => {
+                  console.log("retrying to join own room");
+                  // socket.emit('joinRoom',)
+                }}
                 className={`bg-${
                   isConnected ? "green" : "red"
-                }-600 rounded-full p-1 drop-shadow-sm`}
+                }-600 rounded-full p-1 drop-shadow-sm ${
+                  isConnected ? "hover:cursor-default" : "hover:cursor-pointer"
+                }`}
               />
             </Tooltip>
           </div>
@@ -77,6 +78,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
             onClick={() => {
               createNewChat();
               toggle();
+              if (isMessengerListOpen) setIsMessengerListOpen(false);
             }}
           >
             <RiEdit2Fill
@@ -85,7 +87,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
           </button>
         </div>
         <div className="w-52 md:w-70 lg:w-80 flex flex-col gap-2 h-60 max-h-60 overflow-y-auto">
-          {messengerList.length > 0 ? (
+          {messengerList && messengerList.length > 0 ? (
             messengerList?.map((message, i) => {
               const stat = !message.is_read;
               return (
@@ -146,6 +148,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
                   onClick={() => {
                     createNewChat();
                     toggle();
+                    if (isMessengerListOpen) setIsMessengerListOpen(false);
                   }}
                   className="underline text-blue-800 font-bold"
                 >

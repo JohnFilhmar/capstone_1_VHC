@@ -12,23 +12,20 @@ import Themes from "./Settings/Themes";
 import {
   colorTheme,
   isLoggedInContext,
-  // messaging,
+  messaging,
   notificationMessage,
 } from "../../App";
 import Chatbox from "./Messaging/Chatbox";
-import useWindowSize from "../../hooks/useWindowSize";
 import ReportForm from "./Help/ReportForm";
 import FeedbackForm from "./Help/FeedbackForm";
 import PopupNotification from "./Notifications/PopupNotification";
 import Newchat from "./Messaging/Newchat";
 import useCurrentTime from "../../hooks/useCurrentTime";
-// import { socket } from "../../socket";
-// import useIndexedDB from "../../hooks/useIndexedDb";
-// import { jwtDecode } from "jwt-decode";
 
 const TopNav = () => {
   const [selectedTheme] = useContext(colorTheme);
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
+  const { isMessengerListOpen, setIsMessengerListOpen } = useContext(messaging);
   const [isLoggedIn] = useContext(isLoggedInContext);
 
   const [jump1, setJump1] = useState(false);
@@ -63,16 +60,6 @@ const TopNav = () => {
     toggleReportForm,
     toggleFeedback,
   } = useNavigationState();
-  const { avatarSize } = useWindowSize();
-  
-  // const {
-  //   isConnected,
-  //   setIsConnected,
-  //   messengerList,
-  //   setMessengerList,
-  //   conversation,
-  //   setConversation,
-  // } = useContext(messaging);
 
   const playNotificationSound = () => {
     const audio = new Audio("/notif_sound.mp3");
@@ -131,6 +118,11 @@ const TopNav = () => {
                   setFadeDown3(!fadeDown3);
                   setFadeDown2(false);
                   toggleMessage();
+                  if (isMessengerListOpen) {
+                    setIsMessengerListOpen(false)
+                  } else {
+                    setIsMessengerListOpen(true);
+                  }
                 }}
                 className="relative"
               >
@@ -139,9 +131,7 @@ const TopNav = () => {
                 ${jump1 && "animate-jump"}`}
                   onAnimationEnd={() => setJump1(!jump1)}
                 />
-                <div
-                  className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}
-                ></div>
+                <div className={`absolute bottom-0 right-0 rounded-3xl bg-${selectedTheme}-700 p-1`}/>
               </button>
             </Tooltip>
             <Tooltip content="Notifications" animation="duration-500">
@@ -168,7 +158,7 @@ const TopNav = () => {
         )}
         <Tooltip content="Profile" animation="duration-500">
           <button onClick={() => toggleProfile()}>
-            <Avatar img="default_profile.svg" rounded size={avatarSize} />
+            <Avatar img="default_profile.svg" rounded size={'sm'} />
           </button>
         </Tooltip>
       </div>

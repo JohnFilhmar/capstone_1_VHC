@@ -20,7 +20,7 @@ import { jwtDecode } from "jwt-decode";
 
 const Chatbox = ({ chatbox, toggle }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { selectedChat, setSelectedChat, conversation, setConversation } = useContext(messaging);
+  const { selectedChat, setSelectedChat, conversation, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
 
   const chatsRef = useRef(null);
   const textInputRef = useRef(null);
@@ -108,6 +108,7 @@ const Chatbox = ({ chatbox, toggle }) => {
     toggle();
     setSelectedChat(null);
     setConversation(null);
+    if (isConversationOpen) setIsConversationOpen(false);
   }
 
   function scrollToBottom() {
@@ -130,7 +131,7 @@ const Chatbox = ({ chatbox, toggle }) => {
       ref={chatbox}
       className={`rounded-tl-lg mr-0 fixed right-0 bottom-0 transition-colors duration-200 ${
         size ? `bg-${selectedTheme}-50` : `bg-${selectedTheme}-500`
-      } shadow-2xl`}
+      } shadow-2xl w-72`}
     >
       <div className="flex flex-col text-xs md:text-sm lg:text-base">
         <div
@@ -187,7 +188,7 @@ const Chatbox = ({ chatbox, toggle }) => {
             </button>
           </div>
         </div>
-        <div className={`w-full`}>
+        <div>
           {size && (
             <>
               <div
@@ -308,6 +309,7 @@ const Chatbox = ({ chatbox, toggle }) => {
                     placeholder="Aa"
                     minRows={1}
                     maxRows={3}
+                    maxLength={255}
                     disabled={isLoading}
                     value={chatText}
                     onChange={(e) => setChatText(e.target.value)}

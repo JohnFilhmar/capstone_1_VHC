@@ -74,6 +74,15 @@ const Appointments = () => {
     replaceData: false,
   });
 
+  useEffect(() => {
+    console.group();
+    console.log(appointments);
+    console.log(scheduledAppointments)
+    console.log(upcomingAppointments)
+    console.log(filteredAppointments)
+    console.groupEnd();
+  }, [appointments, scheduledAppointments, upcomingAppointments, filteredAppointments]);
+
   const toggleAppointmentOption = (primaryKey) => {
     setPK(primaryKey);
     if (!isAppointmentOptionsOpen) {

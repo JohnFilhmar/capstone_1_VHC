@@ -25,7 +25,7 @@ module.exports = function (io) {
       socket.join(UUID);
       socket.emit("messagingSocket", { status: "ok" });
     });
-
+    // add socket for messengerList and modify socket below to chatBoxSocket | SPECIFICITY
     socket.on("sendMessage", async ({ roomId, data }) => {
       let connection;
       try {
