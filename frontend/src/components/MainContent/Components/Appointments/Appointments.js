@@ -74,15 +74,6 @@ const Appointments = () => {
     replaceData: false,
   });
 
-  useEffect(() => {
-    console.group();
-    console.log(appointments);
-    console.log(scheduledAppointments)
-    console.log(upcomingAppointments)
-    console.log(filteredAppointments)
-    console.groupEnd();
-  }, [appointments, scheduledAppointments, upcomingAppointments, filteredAppointments]);
-
   const toggleAppointmentOption = (primaryKey) => {
     setPK(primaryKey);
     if (!isAppointmentOptionsOpen) {
@@ -113,6 +104,25 @@ const Appointments = () => {
     return formattedDate;
   };
 
+  const formatDate = (date, includeTime = false) => {
+    const formattedDate = `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}-${date.getFullYear()}`;
+    if (includeTime) {
+      return `${formattedDate} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
+    }
+    return formattedDate;
+  };
+  const convertToISO = (dateString) => {
+    const [datePart, timePart] = dateString.split(' ');
+    const [month, day, year] = datePart.split('-');
+    const parseTime = timePart.includes('am') ? timePart.slice(0, -2) : timePart.slice(0, -2);
+    const [ hours, minutes ] = parseTime.split(':').map(Number);
+    const newTimePart = new Date();
+    newTimePart.setHours(hours, minutes, 0, 0);
+    newTimePart.setFullYear(year);
+    newTimePart.setMonth(month - 1);
+    newTimePart.setDate(day);
+    return newTimePart;
+  };
   useEffect(() => {
     selectedDateUpcoming(
       `${
@@ -121,32 +131,10 @@ const Appointments = () => {
     );
     setFilteredAppointments(
       appointments?.filter((prev) => {
-        const SDate = new Date(startDate);
-        const EDate = new Date(endDate);
-        const ODate = new Date(prev["Appointed Datetime"]);
-        const newStartDate = `${String(SDate.getMonth() + 1).padStart(
-          "0",
-          2
-        )}-${String(SDate.getDate()).padStart("0", 2)}-${String(
-          SDate.getFullYear()
-        )} 00:00:00`;
-        const newEndDate = `${String(EDate.getMonth() + 1).padStart(
-          "0",
-          2
-        )}-${String(EDate.getDate()).padStart("0", 2)}-${String(
-          EDate.getFullYear()
-        )} 23:59:59`;
-        const newAppointmentDate = `${String(ODate.getMonth() + 1).padStart(
-          "0",
-          2
-        )}-${String(ODate.getDate()).padStart("0", 2)}-${String(
-          ODate.getFullYear()
-        )} ${String(ODate.getHours())}:${String(ODate.getMinutes())}:${String(
-          ODate.getSeconds()
-        )}`;
-        return (
-          newAppointmentDate >= newStartDate && newAppointmentDate <= newEndDate
-        );
+        const newStartDate = `${formatDate(new Date(startDate))} 00:00:00`;
+        const newEndDate = `${formatDate(new Date(endDate))} 23:59:59`;
+        const newAppointmentDate = formatDate(new Date(convertToISO(prev["Appointed Datetime"])), true);
+        return newAppointmentDate >= newStartDate && newAppointmentDate <= newEndDate;
       })
     );
     setScheduledAppointments(
@@ -306,7 +294,7 @@ const Appointments = () => {
                         className={`hidden md:hidden lg:block min-h-16 max-h-16 overflow-y-auto m-2 p-1 overflow-x-hidden`}
                       >
                         {scheduledAppointments.map((app, i) => {
-                          const dateTime = new Date(app["Appointed Datetime"]);
+                          const dateTime = convertToISO(app["Appointed Datetime"]);
                           let hour = dateTime.getHours().toString() % 12 || 12;
                           const minute = dateTime
                             .getMinutes()
