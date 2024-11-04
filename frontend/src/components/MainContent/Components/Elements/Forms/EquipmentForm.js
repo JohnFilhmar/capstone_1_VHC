@@ -1,7 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import useQuery from "../../../../../hooks/useQuery";
 import { colorTheme, notificationMessage } from "../../../../../App";
 import { Checkbox, Spinner } from "flowbite-react";
+import { socket } from "../../../../../socket";
 
 const EquipmentForm = ( { close, children } ) => {
   const [selectedTheme] = useContext(colorTheme);
@@ -24,12 +25,9 @@ const EquipmentForm = ( { close, children } ) => {
     e.preventDefault();
     await addData('/addEquipment', payload);
     if (!dontCloseUponSubmission) close();
+    socket.emit('newEquipmentSocket', payload);
     setPayload(null);
   }
-
-  useEffect(() => {
-    console.log(payload && Object.keys(payload));
-  }, [payload]);
   
   return (
     <>
@@ -124,7 +122,7 @@ const EquipmentForm = ( { close, children } ) => {
                 name="status" 
                 value="under maintenance" 
                 className="mr-2"
-                checked={payload?.status === 'under'}
+                checked={payload?.status === 'under maintenance'}
                 onChange={handleChange}
               />
               Under Maintenance
@@ -267,10 +265,11 @@ const EquipmentForm = ( { close, children } ) => {
         {/* SERIAL NUMBER */}
         <div>
           <div className="mb-2 block">
-            <label htmlFor="serialnumber" className='text-xs md:text-sm lg:text-base font-semibold'>Serial Number (optional)</label>
+            <label htmlFor="serialnumber" className='text-xs md:text-sm lg:text-base font-semibold'>Serial Number</label>
           </div>
           <input 
             type="text"
+            required
             className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
             maxLength={50} 
             id="serialnumber" 
@@ -284,10 +283,11 @@ const EquipmentForm = ( { close, children } ) => {
       {/* NOTES */}
       <div>
         <div className="mb-2 block">
-          <label htmlFor="notes" className='text-xs md:text-sm lg:text-base font-semibold'>Notes (optional)</label>
+          <label htmlFor="notes" className='text-xs md:text-sm lg:text-base font-semibold'>Notes</label>
         </div>
         <textarea 
           rows={2}
+          required
           className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
           maxLength={255}
           id="notes" 

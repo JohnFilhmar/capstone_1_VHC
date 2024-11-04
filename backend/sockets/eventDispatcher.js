@@ -8,6 +8,7 @@ const pharmacySocket = require('./pharmacySocket');
 const authenticationSocket = require('./authenticationSocket');
 const bloodSocket = require('./bloodSocket');
 const messagingSocket = require('./messagingSocket');
+const equipmentSocket = require('./equipmentSocket');
 
 function initializeWebSocket(io) {
   
@@ -19,6 +20,7 @@ function initializeWebSocket(io) {
   bloodSocket(io);
   authenticationSocket(io);
   messagingSocket(io);
+  equipmentSocket(io);
 
   return io;
 }

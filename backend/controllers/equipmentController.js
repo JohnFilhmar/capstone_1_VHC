@@ -47,7 +47,30 @@ class Controller {
           (equipment_name, equipment_type, status, location, purchase_date, maintenance_date, next_maintenance, equipment_condition, serial_number, notes)
         VALUES
           (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-      const addEquipmentPayload = Object.values(req.body).map(String);
+      const { 
+        equipmentname,
+        equipmenttype,
+        status,
+        equipmentlocation,
+        purchasedate,
+        maintenancedate,
+        nextmaintenance,
+        condition,
+        serialnumber,
+        notes,
+      } = req.body
+      const addEquipmentPayload = [
+        equipmentname,
+        equipmenttype,
+        status,
+        equipmentlocation,
+        purchasedate,
+        maintenancedate,
+        nextmaintenance,
+        condition,
+        serialnumber,
+        notes,
+      ];
       await dbModel.query(addEquipmentQuery, addEquipmentPayload);
       return res.status(200).json({
         status: 200,

@@ -12,7 +12,7 @@ const Equipments = () => {
 
   const { error } = useQuery();
 
-  const { data: blood_donors, loading } = useSocket({
+  const { data: equipments, loading } = useSocket({
     fetchUrl: "getEquipments",
     newDataSocket: "equipmentSocket",
     errorDataSocket: "equipmentSocketError"
@@ -26,7 +26,7 @@ const Equipments = () => {
         </div>
         <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable
-            data={blood_donors}
+            data={equipments}
             modalForm={pathname}
             isLoading={loading}
             error={error}
