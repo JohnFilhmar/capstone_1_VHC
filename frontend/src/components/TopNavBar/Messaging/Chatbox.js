@@ -15,12 +15,11 @@ import TextareaAutosize from "react-textarea-autosize";
 import useCurrentTime from "../../../hooks/useCurrentTime";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { socket } from "../../../socket";
-import useIndexedDB from "../../../hooks/useIndexedDb";
 import { jwtDecode } from "jwt-decode";
 
 const Chatbox = ({ chatbox, toggle }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { selectedChat, setSelectedChat, conversation, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
+  const { tokens, selectedChat, setSelectedChat, conversation, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
 
   const chatsRef = useRef(null);
   const textInputRef = useRef(null);
@@ -29,23 +28,14 @@ const Chatbox = ({ chatbox, toggle }) => {
   const { error, isLoading, response, postData } =
     useQuery();
   const { avatarSize } = useWindowSize();
-  const { getAllItems } = useIndexedDB();
   const { mysqlTime } = useCurrentTime();
 
   const [size, setSize] = useState(true);
   const [chatText, setChatText] = useState("");
   const [files, setFiles] = useState({});
   const [fileIdCounter, setFileIdCounter] = useState(0);
-  const [decodedToken, setDecodedToken] = useState(null);
 
-  async function getToken() {
-    const token = await getAllItems("tokens");
-    if (token) {
-      setDecodedToken(token?.accessToken && jwtDecode(token.accessToken));
-    }
-  }
   useEffect(() => {
-    getToken();
     if (chatsRef.current) {
       chatsRef.current.scrollTop = chatsRef.current.scrollHeight;
     }
@@ -60,7 +50,13 @@ const Chatbox = ({ chatbox, toggle }) => {
         dateTime: mysqlTime,
         target_uuid: selectedChat.target_uuid,
       };
-      const id = decodedToken.user_id;
+      await postData("/sendMessage", payload);
+    }
+  };
+  
+  useEffect(() => {
+    if (response?.sent === "ok") {
+      const id = tokens && jwtDecode(tokens).user_id;
       const messagePayload = {
         roomId: selectedChat.target_uuid,
         data: {
@@ -69,17 +65,19 @@ const Chatbox = ({ chatbox, toggle }) => {
           message: chatText.trim(),
           datetime_sent: mysqlTime,
           user_id: id,
+          message_id: response.data.message_id
         },
       };
       socket.emit("sendMessage", messagePayload);
-      await postData("/sendMessage", payload);
-    }
-  };
-  useEffect(() => {
-    if (response?.sent === "ok") {
+      setConversation((prev) => {
+        if (prev) {
+          return [...prev, response.data];
+        } else {
+          return [response.data];
+        }
+      });
       setChatText("");
       setFiles({});
-      setConversation((prev) => [...prev, response.data]);
       const time = setTimeout(() => {
         scrollToBottom();
       }, 100);
@@ -217,14 +215,14 @@ const Chatbox = ({ chatbox, toggle }) => {
                     <div
                       key={i}
                       className={`flex justify-${
-                        decodedToken.user_id === message.sender_id
+                        tokens && jwtDecode(tokens).user_id === message.sender_id
                           ? "end"
                           : "start"
                       } items-center m-[0.18rem] text-wrap drop-shadow`}
                     >
                       <p
                         className={`basis-[70%] p-2 rounded-2xl ${
-                          decodedToken.user_id === message.sender_id
+                          tokens && jwtDecode(tokens).user_id === message.sender_id
                             ? `bg-${selectedTheme}-800 text-${selectedTheme}-300`
                             : "bg-gray-300 text-gray-800"
                         } leading-tight tracking-tight`}
@@ -317,7 +315,7 @@ const Chatbox = ({ chatbox, toggle }) => {
                     style={{ resize: "none" }}
                     onKeyDown={(e) => {
                       if (e.code === "Enter") {
-                        if (!(isLoading || error || !conversation)) {
+                        if (!(isLoading || error)) {
                           sendMessage();
                         }
                       }
@@ -327,7 +325,7 @@ const Chatbox = ({ chatbox, toggle }) => {
                 <div className="self-end">
                   <Tooltip content="Send" animation="duration-500">
                     <button
-                      disabled={isLoading || error || !conversation}
+                      disabled={isLoading || error}
                       onClick={() => sendMessage()}
                       className={`p-2 flex items-center transition-colors duration-200 bg-${selectedTheme}-100 hover:bg-${selectedTheme}-200 rounded-3xl`}
                     >

@@ -22,13 +22,13 @@ class Controller {
       );
       const sender_id = user.staff_id;
       const { message, hearer, dateTime } = req.body;
-
+      
       const sendMessageQuery = `
         INSERT INTO messaging
           (sender_id, receiver_id, message, datetime_sent, is_read)
         VALUES
           (?, ?, ?, ?, ?)`;
-      await dbModel.query(sendMessageQuery, [
+      const sendMessageResponse = await dbModel.query(sendMessageQuery, [
         sender_id,
         hearer,
         message,
@@ -45,6 +45,7 @@ class Controller {
           message,
           datetime_sent: dateTime,
           user_id: sender_id,
+          message_id: sendMessageResponse.insertId
         },
       });
     } catch (error) {
@@ -86,7 +87,8 @@ class Controller {
       SELECT 
         staff_id AS user_id,
         username,
-        image_path
+        image_path,
+        uuid
       FROM 
         SearchResults`;
       const searchUsernameResponse = await dbModel.query(searchUsernameQuery, [
@@ -146,7 +148,7 @@ class Controller {
       const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
       const [user] = await dbModel.query(
-        "SELECT staff_id FROM medicalstaff WHERE username = ?",
+        "SELECT staff_id, image_path FROM medicalstaff WHERE username = ?",
         decoded.username
       );
       const getChatUsernames = `
@@ -162,10 +164,10 @@ class Controller {
               WHEN m.sender_id = ? THEN ms_receiver.username
               ELSE ms_sender.username 
             END AS receiver, 
-    		CASE
-    		  WHEN m.sender_id = ? THEN ms_receiver.uuid
-    		  ELSE ms_sender.uuid
-    		END AS target_uuid,
+            CASE
+              WHEN m.sender_id = ? THEN ms_receiver.uuid
+              ELSE ms_sender.uuid
+            END AS target_uuid,
             CASE 
               WHEN m.sender_id = ? THEN ms_receiver.image_path
               ELSE ms_sender.image_path 

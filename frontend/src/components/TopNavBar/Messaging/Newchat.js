@@ -4,15 +4,15 @@ import { Avatar } from "flowbite-react";
 import { IoClose } from "react-icons/io5";
 import useWindowSize from "../../../hooks/useWindowSize";
 import useQuery from "../../../hooks/useQuery";
+import { socket } from "../../../socket";
 
 const Newchat = ({ newchat, closeNewChat, openChatbox }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { avatarSize } = useWindowSize();
-  const { response, postData } = useQuery();
+  const { response, postData, searchResults : searchDataResults, searchData } = useQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState(null);
-  // eslint-disable-next-line no-unused-vars
-  const {selectedChat, setSelectedChat} = useContext(messaging);
+  const {setSelectedChat, setConversation} = useContext(messaging);
 
   useEffect(() => {
     let time;
@@ -41,11 +41,22 @@ const Newchat = ({ newchat, closeNewChat, openChatbox }) => {
       profile_image: selected.profile_image,
       target_uuid: selected.uuid
     });
+    await searchData("/getConversation", selected?.user_id);
+    socket.emit("joinRoom", selected.uuid);
     setSearchQuery("");
     setSearchResults(null);
     closeNewChat();
     openChatbox();
   }
+
+  useEffect(() => {
+    if (searchDataResults) {
+      setConversation(
+        searchDataResults?.data.length > 0 ? searchDataResults.data : null
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchDataResults]);
 
   return (
     <dialog

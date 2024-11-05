@@ -1,18 +1,29 @@
 import { AiFillMessage } from "react-icons/ai";
 import { RiEdit2Fill } from "react-icons/ri";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import useWindowSize from "../../../hooks/useWindowSize";
 import { colorTheme, messaging } from "../../../App";
 import { Avatar, Tooltip } from "flowbite-react";
 import useQuery from "../../../hooks/useQuery";
 import { socket } from "../../../socket";
+import useIndexedDB from "../../../hooks/useIndexedDb";
+import { jwtDecode } from "jwt-decode";
 
 const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { avatarSize, responsiveTextSize } = useWindowSize();
   const { editData, searchResults, searchData } = useQuery();
   // eslint-disable-next-line no-unused-vars
-  const { isConnected, selectedChat, setSelectedChat, messengerList, isMessengerListOpen, setIsMessengerListOpen, conversation, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
+  const { isConnected, setSelectedChat, messengerList, isMessengerListOpen, setIsMessengerListOpen, setConversation, isConversationOpen, setIsConversationOpen } = useContext(messaging);
+  const { getAllItems } = useIndexedDB();
+  const [decodedToken, setDecodedToken] = useState(null);
+
+  async function getToken() {
+    const token = await getAllItems("tokens");
+    if (token) {
+      setDecodedToken(token?.accessToken && jwtDecode(token.accessToken));
+    }
+  }
 
   const selectMessage = async (id) => {
     const selectedMessage = messengerList.find(
@@ -37,6 +48,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
   };
 
   useEffect(() => {
+    getToken();
     if (searchResults) {
       setConversation(
         searchResults?.data.length > 0 ? searchResults.data : null
@@ -63,8 +75,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
             >
               <div
                 onClick={() => {
-                  console.log("retrying to join own room");
-                  // socket.emit('joinRoom',)
+                  if (!isConnected) socket.emit('joinRoom', decodedToken.uuid);
                 }}
                 className={`bg-${
                   isConnected ? "green" : "red"

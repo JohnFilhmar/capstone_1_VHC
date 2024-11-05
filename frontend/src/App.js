@@ -126,12 +126,20 @@ const App = () => {
         }
       });
 
-      socket.on("messageSocket", (data) => {
+      socket.on("messageSocket", async (data) => {
         const user_id = tokens && jwtDecode(tokens).user_id; 
         if (isConversationOpenRef.current && user_id !== data.sender_id) {
-          setConversation((prev) => [...prev, data]);
+          setConversation((prev) => {
+            if (prev) {
+              return [...prev, data];
+            } else {
+              return data;
+            }
+          });
         }
+        console.log(data);
         setMessengerList((prev) => {
+          console.log(prev);
           const updatedList = prev.map((item) => {
             if (item.sender_id === data.sender_id) {
               return {
@@ -147,9 +155,6 @@ const App = () => {
           });
           return updatedList;
         });
-        // if (isMessengerListOpenRef.current) {
-        //   console.log(messengerList);
-        // }
       });
 
       return () => {
@@ -160,6 +165,35 @@ const App = () => {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, isLoggedIn]);
+  
+  async function getSetDashboardData() {
+    try {
+      const dd = await api.get("/getDashBoardData", {
+        headers: { Authorization: `Bearer ${tokens}` },
+        withCredentials: true,
+        secure: true,
+      });
+      if (dd?.status === 200) {
+        localStorage.setItem("dashboardData", JSON.stringify(dd.data.data));
+      }
+    } catch (error) {
+      console.error(`Something have gone wrong:`, error);
+    }
+  }
+  async function getSetMessengerList() {
+    try {
+      const { data: messenger } = await api.get("/getChatUsernames", {
+        headers: { Authorization: `Bearer ${tokens}` },
+        withCredentials: true,
+        secure: true,
+      });
+      if (messenger?.data) {
+        setMessengerList(messenger.data);
+      }
+    } catch (error) {
+      console.error(`Something have gone wrong:`, error);
+    }
+  }
   
   const verifyAccessToken = async () => {
     let time;
@@ -176,24 +210,10 @@ const App = () => {
       } else if (res?.status === 200) {
         await updateItem("tokens", "accessToken", res.data.accessToken);
         setIsLoggedIn(true);
+        getSetDashboardData();
+        getSetMessengerList();
         if (location.pathname !== "/home") {
           navigate("/home");
-        }
-        const dd = await api.get("/getDashBoardData", {
-          headers: { Authorization: `Bearer ${tokens}` },
-          withCredentials: true,
-          secure: true,
-        });
-        if (dd?.status === 200) {
-          localStorage.setItem("dashboardData", JSON.stringify(dd.data.data));
-        }
-        const { data: messenger } = await api.get("/getChatUsernames", {
-          headers: { Authorization: `Bearer ${tokens}` },
-          withCredentials: true,
-          secure: true,
-        });
-        if (messenger?.data) {
-          setMessengerList(messenger.data);
         }
         setIsLoading(false);
       } else {
@@ -253,6 +273,7 @@ const App = () => {
             <isLoggedInContext.Provider value={[isLoggedIn]}>
               <messaging.Provider
                 value={{
+                  tokens,
                   isConnected,
                   setIsConnected,
                   messengerList,
