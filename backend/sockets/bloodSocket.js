@@ -23,14 +23,12 @@ module.exports = function(io) {
         LIMIT 1;`;
         const response = await dbModel.query(query, data.citizen_family_id);
         const newResponse = response.map((res) => {
-          console.log(res);
           return {
             ...res,
             citizen_birthdate: convertDate(res.citizen_birthdate, false),
             donated_at: convertDate(res.donated_at, false),
           };
         });
-        console.log(newResponse);
         socket.emit('bloodSocket', newResponse);
         socket.broadcast.emit('bloodSocket', newResponse);
       } catch (error) {

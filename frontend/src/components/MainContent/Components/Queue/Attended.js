@@ -2,30 +2,11 @@ import { useContext } from "react";
 import { MdClose, MdPeople } from "react-icons/md";
 import { colorTheme } from "../../../../App";
 import DataTable from "../Elements/DataTable";
-import useQuery from "../../../../hooks/useQuery";
-import useSocket from "../../../../hooks/useSocket";
 import { socket } from "../../../../socket";
 
-const Attended = ({ ATref, ATonClick }) => {
+const Attended = ({ attended, isLoading, error, ATref, ATonClick }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { error } = useQuery();
-
-  const { data: attended, loading } = useSocket({ fetchUrl: "getAttended", newDataSocket: "newAttended", socketError: "newAttendedError", replaceData: false });
   
-  const transformedData = attended && attended.length > 0 && attended.map(item => {
-    const date = new Date(item["Time Arrived"]);
-    let hours = date.getHours();
-    const minutes = date.getMinutes();
-    const meridian = hours >= 12 ? 'pm' : 'am';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const formattedTime = `${hours}:${minutes}${meridian}`;
-    return {
-      ...item,
-      "Time Arrived": formattedTime
-    };
-  });  
-
   return (
     <dialog ref={ATref} className={`rounded-lg bg-${selectedTheme}-100 drop-shadow-lg w-[600px] md:w-[800px] lg:w-[1000px]`}>
       <div className="flex flex-col text-xs md:text-sm lg:text-base">
@@ -64,7 +45,7 @@ const Attended = ({ ATref, ATonClick }) => {
         </div>
       </div> */}
       <div className="p-2">
-        <DataTable data={transformedData} enAdd={false} isLoading={loading} error={error} enImport={false} enExport={false} enOptions={false} />
+        <DataTable data={attended} enAdd={false} isLoading={isLoading} error={error} enImport={false} enExport={false} enOptions={false} />
       </div>
     </dialog>
   );

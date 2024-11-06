@@ -1,3 +1,4 @@
+const { convertDate } = require('../globalFunctions');
 const dbModel = require('../models/database_model');
 
 class QueueController {
@@ -124,6 +125,10 @@ class QueueController {
       connection = await dbModel.getConnection();
       const query = `SELECT cq.queue_number, c.citizen_family_id AS family_id, CONCAT(c.citizen_firstname, ' ', c.citizen_middlename, ' ', c.citizen_lastname) AS citizen_fullname, c.citizen_barangay, c.citizen_number, c.citizen_gender, cq.time_arrived, cq.current_status FROM citizen c INNER JOIN  citizen_queue cq ON c.citizen_family_id = cq.citizen_family_id`;
       const response = await dbModel.query(query);
+      const newResponse = response.map(prev => ({
+        ...prev,
+        time_arrived: convertDate(prev.time_arrived),
+      }));
       return res.status(200).json({
         status: 200,
         message: "Attended Patients Retreived Successfully!",

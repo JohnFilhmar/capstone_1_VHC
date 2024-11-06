@@ -166,8 +166,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
       past_medical_history,
       family_medical_history,
       physical_examination,
-      vital_signs,
-      diagnosis_plan
+      vital_signs
     } = clinicForm;
     if (!chief_of_complaint) {
       return { valid: false, message: "Chief of complaint must be filled in." };
@@ -190,10 +189,10 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     if (!vital_signs.height || !vital_signs.weight) {
       return { valid: false, message: "Both height and weight must have a value." };
     }
-    const { primary_diagnosis, secondary_diagnosis, cases, symptoms, severity } = diagnosis_plan;
-    if (!primary_diagnosis || !secondary_diagnosis || !cases || !symptoms || !severity) {
-      return { valid: false, message: "Diagnosis plan requires primary diagnosis, secondary diagnosis, cases, symptoms, and severity." };
-    }
+    // const { primary_diagnosis, secondary_diagnosis, cases, symptoms, severity } = diagnosis_plan;
+    // if (!primary_diagnosis || !secondary_diagnosis || !cases || !symptoms || !severity) {
+    //   return { valid: false, message: "Diagnosis plan requires primary diagnosis, secondary diagnosis, cases, symptoms, and severity." };
+    // }
     return null
   };
 
@@ -214,6 +213,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
           await addData('/addClinicRecord', newPayload);
           setMedicinePrescriptions([]);
           closeAudit();
+          sessionStorage.removeItem('clinicForm');
         }
       } catch (error) {
         console.error(error);

@@ -220,7 +220,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="fullname"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              value={userData?.full_name}
+              value={userData?.citizen_firstname + ' ' + userData?.citizen_lastname}
               disabled
             />
           </div>

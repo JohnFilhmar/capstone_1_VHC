@@ -77,14 +77,16 @@ class ClinicRecordController {
       
       for (const medicine of prescriptions) {
         
-        const { item_id, dosage, intake_method, frequency, duration, instructions, refill_allowed, quantity_prescribed } = medicine;
-        const insertPrescriptionsQuery = "INSERT INTO `ccr_prescriptions` (`record_id`, `item_id`, `dosage`, `intake_method`, `frequency`, `duration`, `instructions`, `refill_allowed`, `quantity_prescribed`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        const insertPrescriptionsPayload = [record_id, item_id, dosage, intake_method, frequency, duration, instructions, refill_allowed, quantity_prescribed];
+        const { item_id, item_name, dosage, intake_method, frequency, duration, instructions, refill_allowed, quantity_prescribed } = medicine;
+        const insertPrescriptionsQuery = "INSERT INTO `ccr_prescriptions` (`record_id`, `item_id`, `item_name`, `dosage`, `intake_method`, `frequency`, `duration`, `instructions`, `refill_allowed`, `quantity_prescribed`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        const insertPrescriptionsPayload = [record_id, item_id, item_name, dosage, intake_method, frequency, duration, instructions, refill_allowed, quantity_prescribed];
         await dbModel.query(insertPrescriptionsQuery, insertPrescriptionsPayload);
 
-        const [foundItem] = await dbModel.query("SELECT `quantity` FROM `pharmacy_inventory` WHERE `item_id` = ?", [item_id]);
-        const newQuantity = parseInt(foundItem.quantity) - quantity_prescribed;
-        dbModel.query("UPDATE `pharmacy_inventory` SET `quantity` = ? WHERE `item_id` = ?;", [newQuantity, item_id]);
+        if (item_id) {
+          const [foundItem] = await dbModel.query("SELECT `quantity` FROM `pharmacy_inventory` WHERE `item_id` = ?", [item_id]);
+          const newQuantity = parseInt(foundItem.quantity) - quantity_prescribed;
+          dbModel.query("UPDATE `pharmacy_inventory` SET `quantity` = ? WHERE `item_id` = ?;", [newQuantity, item_id]);
+        }
         
       }
 

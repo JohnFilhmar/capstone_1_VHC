@@ -30,18 +30,26 @@ const Queue = () => {
   const { mysqlTime } = useCurrentTime();
   const [accessToken, setAccessToken] = useState(null);
   const { getAllItems } = useIndexedDB();
+  const [attended, setAttended] = useState([]);
+  const { response, isLoading, error, fetchData } = useQuery();
   
   const { data: queue } = useSocket({ fetchUrl: "getQueue", newDataSocket: "queueSocket", socketError: "queueSocketError", replaceData: false });
-
+  
   useEffect(() => {
     const setToken = async () => {
       const token = await getAllItems('tokens');
       setAccessToken(token?.accessToken);
     }
     setToken();
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (response?.data) {
+      setAttended(response.data);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
   
   const role = accessToken ? jwtDecode(accessToken).role : "";
   
@@ -51,7 +59,7 @@ const Queue = () => {
         acc.push(curr);
       }
       return acc;
-    }, []))
+    }, []));
   }, [queue]);
 
   const toggleForm = () => {
@@ -64,11 +72,13 @@ const Queue = () => {
     }
   };
 
-  const toggleAttended = () => {
+  const toggleAttended = async () => {
     if (isAttendedOpen) {
       setIsAttendedOpen(false);
       attendedRef.current.close();
+      setAttended([]);
     } else {
+      await fetchData('getAttended');
       setIsAttendedOpen(true);
       attendedRef.current.showModal();
     }
@@ -259,7 +269,7 @@ const Queue = () => {
           </div>
 
           <AddToQueue ATref={formRef} ATonClick={toggleForm} />
-          <Attended ATref={attendedRef} ATonClick={toggleAttended} />
+          <Attended attended={attended} isLoading={isLoading} error={error} ATref={attendedRef} ATonClick={toggleAttended} />
 
         </div>
       </div>

@@ -9,7 +9,7 @@ const Prescriptions = ({ selectedTheme }) => {
   const [medicine, setMedicine] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [itemName, setItemName] = useState('');
-  const [itemId, setItemId] = useState('');
+  const [itemId, setItemId] = useState(null);
   const [contType, setContType] = useState('bxs');
   const [medicinePrescriptions, setMedicinePrescriptions] = useContext(prescriptionContext);
   const [prescriptions, setPrescriptions] = useState({
@@ -48,26 +48,24 @@ const Prescriptions = ({ selectedTheme }) => {
   };
 
   function handleAddToPrescribedMedicines() {
-    if (itemId) {
-      const newPrescriptions = {
-        item_id: itemId,
-        item_name: itemName,
-        ...prescriptions
-      };
-      setMedicinePrescriptions(prev => [...prev, newPrescriptions]);
-      setItemName('');
-      setItemId('');
-      setMedicine('');
-      setPrescriptions({
-        dosage: '',
-        intake_method: 'oral',
-        frequency: '',
-        duration: '',
-        instructions: '',
-        refill_allowed: false,
-        quantity_prescribed: ''
-      });
-    }
+    const newPrescriptions = {
+      item_id: itemId,
+      item_name: medicine,
+      ...prescriptions
+    };
+    setMedicinePrescriptions(prev => [...prev, newPrescriptions]);
+    setItemName('');
+    setItemId(null);
+    setMedicine('');
+    setPrescriptions({
+      dosage: '',
+      intake_method: 'oral',
+      frequency: '',
+      duration: '',
+      instructions: '',
+      refill_allowed: false,
+      quantity_prescribed: ''
+    });
   };
   
   function handleDeleteMedicinePrescription(index) {
@@ -165,7 +163,6 @@ const Prescriptions = ({ selectedTheme }) => {
               type="text"
               id="dosage"
               name="dosage"
-              disabled={!itemId}
               value={prescriptions.dosage}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, dosage: e.target.value }))}
               placeholder="Enter the dosage instructions for the medicine. . . ."
@@ -177,7 +174,6 @@ const Prescriptions = ({ selectedTheme }) => {
             <select 
               id="intake_method" 
               className="rounded-lg text-xs md:text-sm lg:text-base w-full"
-              disabled={!itemId}
               value={prescriptions.intake_method}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, intake_method: e.target.value }))}
             >
@@ -195,7 +191,6 @@ const Prescriptions = ({ selectedTheme }) => {
               type="text"
               id="frequency"
               name="frequency"
-              disabled={!itemId}
               value={prescriptions.frequency}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, frequency: e.target.value }))}
               placeholder="Describe frequency intake of medicine. . . ."
@@ -208,7 +203,6 @@ const Prescriptions = ({ selectedTheme }) => {
               type="text"
               id="duration"
               name="duration"
-              disabled={!itemId}
               value={prescriptions.duration}
               onChange={(e) => setPrescriptions(prev => ({ ...prev, duration: e.target.value }))}
               placeholder="Duration, length or span of medicine intake. . . ."
@@ -221,7 +215,6 @@ const Prescriptions = ({ selectedTheme }) => {
           <textarea
             name="instructions" 
             id="instructions" 
-            disabled={!itemId}
             value={prescriptions.instructions}
             onChange={(e) => setPrescriptions(prev => ({ ...prev, instructions: e.target.value }))}
             placeholder="Enter specific instructions for this specific medicine. . . . ."
@@ -238,7 +231,6 @@ const Prescriptions = ({ selectedTheme }) => {
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
                 <input
                   type="checkbox"
-                  disabled={!itemId}
                   checked={prescriptions.refill_allowed}
                   onChange={() => setPrescriptions(prev => ({ ...prev, refill_allowed: !prev.refill_allowed }))}
                   className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
@@ -250,7 +242,6 @@ const Prescriptions = ({ selectedTheme }) => {
               <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
                 <input
                   type="checkbox"
-                  disabled={!itemId}
                   checked={!prescriptions.refill_allowed}
                   onChange={() => setPrescriptions(prev => ({ ...prev, refill_allowed: !prev.refill_allowed }))}
                   className={`form-checkbox h-5 w-5 text-${selectedTheme}-600`}
@@ -268,7 +259,6 @@ const Prescriptions = ({ selectedTheme }) => {
                 type="text"
                 id="quantity_prescribed"
                 name="quantity_prescribed"
-                disabled={!itemId}
                 value={prescriptions.quantity_prescribed}
                 onChange={(e) => {
                   const input = e.target.value;
@@ -284,7 +274,7 @@ const Prescriptions = ({ selectedTheme }) => {
           </div>
         </div>
         <button
-          disabled={!itemId || !prescriptions.dosage || !prescriptions.intake_method || !prescriptions.frequency || !prescriptions.duration || !prescriptions.instructions || !prescriptions.quantity_prescribed} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines</button>
+          disabled={!prescriptions.dosage || !prescriptions.intake_method || !prescriptions.frequency || !prescriptions.duration || !prescriptions.instructions || !prescriptions.quantity_prescribed} onClick={() => handleAddToPrescribedMedicines()} className={`p-2 rounded-md bg-${selectedTheme}-600 font-bold m-2 text-${selectedTheme}-200 ${!itemId && 'hover:cursor-not-allowed'}`}>Add to Prescribed Medicines</button>
       </div>
     </div>
   );

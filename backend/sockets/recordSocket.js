@@ -7,7 +7,6 @@ module.exports = function(io) {
       try {
         connection = await dbModel.getConnection();
         const response = await dbModel.query('SELECT `citizen_firstname`, `citizen_middlename`, `citizen_lastname`, `citizen_gender`, `citizen_birthdate`, `citizen_bloodtype`, `citizen_barangay`, `citizen_family_id`, `citizen_number` FROM `citizen` WHERE `citizen_family_id` = ? AND `citizen_firstname` = ? AND `citizen_birthdate` = ?', [data.citizen_family_id, data.citizen_firstname, data.citizen_birthdate]);
-        console.log(response);
         const newResponse = response.map((res) => {
           const date = new Date(res.citizen_birthdate);
           const year = date.getFullYear();
@@ -20,7 +19,6 @@ module.exports = function(io) {
               citizen_birthdate: formattedDate
           };
         });
-        console.log(newResponse);
         socket.emit('recordSocket', newResponse);
         socket.broadcast.emit('recordSocket', newResponse);
       } catch (error) {

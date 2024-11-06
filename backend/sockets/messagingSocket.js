@@ -75,7 +75,6 @@ module.exports = function (io) {
           data.user_id,
           data.message_id,
         ]);
-        console.log(newMessengerListResponse)
         const images = await Promise.all(
           [...newMessengerListResponse.map((user) => user.image_path || "image")]?.map(
             async (imageName) => {
@@ -114,7 +113,6 @@ module.exports = function (io) {
             user_id: data.user_id,
           }
         };
-        console.log(response);
         io.to(roomId).emit("messageSocket", response);
       } catch (error) {
         socket.emit("targetError", error.message);
