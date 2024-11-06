@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const { v4: uuidv4 } = require("uuid");
 
 class StaffController {
   async getStaffId(req, res) {
@@ -121,7 +122,7 @@ class StaffController {
 
           try {
             const insertQuery =
-              "INSERT INTO `medicalstaff` (`username`, `password`, `refresh_token`, `email`, `role`) VALUES (?, ?, ?, ?, ?)";
+              "INSERT INTO `medicalstaff` (`username`, `password`, `refresh_token`, `email`, `uuid`, `role`) VALUES (?, ?, ?, ?, ?, ?)";
             const insertPayload = [
               payload.username,
               hash,
@@ -131,6 +132,7 @@ class StaffController {
                 "15s"
               ),
               String(payload.email).toLowerCase(),
+              uuidv4(),
               payload.role,
             ];
             const insertResponse = await dbModel.query(

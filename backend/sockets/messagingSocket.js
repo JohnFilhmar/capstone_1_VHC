@@ -1,3 +1,7 @@
+const path = require("path");
+const fs = require("fs");
+const publicDirectoryPath = path.join(__dirname, "../public");
+const sharp = require("sharp");
 const { convertDate } = require("../globalFunctions");
 const dbModel = require("../models/database_model");
 
@@ -31,12 +35,9 @@ module.exports = function (io) {
       let connection;
       try {
         connection = await dbModel.getConnection();
-        const authHeader = req.headers["authorization"];
-        const accessToken = authHeader.split(" ")[1];
-        const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
         const [user] = await dbModel.query(
-          "SELECT staff_id, image_path FROM medicalstaff WHERE username = ?",
-          decoded.username
+          "SELECT staff_id, image_path FROM medicalstaff WHERE staff_id = ?",
+          data.user_id
         );
         const newMessengerListQuery = `
           SELECT
@@ -68,12 +69,13 @@ module.exports = function (io) {
             medicalstaff mes_receiver ON m.receiver_id = mes_receiver.staff_id
           WHERE m.message_id = ?`;
         const newMessengerListResponse = await dbModel.query(newMessengerListQuery, [
-          user.staff_id,
-          user.staff_id,
-          user.staff_id,
-          user.staff_id,
-          req.params.id,
+          data.user_id,
+          data.user_id,
+          data.user_id,
+          data.user_id,
+          data.message_id,
         ]);
+        console.log(newMessengerListResponse)
         const images = await Promise.all(
           [...newMessengerListResponse.map((user) => user.image_path || "image")]?.map(
             async (imageName) => {
@@ -93,20 +95,26 @@ module.exports = function (io) {
             }
           )
         );
-        const getImageUrl = (profileImage) =>
-          `${req.protocol}://${req.get("host")}/${
-            profileImage || "default_profile.png"
-          }`;
-        const response = [
-          ...newMessengerListResponse.map((prev, i) => ({
+        const response = {
+          messenger: newMessengerListResponse.map((prev, i) => ({
             ...prev,
-            user_id: user.staff_id,
+            sender_id: data.sender_id,
+            receiver_id: data.receiver_id,
+            message: data.message,
+            user_id: data.user_id,
             profile_image: images[i],
-            image_path: getImageUrl(prev.image_path),
-            datetime_sent: convertDate(prev.datetime_sent),
-            is_read: prev.sender_id === user.staff_id || Boolean(prev.is_read),
+            datetime_sent: convertDate(data.datetime_sent),
+            is_read: data.sender_id === data.user_id || Boolean(prev.is_read),
           })),
-        ];
+          conversation: {
+            sender_id: data.sender_id,
+            receiver_id: data.receiver_id,
+            message: data.message,
+            datetime_sent: data.datetime_sent,
+            user_id: data.user_id,
+          }
+        };
+        console.log(response);
         io.to(roomId).emit("messageSocket", response);
       } catch (error) {
         socket.emit("targetError", error.message);

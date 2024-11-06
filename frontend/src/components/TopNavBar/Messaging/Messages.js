@@ -26,6 +26,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
   }
 
   const selectMessage = async (id) => {
+    console.log(id);
     const selectedMessage = messengerList.find(
       (prev) => prev.message_id === id
     );
@@ -128,7 +129,7 @@ const Messages = ({ message, toggle, openChatbox, createNewChat }) => {
                       <p
                         className={`text-slate-500 ${stat && "font-semibold"}`}
                       >
-                        {message.sender_id === message.user_id && (
+                        {message.sender_id === decodedToken?.user_id && (
                           <span>You: </span>
                         )}
                         {message.message.length > 8

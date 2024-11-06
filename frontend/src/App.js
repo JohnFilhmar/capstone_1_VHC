@@ -86,13 +86,13 @@ const App = () => {
 
   useEffect(() => {
     socket.connect();
-    socket.emit('joinRoom', tokens && jwtDecode(tokens).uuid);
     const handlePageLoad = () => {
       setIsPageFullyLoaded(true);
     };
     window.addEventListener("load", handlePageLoad);
     getIdbTokens();
     const time = setTimeout(() => {
+      socket.emit("joinRoom", tokens && jwtDecode(tokens).uuid);
       setIsLoading(false);
     }, 3000);
     if (!colors.includes(localStorage.getItem("theme"))) {
@@ -109,66 +109,76 @@ const App = () => {
   useEffect(() => {
     if (isLoggedIn) {
       const uuid = tokens && jwtDecode(tokens).uuid;
-      socket.on('connect', () => {
+      socket.on("connect", () => {
         const myFun = (rooms) => {
           if (uuid && rooms && !rooms.includes(uuid)) {
-            socket.emit('joinRoom', tokens && jwtDecode(tokens).uuid);
+            socket.emit("joinRoom", tokens && jwtDecode(tokens).uuid);
           }
         };
-        socket.emit('checkRooms', myFun);
-      })
-      
-      socket.on('messagingSocket', (data) => {
-        if (data?.status === 'ok') {
+        socket.emit("checkRooms", myFun);
+      });
+
+      socket.on("messagingSocket", (data) => {
+        if (data?.status === "ok") {
           setIsConnected(true);
         } else {
           setIsConnected(false);
         }
       });
 
-      socket.on("messageSocket", async (data) => {
-        const user_id = tokens && jwtDecode(tokens).user_id; 
-        if (isConversationOpenRef.current && user_id !== data.sender_id) {
+      socket.on("messageSocket", (data) => {
+        const user_id = tokens && jwtDecode(tokens).user_id;
+        if (
+          isConversationOpenRef.current &&
+          user_id !== data.conversation.sender_id
+        ) {
           setConversation((prev) => {
             if (prev) {
-              return [...prev, data];
+              return [...prev, data.conversation];
             } else {
-              return data;
+              return data.conversation;
             }
           });
         }
-        console.log(data);
+        /* 
         setMessengerList((prev) => {
-          console.log(prev);
-          const updatedList = prev.map((item) => {
-            if (item.sender_id === data.sender_id) {
-              return {
-                ...item,
-                is_read: false,
-                sender_id: data.sender_id,
-                receiver_id: data.receiver_id,
-                message: data.message,
-                datetime_sent: data.datetime_sent,
-              };
+          const updatedList = prev?.map((item) => {
+            if (item) {
+              if (item.sender_id === data.messenger[0].sender_id) {
+                return {
+                  ...item,
+                  message_id: data.messenger[0].message_id,
+                  is_read: user_id === item.sender_id,
+                  sender_id: data.messenger[0].sender_id,
+                  receiver_id: data.messenger[0].receiver_id,
+                  message: data.messenger[0].message,
+                  datetime_sent: data.messenger[0].datetime_sent,
+                };
+              }
+            } else {
+              console.log(data.messenger);
+              return data.messenger;
             }
             return item;
           });
-          return updatedList;
+          console.log(updatedList);
+          return updatedList.length > 0 ? updatedList : data.messenger;
         });
+        */
       });
 
       return () => {
-        socket.off('connect');
-        socket.off('messagingSocket');
-        socket.off('messageSocket');
-      }
+        socket.off("connect");
+        socket.off("messagingSocket");
+        socket.off("messageSocket");
+      };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, isLoggedIn]);
-  
+
   async function getSetDashboardData() {
     try {
-      const dd = await api.get("/getDashBoardData", {
+      const dd = await api.get("getDashBoardData", {
         headers: { Authorization: `Bearer ${tokens}` },
         withCredentials: true,
         secure: true,
@@ -194,7 +204,7 @@ const App = () => {
       console.error(`Something have gone wrong:`, error);
     }
   }
-  
+
   const verifyAccessToken = async () => {
     let time;
     try {
@@ -210,8 +220,8 @@ const App = () => {
       } else if (res?.status === 200) {
         await updateItem("tokens", "accessToken", res.data.accessToken);
         setIsLoggedIn(true);
-        getSetDashboardData();
-        getSetMessengerList();
+        await getSetDashboardData();
+        await getSetMessengerList();
         if (location.pathname !== "/home") {
           navigate("/home");
         }
@@ -284,8 +294,8 @@ const App = () => {
                   setSelectedChat,
                   conversation,
                   setConversation,
-                  isConversationOpen, 
-                  setIsConversationOpen
+                  isConversationOpen,
+                  setIsConversationOpen,
                 }}
               >
                 <TopNav />
