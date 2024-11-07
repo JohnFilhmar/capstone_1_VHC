@@ -1,10 +1,6 @@
-module.exports = function(io) {
+module.exports = function(socket) {
 
-  io.on('connection', (socket) => {
-
-    socket.on('newMessage', (message) => {
-      socket.broadcast.emit('message', `${message}`);
-    });
-
+  socket.on('newMessage', (message) => {
+    socket.broadcast.emit('message', `${message}`);
   });
 }

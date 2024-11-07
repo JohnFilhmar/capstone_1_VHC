@@ -76,11 +76,11 @@ const SideMenu = () => {
   
   return (
     <div className={`flex flex-col text-${selectedTheme}-800 font-semibold`}>
-      <Menu path="home" Icon={MdHome} label="Home" />
-      <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
-      <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
-      {isLoggedIn && (
+      {isLoggedIn ? (
         <>
+        <Menu path="home" Icon={MdHome} label="Home" />
+        <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
+        <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
         <Menu path="mapping" Icon={FaMapMarkedAlt} label="Mapping" />
         <Menu path="appointments" Icon={IoCalendar} label="Appointments" />
         <Menu path="queue" Icon={MdPeople} label="Queues" />
@@ -114,6 +114,13 @@ const SideMenu = () => {
             )}
           </>
         )}
+        </>
+      ) : (
+        <>
+        <Menu path="home" Icon={MdHome} label="Home" />
+        <Menu path="queue" Icon={MdPeople} label="Queues" />
+        <Menu path="dashboard" Icon={MdSpaceDashboard} label="Dashboard" />
+        <Menu path="analytics" Icon={MdAnalytics} label="Analytics" />
         </>
       )}
       {!isLoggedIn && (

@@ -71,10 +71,11 @@ class Controller {
         serialnumber,
         notes,
       ];
-      await dbModel.query(addEquipmentQuery, addEquipmentPayload);
+      const response = await dbModel.query(addEquipmentQuery, addEquipmentPayload);
       return res.status(200).json({
         status: 200,
-        message: "Added new equipment"
+        message: "Added new equipment",
+        id: response.insertId,
       })
     } catch (error) {
       return res.status(500).json({

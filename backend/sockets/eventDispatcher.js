@@ -9,18 +9,22 @@ const authenticationSocket = require('./authenticationSocket');
 const bloodSocket = require('./bloodSocket');
 const messagingSocket = require('./messagingSocket');
 const equipmentSocket = require('./equipmentSocket');
+const userSocket = require('./userSocket');
 
 function initializeWebSocket(io) {
   
-  recordSocket(io);
-  appointmentSocket(io);
-  queueSocket(io);
-  staffSocket(io);
-  pharmacySocket(io);
-  bloodSocket(io);
-  authenticationSocket(io);
-  messagingSocket(io);
-  equipmentSocket(io);
+  io.on('connection', (socket) => {
+    userSocket(socket);
+    recordSocket(socket);
+    appointmentSocket(socket);
+    queueSocket(socket);
+    staffSocket(socket);
+    pharmacySocket(socket);
+    bloodSocket(socket);
+    authenticationSocket(socket);
+    messagingSocket(socket);
+    equipmentSocket(socket);
+  });
 
   return io;
 }

@@ -44,9 +44,27 @@ const Queue = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function convertKey(word) {
+    const data = word.split('_');
+    const newKey = data.map(dat => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase());
+    return newKey.join(' ');
+  };
+  
+  function convertData(data) {
+    const newData = data && data.map(obj => {
+      const newObj = {};
+      Object.keys(obj).forEach(key => {
+        const newKey = convertKey(key);
+        newObj[newKey] = obj[key];
+      });
+      return newObj;
+    });
+    return newData;
+  };
+
   useEffect(() => {
     if (response?.data) {
-      setAttended(response.data);
+      setAttended(convertData(response.data));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);
@@ -137,7 +155,7 @@ const Queue = () => {
   return (
     <div className="w-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
-        <div onClick={() => socket.emit("updateQueue", {dateTime: String(mysqlTime)})}>
+        <div>
           <Header title={ title } icon={<MdPeople />}/>
         </div>
         <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">

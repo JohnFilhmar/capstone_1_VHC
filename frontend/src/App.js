@@ -27,6 +27,7 @@ import { socket } from "./socket.js";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Spinner } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
+import PublicQueue from "./components/MainContent/Components/Queue/PublicQueue.js";
 
 export const messaging = createContext();
 export const colorTheme = createContext();
@@ -167,10 +168,15 @@ const App = () => {
         */
       });
 
+      socket.on('targetError', (data) => {
+        console.log(data);
+      });
+
       return () => {
         socket.off("connect");
         socket.off("messagingSocket");
         socket.off("messageSocket");
+        socket.off("targetError");
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -348,6 +354,7 @@ const App = () => {
                     >
                       <Routes>
                         <Route path="home" element={<Home />} />
+                        <Route path="queue" element={<PublicQueue />} />
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="analytics" element={<Analytics />} />
                         <Route path="login" element={<Login />} />

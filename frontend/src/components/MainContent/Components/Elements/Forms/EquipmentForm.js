@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import useQuery from "../../../../../hooks/useQuery";
 import { colorTheme, notificationMessage } from "../../../../../App";
 import { Checkbox, Spinner } from "flowbite-react";
@@ -11,7 +11,7 @@ const EquipmentForm = ( { close, children } ) => {
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
   const [payload, setPayload] = useState(null);
   
-  const { isLoading, addData } = useQuery();
+  const { response, isLoading, addData } = useQuery();
 
   function handleChange(e) {
     const { name, value } = e.target;
@@ -19,15 +19,21 @@ const EquipmentForm = ( { close, children } ) => {
       ...prev,
       [name]: value
     }));
-  }
+  };
   
   async function handleSubmit(e) {
     e.preventDefault();
     await addData('/addEquipment', payload);
     if (!dontCloseUponSubmission) close();
-    socket.emit('newEquipmentSocket', payload);
     setPayload(null);
-  }
+  };
+
+  useEffect(() => {
+    if (response?.status === 200) {
+      socket.emit('newEquipmentSocket', response.id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
   
   return (
     <>

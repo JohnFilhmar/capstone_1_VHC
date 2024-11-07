@@ -22,7 +22,7 @@ const port = state === "production" ? 3000 : 5000;
 const corsOptions = {
   origin: [state === "development" ? "https://localhost:3000" : allowedOrigin],
   credentials: true,
-  methods: ['GET','POST','OPTIONS'],
+  methods: ['GET','POST'],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
@@ -60,6 +60,16 @@ const server = https.createServer(serverOptions, app);
 const io = new Server(server, {
   cors: corsOptions,
 });
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (token === process.env.REACT_APP_SECRET) {
+    next();
+  } else {
+    const error = new Error("Authentication error");
+    error.data = { content: "Please retry later" };
+    next(error);
+  }
+})
 initializeWebSocket(io);
 
 server.listen(port, () => {

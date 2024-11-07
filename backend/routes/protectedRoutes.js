@@ -41,7 +41,6 @@ protectedRoute.get('/getProductLogs/:id', pharmacyController.getProductLogs);
 
 // QUEUE
 protectedRoute.post('/addToQueue', queueController.addToQueue);
-protectedRoute.get('/getQueue', queueController.getQueue);
 protectedRoute.get('/getAttended', queueController.getAttended);
 protectedRoute.post('/nextQueue', queueController.nextQueue);
 protectedRoute.post('/dismissQueue/:id', queueController.dismissQueue);

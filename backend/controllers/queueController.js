@@ -132,7 +132,7 @@ class QueueController {
       return res.status(200).json({
         status: 200,
         message: "Attended Patients Retreived Successfully!",
-        data: response
+        data: newResponse
       });
     } catch (error) {
       return res.status(500).json({
