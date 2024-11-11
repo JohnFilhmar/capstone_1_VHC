@@ -60,6 +60,7 @@ const BarangayCasesRate = ({ dataset }) => {
     labels,
     datasets: [
       {
+        label: 'Number of cases',
         data: casesCounts,
         backgroundColor: casesCounts.map(count => getColorForCount(count))
       }

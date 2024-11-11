@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { colorTheme } from "../../../../../App";
 import PatientInfo from "./PatientInfo";
 import ChiefCompaint from "./ChiefComplaint";
@@ -10,12 +10,13 @@ import MenstrualHistory from "./MenstrualHistory";
 import PregnancyHistory from "./PregnancyHistory";
 import DiagnosisPlan from "./DiagnosisPlan";
 import Prescriptions from "./Prescriptions";
+import { formDataContext } from "../RecordAudit";
 
 export const genderContext = createContext();
 
 const CitizenForm = ({ userData }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const [historyVisibility, setHistoryVisibility] = useState(false);
+  const {visibleForm: historyVisibility, setVisibleForm: setHistoryVisibility} = useContext(formDataContext);
 
   useEffect(() => {
     const toStore = {
@@ -137,15 +138,15 @@ const CitizenForm = ({ userData }) => {
   
   useEffect(() => {
     const time = setTimeout(() => {
-      const oldClinicForm = sessionStorage.getItem('clinicForm') 
-        ? JSON.parse(sessionStorage.getItem('clinicForm')) 
+      const oldClinicForm = sessionStorage.getItem('clinicForm')
+        ? JSON.parse(sessionStorage.getItem('clinicForm'))
         : {};
       const updatedClinicForm = {
         citizen_family_id: userData?.citizen_family_id,
         ...oldClinicForm,
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [userData]);
   
@@ -154,8 +155,8 @@ const CitizenForm = ({ userData }) => {
       <PatientInfo selectedTheme={selectedTheme} userData={userData}/>
       <ChiefCompaint selectedTheme={selectedTheme}/>
       <div className="grid lg:flex grid-cols-1 md:grid-cols-1 lg:grid-cols-2 lg:gap-3">
-        <MedicalHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility(prev => !prev)}/>
-        <FamilyHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility(prev => !prev)}/>
+        <MedicalHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility('health_history')}/>
+        <FamilyHistory selectedTheme={selectedTheme} isVisible={historyVisibility} setIsVisible={() => setHistoryVisibility('health_history')}/>
       </div>
       <SocialHistory selectedTheme={selectedTheme}/>
       <PhysicalExamination selectedTheme={selectedTheme}/>

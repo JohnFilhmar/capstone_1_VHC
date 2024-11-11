@@ -1,3 +1,4 @@
 {
   "cmake.configureOnOpen": false,
+  "CodeGPT.apiKey": "CodeGPT Plus Beta",
 }

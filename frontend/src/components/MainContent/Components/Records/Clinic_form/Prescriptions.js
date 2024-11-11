@@ -2,16 +2,16 @@ import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiMedicineBottleFill } from "react-icons/ri";
 import api from "../../../../../axios";
-import { prescriptionContext } from "../RecordAudit";
+import { formDataContext } from "../RecordAudit";
 
 const Prescriptions = ({ selectedTheme }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [medicine, setMedicine] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [itemName, setItemName] = useState('');
   const [itemId, setItemId] = useState(null);
   const [contType, setContType] = useState('bxs');
-  const [medicinePrescriptions, setMedicinePrescriptions] = useContext(prescriptionContext);
+  const {visibleForm, setVisibleForm, medicinePrescriptions, setMedicinePrescriptions} = useContext(formDataContext);
   const [prescriptions, setPrescriptions] = useState({
     dosage: '',
     intake_method: 'oral',
@@ -93,27 +93,27 @@ const Prescriptions = ({ selectedTheme }) => {
         prescriptions: medicinePrescriptions
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medicinePrescriptions]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <RiMedicineBottleFill className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Prescriptions</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Prescriptions</p>
         </div>
-        <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button onClick={() => setVisibleForm('prescriptions')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'prescriptions' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'prescriptions' ? 'block' : 'hidden'}>
         <div className="flex flex-col justify-start items-start">
           <p className={`text-${selectedTheme}-600 font-bold p-2`}>Prescribed Medicines:</p>
           {medicinePrescriptions.length === 0 && (

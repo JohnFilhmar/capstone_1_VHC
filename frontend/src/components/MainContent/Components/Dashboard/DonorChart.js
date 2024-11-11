@@ -1,6 +1,6 @@
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import useDropdown from '../Elements/DropdownButton';
+// import useDropdown from '../Elements/DropdownButton';
 import { useContext } from 'react';
 import { colorTheme } from '../../../../App';
 import tinycolor from 'tinycolor2';
@@ -41,7 +41,6 @@ const DonorChart = ({ title, annual_blood }) => {
                     .toRgbString();
   };
   const sortedData = annual_blood?.sort((a, b) => b.count - a.count);
-  console.log(sortedData);
   const DonorData = {
     labels: sortedData?.map((don) => don.firstname.length > 5 ? `${don.firstname.substring(0,5)}...` : don.firstname),
     datasets: [
@@ -53,13 +52,13 @@ const DonorChart = ({ title, annual_blood }) => {
     ],
   };
 
-  const { DropdownButton } = useDropdown({
-    options: ['All Time', 'This Year', 'February', 'August', 'November'],
-    defaultOption: 'All Time',
-    onSelect: (selected) => {
-      console.log(`Custom logic for ${selected}`);
-    },
-  });
+  // const { DropdownButton } = useDropdown({
+  //   options: ['All Time', 'This Year', 'February', 'August', 'November'],
+  //   defaultOption: 'All Time',
+  //   onSelect: (selected) => {
+  //     console.log(`Custom logic for ${selected}`);
+  //   },
+  // });
 
   return (
     <div className={`col-span-2 md:col-span-2 lg:col-span-1 p-2 md:p-3 lg:p-5 bg-${selectedTheme}-50 rounded-md`}>

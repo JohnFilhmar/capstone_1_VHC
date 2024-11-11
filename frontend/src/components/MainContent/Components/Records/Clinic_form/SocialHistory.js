@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { LiaHistorySolid } from "react-icons/lia";
+import { formDataContext } from "../RecordAudit";
 
 const SocialHistory = ({ selectedTheme }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [smokingStatus, setSmokingStatus] = useState('no');
-  const [alcoholStatus, setAlcoholStatus] = useState('no');
-  const [drugsStatus, setDrugsStatus] = useState('no');
-  const [sexActivity, setSexActivity] = useState('no');
+  const {
+    visibleForm, setVisibleForm,
+    smokingStatus, setSmokingStatus,
+    alcoholStatus, setAlcoholStatus,
+    drugsStatus, setDrugsStatus,
+    sexActivity, setSexActivity
+  } = useContext(formDataContext);
 
   useEffect(() => {
     const time = setTimeout(() => {
@@ -22,26 +25,26 @@ const SocialHistory = ({ selectedTheme }) => {
         sexually_active: sexActivity
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [smokingStatus, alcoholStatus, drugsStatus, sexActivity]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <LiaHistorySolid className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Social History</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Social History</p>
         </div>
-        <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button onClick={() => setVisibleForm('social_history')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'social_history' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'social_history' ? 'block' : 'hidden'}>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="flex items-center">
             <label htmlFor="smoker" className={`text-${selectedTheme}-600 w-1/3 font-semibold`}>Is patient a Smoker:</label>

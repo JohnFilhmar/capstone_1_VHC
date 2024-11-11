@@ -58,11 +58,12 @@ const Appointments = () => {
   const [isAppDayOpen, setIsAppDayOpen] = useState(false);
   const [role, setRole] = useState("staff");
 
+  const setToken = async () => {
+    const token = await getAllItems("tokens");
+    setRole(jwtDecode(token?.accessToken).role);
+  };
+  
   useEffect(() => {
-    const setToken = async () => {
-      const token = await getAllItems("tokens");
-      setRole(jwtDecode(token?.accessToken).role);
-    };
     setToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

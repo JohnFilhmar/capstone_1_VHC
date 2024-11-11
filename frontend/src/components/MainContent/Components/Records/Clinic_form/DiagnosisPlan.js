@@ -1,21 +1,12 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus, FaStethoscope } from "react-icons/fa";
+import { formDataContext } from "../RecordAudit";
 
 const DiagnosisPlan = ({ selectedTheme }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [symptoms, setSymptoms] = useState([]);
   const [cases, setCases] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
-  const [diagnosisPlan, setDiagnosisPlan] = useState({
-    primary_diagnosis: '',
-    secondary_diagnosis: '',
-    cases: '',
-    severity: 'moderate',
-    symptoms: '',
-    tests_conducted: '',
-    diagnosis_details: '',
-    follow_up_recommendations: '',
-  });
+  const {visibleForm, setVisibleForm, diagnosisPlan, setDiagnosisPlan} = useContext(formDataContext);
 
   const fetchIllnessSuggestions = async (query) => {
     try {
@@ -86,27 +77,27 @@ const DiagnosisPlan = ({ selectedTheme }) => {
         }
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [diagnosisPlan]);
   
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <FaStethoscope className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Diagnostics and Recommendations</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Diagnostics and Recommendations</p>
         </div>
-        <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button onClick={() => setVisibleForm('diagnosis_plan')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'diagnosis_plan' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'diagnosis_plan' ? 'block' : 'hidden'}>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-2">
           <div className="p-2">
             <label htmlFor="primary_diagnosis" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Primary Diagnosis:</label>

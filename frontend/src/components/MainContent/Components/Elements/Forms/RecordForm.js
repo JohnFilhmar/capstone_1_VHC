@@ -359,13 +359,13 @@ const RecordForm = ( { close, children } ) => {
         </div>
         <div className='flex flex-col md:flex-row lg:flex-row gap-3'>
           <div className='basis-1/2'>
-            <label htmlFor="barangay" className='text-xs md:text-sm lg:text-base font-semibold'>Barangay: </label>
+            <label htmlFor="address" className='text-xs md:text-sm lg:text-base font-semibold'>Address: (Barangay, City, Province)</label>
             <input 
               required 
               className={`text-xs md:text-sm lg:text-base shadow-md rounded-lg w-full bg-transparent border-[1px] border-${selectedTheme}-800`}
-              id="barangay" 
+              id="address"
               type="text"
-              placeholder="Enter barangay. . . . ." 
+              placeholder="Enter address. . . . ." 
               value={barangay} onChange={(e) => setBarangay(e.target.value)} 
               list='barangaySuggestions'
               autoComplete='off'

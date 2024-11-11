@@ -447,17 +447,65 @@ class RecordController {
       connection = await dbModel.getConnection();
 
       const getCitizenHistoryQuery =
-        "SELECT c.citizen_family_id, c.citizen_firstname, c.citizen_middlename, c.citizen_lastname, c.citizen_gender, c.citizen_barangay, c.citizen_number, c.citizen_birthdate, c.citizen_bloodtype, ch.history_id, ch.action, ch.action_details, ch.action_datetime, ms.username FROM citizen c INNER JOIN citizen_history ch ON c.citizen_family_id = ch.family_id INNER JOIN medicalstaff ms ON ch.staff_id = ms.staff_id WHERE c.citizen_family_id = ?";
+        `WITH Vitals AS (
+          SELECT
+            vit.weight, vit.height, vit.record_id, ccr.civil_status, ccr.philhealth_number, ccr.philhealth_dpin, ccr.philhealth_category
+          FROM
+            ccr_vital_signs vit
+          INNER JOIN
+            citizen_clinical_record ccr
+          ON 
+            vit.record_id = ccr.record_id
+          WHERE
+            ccr.citizen_family_id = ?
+          ORDER BY vit.record_id DESC LIMIT 1
+        )
+        SELECT 
+          c.citizen_family_id, 
+          c.citizen_firstname, 
+          c.citizen_middlename, 
+          c.citizen_lastname,
+          Vitals.civil_status,
+          Vitals.philhealth_number,
+          Vitals.philhealth_dpin,
+          Vitals.philhealth_category,
+          c.citizen_gender, 
+          c.citizen_barangay, 
+          c.citizen_number, 
+          c.citizen_birthdate, 
+          c.citizen_bloodtype, 
+          ch.history_id, 
+          ch.action, 
+          ch.action_details, 
+          ch.action_datetime, 
+          ms.username, 
+          Vitals.weight, 
+          Vitals.height
+        FROM
+          citizen c 
+        INNER JOIN 
+          citizen_history ch 
+        ON 
+          c.citizen_family_id = ch.family_id 
+        INNER JOIN
+          medicalstaff ms 
+        ON 
+          ch.staff_id = ms.staff_id 
+        LEFT JOIN
+          Vitals 
+        ON 
+          c.citizen_family_id = (SELECT citizen_family_id FROM citizen_clinical_record WHERE record_id = Vitals.record_id)
+        WHERE 
+          c.citizen_family_id = ?;`;
       const family_id = req.params.id;
       const getCitizenHistoryResponse = await dbModel.query(
         getCitizenHistoryQuery,
-        [family_id]
+        [family_id, family_id]
       );
       if (!getCitizenHistoryResponse)
         return res
           .status(404)
           .json({ status: 404, message: "Citizen was not found!" });
-
       return res.status(200).json({
         status: 200,
         message: "Data retrieved successfully",

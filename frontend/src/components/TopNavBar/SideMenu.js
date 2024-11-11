@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { MdHome, MdSpaceDashboard, MdFolder, MdAnalytics, MdLocalPharmacy, MdPeople, MdOutlineSmartToy, MdKeyboardArrowDown } from "react-icons/md";
+import { MdHome, MdSpaceDashboard, MdFolder, MdAnalytics, MdLocalPharmacy, MdPeople, MdOutlineSmartToy, MdKeyboardArrowDown, MdHistoryEdu } from "react-icons/md";
 import { FaCode, FaMapMarkedAlt, FaStethoscope, FaStore, FaUsers } from "react-icons/fa";
 import { BiSolidDonateBlood, BiSolidLogInCircle } from "react-icons/bi";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -75,7 +75,7 @@ const SideMenu = () => {
   const [isLoggedIn] = useContext(isLoggedInContext);
   
   return (
-    <div className={`flex flex-col text-${selectedTheme}-800 font-semibold`}>
+    <div className={`flex flex-col text-${selectedTheme}-800 font-semibold leading-tight tracking-tight text-nowrap`}>
       {isLoggedIn ? (
         <>
         <Menu path="home" Icon={MdHome} label="Home" />
@@ -85,6 +85,7 @@ const SideMenu = () => {
         <Menu path="appointments" Icon={IoCalendar} label="Appointments" />
         <Menu path="queue" Icon={MdPeople} label="Queues" />
         <Menu path="records" Icon={MdFolder} label="Records" />
+        <Menu path="historical_data" Icon={MdHistoryEdu} label="Historical Data" />
         <Menu path="pharmacy" Icon={MdLocalPharmacy} label="Pharmacy" />
         <Menu path="equipments" Icon={FaStethoscope} label="Equipments" />
         <Menu path="blood_unit" Icon={BiSolidDonateBlood} label="Blood Unit" />

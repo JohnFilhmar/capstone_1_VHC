@@ -1,37 +1,33 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { BsPersonBoundingBox } from "react-icons/bs";
 import { FaMinus, FaPlus } from "react-icons/fa";
+import { formDataContext } from "../RecordAudit";
 
 const PatientInfo = ({ selectedTheme, userData }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [civilStatus, setCivilStatus] = useState('single');
-  const [age, setAge] = useState(null);
-  const [phNumber, setPhNumber] = useState('');
-  const [philhealthStatusType, setPhilhealthStatusType] = useState('dependent');
-  const [dpin, setDpin] = useState('');
-  const [phCategory, setPhCategory] = useState('');
-  const [contactNumber, setContactNumber] = useState(userData?.citizen_number || '');
-  const [vitalSigns, setVitalSigns] = useState({
-    blood_pressure: '120/80 mmHg',      // Normal BP
-    temperature: '98.6°F',              // Normal Temperature
-    heart_rate: '75 bpm',               // Normal Heart Rate
-    weight: '',                         // Variable based on individual, no fixed range
-    height: '',                         // Variable based on individual, no fixed range
-    pulse_rate: '75 bpm',               // Same as heart rate
-    respiratory_rate: '14 breaths/min', // Normal Respiratory Rate
-    bmi: '22',                          // Normal BMI (18.5 - 24.9)
-    oxygen_saturation: '98%'            // Normal O2 Saturation
-  }); 
-  const [isPediatric, setIsPediatric] = useState(false);
-  const [pediatricClient, setPediatricClient] = useState({
-    length: '70-90 cm',     // Length range for 1–2 years old
-    waist: '18-19 inches',  // Waist range for 1–2 years old
-    head: '18-19 inches',   // Head circumference for 1–2 years old
-    hip: 'n/a',             // No fixed value for hip
-    limb: 'n/a',            // Varies with growth
-    muac: '12.5-13.5 cm',   // Mid-upper arm circumference
-    skinfold: '6-10 mm'     // Skinfold thickness at triceps
-  });
+  const {
+    civilStatus,
+    setCivilStatus,
+    age, 
+    setAge,
+    phNumber, 
+    setPhNumber,
+    philhealthStatusType, 
+    setPhilhealthStatusType,
+    dpin, 
+    setDpin,
+    phCategory, 
+    setPhCategory,
+    contactNumber, 
+    setContactNumber,
+    visibleForm,
+    setVisibleForm,
+    vitalSigns,
+    setVitalSigns,
+    isPediatric, 
+    setIsPediatric,
+    pediatricClient, 
+    setPediatricClient
+  } = useContext(formDataContext);
 
   const getAge = (birthdate) => {
     if (!birthdate) return null;
@@ -89,6 +85,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
       setDpin('');
       setPhCategory('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phNumber]);
 
   useEffect(() => {
@@ -138,7 +135,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
         contact_number: contactNumber
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [
     civilStatus,
@@ -182,6 +179,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
       const bmi = weightInKg / (heightInMeters ** 2);
       setVitalSigns(prev => ({ ...prev, bmi: bmi.toFixed(2) })); 
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vitalSigns.weight, vitalSigns.height]);
  
   const handleChange = (e) => {
@@ -196,31 +194,31 @@ const PatientInfo = ({ selectedTheme, userData }) => {
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <BsPersonBoundingBox className="size-4 md:size-5 lg:size-6"/>
-          <span>Patient Information</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Patient Information</p>
         </div>
-        <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button onClick={() => setVisibleForm('patient_info')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'patient_info' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'patient_info' ? 'block' : 'hidden'}>
         {/* CITIZEN INFORMATION */}
         <div className="grid grid-cols-2 md:grid-cols-4">
           <div className={`p-2 col-span-2`}>
-            <label htmlFor="fullname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Fulll Name:</label>
+            <label htmlFor="fullname" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Full Name:</label>
             <input
               type="text"
               id="fullname"
               name="fullname"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              value={userData?.citizen_firstname + ' ' + userData?.citizen_lastname}
+              value={userData?.citizen_firstname + ' ' + userData?.citizen_lastname || ''}
               disabled
             />
           </div>
@@ -232,7 +230,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
               name="barangay"
               className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
               required
-              value={userData?.citizen_barangay}
+              value={userData?.citizen_barangay || ''}
               disabled
             />
           </div>
@@ -298,7 +296,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                 name="philhealthnum"
                 placeholder="Enter your philheath number. . . . ."
                 className="w-full rounded-lg text-xs md:text-sm lg:text-base"
-                value={phNumber}
+                value={phNumber || ''}
                 onChange={handleChange}
               />
             </div>
@@ -373,7 +371,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="contactnumber"
                   name="contactnumber"
                   className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
-                  value={contactNumber}
+                  value={contactNumber || ''}
                   onChange={(e) => setContactNumber(e.target.value)}
                   disabled={userData?.citizen_number}
                 />
@@ -391,7 +389,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="blood_pressure"
                   name="blood_pressure"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.blood_pressure}
+                  value={vitalSigns?.blood_pressure || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -402,7 +400,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="temperature"
                   name="temperature"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.temperature}
+                  value={vitalSigns?.temperature || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -413,7 +411,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="heart_rate"
                   name="heart_rate"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.heart_rate}
+                  value={vitalSigns?.heart_rate || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -424,7 +422,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="weight"
                   name="weight"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.weight}
+                  value={vitalSigns?.weight || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -435,7 +433,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="height"
                   name="height"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.height}
+                  value={vitalSigns?.height || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -446,7 +444,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="pulse_rate"
                   name="pulse_rate"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.pulse_rate}
+                  value={vitalSigns?.pulse_rate || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -457,7 +455,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="respiratory_rate"
                   name="respiratory_rate"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.respiratory_rate}
+                  value={vitalSigns?.respiratory_rate || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -468,7 +466,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="bmi"
                   name="bmi"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.bmi}
+                  value={vitalSigns?.bmi || ''}
                   onChange={handleVitalSignsChange}
                   disabled
                 />
@@ -480,7 +478,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   id="oxygen_saturation"
                   name="oxygen_saturation"
                   className="rounded-lg text-xxs md:text-xs lg:text-sm w-full"
-                  value={vitalSigns.oxygen_saturation}
+                  value={vitalSigns?.oxygen_saturation || ''}
                   onChange={handleVitalSignsChange}
                 />
               </div>
@@ -502,7 +500,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.length}
+                  value={pediatricClient?.length || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -518,7 +516,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.waist}
+                  value={pediatricClient?.waist || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -534,7 +532,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.head}
+                  value={pediatricClient?.head || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -550,7 +548,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.hip}
+                  value={pediatricClient?.hip || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -566,7 +564,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.limb}
+                  value={pediatricClient?.limb || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -582,7 +580,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.muac}
+                  value={pediatricClient?.muac || ''}
                   onChange={handlePediatricChange}
                 />
               </div>
@@ -598,7 +596,7 @@ const PatientInfo = ({ selectedTheme, userData }) => {
                   required
                   autoComplete="off"
                   disabled={!isPediatric}
-                  value={pediatricClient.skinfold}
+                  value={pediatricClient?.skinfold || ''}
                   onChange={handlePediatricChange}
                 />
               </div>

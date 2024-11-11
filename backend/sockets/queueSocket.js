@@ -20,7 +20,8 @@ module.exports = function(socket) {
         c.citizen_number, 
         c.citizen_gender, 
         cq.time_arrived, 
-        cq.current_status 
+        cq.current_status,
+        cq.reason 
       FROM 
         citizen c 
       INNER JOIN  

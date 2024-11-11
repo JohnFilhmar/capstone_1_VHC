@@ -56,7 +56,7 @@ const MostDiseases = ({ data }) => {
     labels,
     datasets: [
       {
-        label: ["a", "b", "c"],
+        label: 'Number of cases',
         data: casesCounts,
         borderColor: "#000000",
         backgroundColor: casesCounts.map(count => getColorForCount(count)),

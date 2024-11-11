@@ -41,38 +41,8 @@ class DashboardController {
       const getStaffCountQuery = `SELECT COUNT(staff_id) AS staff_count FROM medicalstaff`;
       const [getStaffCountResponse] = await dbModel.query(getStaffCountQuery);
 
-      const getDeliveriesQuery = `
-      SELECT YEAR(ch.action_datetime) AS delivery_year, COUNT(*) AS delivery_count
-        FROM citizen_history ch
-        WHERE 
-          (
-            ch.action LIKE '%delivery%' 
-            OR ch.action LIKE '%delivered%' 
-            OR ch.action LIKE '%delivering%' 
-            OR ch.action_details LIKE '%delivery%' 
-            OR ch.action_details LIKE '%delivered%'
-            OR ch.action_details LIKE '%delivering%'
-          )
-        GROUP BY delivery_year
-        UNION ALL
-        SELECT YEAR(cq.time_arrived) AS delivery_year, COUNT(*) AS delivery_count
-        FROM citizen_queue cq
-        WHERE 
-          (
-            cq.reason LIKE '%delivery%' 
-            OR cq.reason LIKE '%delivered%'
-            OR cq.reason LIKE '%delivering%'
-          )
-        GROUP BY delivery_year
-        ORDER BY delivery_year`;
-      const getDeliveriesResponse = await dbModel.query(getDeliveriesQuery);
-
-      const total_deliveries = getDeliveriesResponse.reduce(
-        (total, current) => total + current.delivery_count,
-        0
-      );
-
       const getCasesCountsQuery = `
+        -- From ccr_diagnosis
         SELECT 
           TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(d.cases, ',', numbers.n), ',', -1)) AS case_name,
           COUNT(*) AS case_count
@@ -83,9 +53,16 @@ class DashboardController {
           UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
           UNION ALL SELECT 9 UNION ALL SELECT 10
         ) numbers ON CHAR_LENGTH(d.cases) - CHAR_LENGTH(REPLACE(d.cases, ',', '')) >= numbers.n - 1
+        WHERE 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(d.cases, ',', numbers.n), ',', -1)) <> ''
         GROUP BY 
           case_name
+        HAVING 
+          case_name IS NOT NULL
+
         UNION ALL
+
+        -- From citizen_appointments
         SELECT 
           TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(a.description, ',', numbers.n), ',', -1)) AS case_name,
           COUNT(*) AS case_count
@@ -97,10 +74,16 @@ class DashboardController {
           UNION ALL SELECT 9 UNION ALL SELECT 10
         ) numbers ON CHAR_LENGTH(a.description) - CHAR_LENGTH(REPLACE(a.description, ',', '')) >= numbers.n - 1
         WHERE 
-          a.status = 'scheduled' -- Filter only scheduled appointments
+          a.status = 'scheduled' AND
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(a.description, ',', numbers.n), ',', -1)) <> ''
         GROUP BY 
           case_name
+        HAVING 
+          case_name IS NOT NULL
+
         UNION ALL
+
+        -- From citizen_queue
         SELECT 
           TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cq.reason, ',', numbers.n), ',', -1)) AS case_name,
           COUNT(*) AS case_count
@@ -111,8 +94,13 @@ class DashboardController {
           UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
           UNION ALL SELECT 9 UNION ALL SELECT 10
         ) numbers ON CHAR_LENGTH(cq.reason) - CHAR_LENGTH(REPLACE(cq.reason, ',', '')) >= numbers.n - 1
+        WHERE 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cq.reason, ',', numbers.n), ',', -1)) <> ''
         GROUP BY 
           case_name
+        HAVING 
+          case_name IS NOT NULL
+
         ORDER BY 
           case_count DESC
         LIMIT 5;`;
@@ -121,24 +109,30 @@ class DashboardController {
       );
 
       const getCasesRateCountQuery = `
-      SELECT 
-        YEAR(ccr.datetime_issued) AS year, 
-        TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cd.cases, ',', n.n), ',', -1)) AS case_name, 
-        COUNT(*) AS count
-      FROM 
-        ccr_diagnosis cd
-      JOIN 
-        citizen_clinical_record ccr ON cd.record_id = ccr.record_id
-      JOIN 
-        (SELECT a.N + b.N * 10 + 1 AS n
-        FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
-              (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
-        ) n
-        ON CHAR_LENGTH(cd.cases) - CHAR_LENGTH(REPLACE(cd.cases, ',', '')) >= n.n - 1
-      GROUP BY 
-        year, case_name
-      ORDER BY 
-        year, count DESC;`;
+        SELECT 
+          YEAR(ccr.datetime_issued) AS year, 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cd.cases, ',', n.n), ',', -1)) AS case_name, 
+          COUNT(*) AS count
+        FROM 
+          ccr_diagnosis cd
+        JOIN 
+          citizen_clinical_record ccr ON cd.record_id = ccr.record_id
+        JOIN 
+          (SELECT a.N + b.N * 10 + 1 AS n
+          FROM (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) a,
+                (SELECT 0 AS N UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 
+                UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9) b
+          ) n ON CHAR_LENGTH(cd.cases) - CHAR_LENGTH(REPLACE(cd.cases, ',', '')) >= n.n - 1
+        -- Ensure case_name is not empty or null
+        WHERE 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(cd.cases, ',', n.n), ',', -1)) <> ''
+        GROUP BY 
+          year, case_name
+        HAVING 
+          case_name IS NOT NULL
+        ORDER BY 
+          year, count DESC;`;
       const getCasesRateCountResponse = await dbModel.query(
         getCasesRateCountQuery
       );
@@ -260,10 +254,14 @@ class DashboardController {
           UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 
           UNION ALL SELECT 9 UNION ALL SELECT 10
         ) numbers ON CHAR_LENGTH(d.cases) - CHAR_LENGTH(REPLACE(d.cases, ',', '')) >= numbers.n - 1
+        -- Filter out empty case names
         WHERE 
-          YEAR(cr.datetime_issued) = YEAR(CURDATE())
+          YEAR(cr.datetime_issued) = YEAR(CURDATE()) AND 
+          TRIM(SUBSTRING_INDEX(SUBSTRING_INDEX(d.cases, ',', numbers.n), ',', -1)) <> ''
         GROUP BY 
           c.citizen_barangay, case_name
+        HAVING 
+          case_name IS NOT NULL
         ORDER BY 
           barangay ASC, cases_count DESC;`;
       const getBarangayCasesRateResponse = await dbModel.query(
@@ -294,8 +292,6 @@ class DashboardController {
         data: {
           ...getPatientCountResponse,
           ...getStaffCountResponse,
-          total_deliveries: total_deliveries,
-          annual_deliveries: getDeliveriesResponse,
           cases_count: getCasesCountsResponse,
           cases_rate: getCasesRateCountResponse,
           annual_patients: getAnnualPatientsResponse,

@@ -28,6 +28,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Spinner } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import PublicQueue from "./components/MainContent/Components/Queue/PublicQueue.js";
+import HistoricalData from "./components/MainContent/Components/Records/HistoricalData/HistoricalData.js";
 
 export const messaging = createContext();
 export const colorTheme = createContext();
@@ -325,6 +326,7 @@ const App = () => {
                         <Route path="appointments" element={<Appointments />} />
                         <Route path="queue" element={<Queue />} />
                         <Route path="records" element={<Records />} />
+                        <Route path="historical_data" element={<HistoricalData />} />
                         <Route path="pharmacy" element={<Pharmacy />} />
                         <Route path="equipments" element={<Equipments />} />
                         <Route path="blood_unit" element={<BloodUnit />} />

@@ -62,6 +62,8 @@ protectedRoute.post('/addDonor', bloodController.addDonor);
 
 // CLINIC 
 protectedRoute.post('/addClinicRecord', clinicRecordController.addCinicRecord);
+protectedRoute.get('/getHistoricalData', clinicRecordController.getHistoricalData);
+protectedRoute.get('/getClinicRecord/:id', clinicRecordController.getClinicRecord);
 
 // MESSAGING
 protectedRoute.post('/sendMessage', messageController.sendMessage);

@@ -1,30 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { MdHistoryEdu } from "react-icons/md";
+import { formDataContext } from "../RecordAudit";
 
 const MedicalHistory = ({ selectedTheme, isVisible, setIsVisible }) => {
-  const [visibility, setVisibility] = useState(false);
-  const [medicalHistory, setMedicalHistory] = useState({
-    allergy: false,
-    cerebrovascular_disease: false,
-    emphysema: false,
-    hepatitis: false,
-    mental_illness: false,
-    peptic_ulcer: false,
-    thyroid_disease: false,
-    asthma: false,
-    coronary_artery_disease: false,
-    epilepsy_seizure_disorder: false,
-    hyperlipidemia: false,
-    pneumonia: false,
-    urinary_tract_infection: false,
-    cancer: false,
-    diabetes_mellitus: false,
-    extrapulmonary_tuberculosis: false,
-    pulmonary_tuberculosis: false,
-    none: false,
-    others: '',
-  });
+  const [visibility, setVisibility] = useState('health_history');
+  const {medicalHistory, setMedicalHistory} = useContext(formDataContext);
 
   const resetMedicalHistory = () => {
     setMedicalHistory({
@@ -80,26 +61,26 @@ const MedicalHistory = ({ selectedTheme, isVisible, setIsVisible }) => {
         past_medical_history: medicalHistory
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [medicalHistory]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg lg:w-full`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <MdHistoryEdu className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Past Medical History</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Past Medical History</p>
         </div>
         <button onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {visibility ? (
+          {visibility === 'health_history' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={visibility ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibility === 'health_history' ? 'block' : 'hidden'}>
         <div className="grid grid-cols-2 gap-2 lg:mx-8">
           <label className={`flex items-center space-x-2 bg-${selectedTheme}-200 rounded-sm p-1`}>
             <input

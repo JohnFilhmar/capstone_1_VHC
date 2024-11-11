@@ -1,21 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { MdBloodtype } from "react-icons/md";
+import { formDataContext } from "../RecordAudit";
 
 const PregnancyHistory = ({ selectedTheme, gender }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [applicablePregnancy, setApplicablePregnancy] = useState(false);
-  const [pregnancyHistory, setPregnancyHistory] = useState({
-    gravidity: '',
-    parity: '',
-    delivery_types: '',
-    full_term_pregnancies: '',
-    premature_pregnancies: '',
-    abortions: '',
-    living_children: '',
-    pre_eclampsia: '',
-    family_planning_access: '',
-  });
+  const {visibleForm, setVisibleForm, pregnancyHistory, setPregnancyHistory} = useContext(formDataContext);
 
   useEffect(() => {
     const time = setTimeout(() => {
@@ -28,26 +18,26 @@ const PregnancyHistory = ({ selectedTheme, gender }) => {
         isPregnancy: applicablePregnancy
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [pregnancyHistory, applicablePregnancy]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <MdBloodtype className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Pregnancy History</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Pregnancy History</p>
         </div>
-        <button disabled={gender === 'male'} onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button disabled={gender === 'male'} onClick={() => setVisibleForm('pregnancy_history')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'pregnancy_history' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'pregnancy_history' ? 'block' : 'hidden'}>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-2">
           <div className={`flex flex-col items-center ${!applicablePregnancy && 'col-span-3'} justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
             <label htmlFor="is_applicable_pregnancy" className={`block text-${selectedTheme}-600 font-semibold`}>

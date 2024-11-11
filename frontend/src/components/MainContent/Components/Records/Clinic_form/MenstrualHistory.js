@@ -1,22 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiFileHistoryFill } from "react-icons/ri";
+import { formDataContext } from "../RecordAudit";
 
 const MenstrualHistory = ({ selectedTheme, gender }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [mensApplicable, setMensApplicable] = useState(false);
-  const date = new Date();
-  const firstDayOfTheMonth = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,0)}-01`;
-  const [menstrualHistory, setMenstrualHistory] = useState({
-    menarche: '',
-    last_menstrual_date: firstDayOfTheMonth,
-    menstrual_duration: '',
-    cycle_length: '',
-    pads_per_day: '',
-    sexual_intercourse_age: '',
-    birth_control_method: '',
-    is_menopause: false,
-  });
+  const {visibleForm, setVisibleForm, menstrualHistory, setMenstrualHistory} = useContext(formDataContext);
 
   const contraceptiveMethods = [
     "Oral contraceptives (pills)",
@@ -77,28 +66,28 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
         isMenstrual: mensApplicable
       };
       sessionStorage.setItem('clinicForm', JSON.stringify(updatedClinicForm));
-    }, 1000);
+    }, 425);
     return () => clearTimeout(time);
   }, [menstrualHistory, mensApplicable]);
 
   return (
     <div className={`flex flex-col gap-0 p-2 m-2 border-b-2 border-solid border-${selectedTheme}-500 drop-shadow-lg shadow-md rounded-lg`}>
-      <p className={`text-${selectedTheme}-500 font-bold flex gap-1 justify-between mb-2`}>
+      <div className={`flex gap-1 justify-between mb-2`}>
         <div className="flex gap-1">
           <RiFileHistoryFill className="w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6"/>
-          <span>Menstrual History</span>
+          <p className={`text-${selectedTheme}-500 font-bold`}>Menstrual History</p>
         </div>
-        <button disabled={gender === 'male'} onClick={() => setIsVisible(prev => !prev)} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
-          {isVisible ? (
+        <button disabled={gender === 'male'} onClick={() => setVisibleForm('menstrual_history')} className={`p-1 rounded-md shadow-md border-${selectedTheme}-500 border-[1px]`}>
+          {visibleForm === 'menstrual_history' ? (
             <FaMinus className="size-4 md:size-5 lg:size-6"/>
           ) : (
             <FaPlus className="size-4 md:size-5 lg:size-6"/>
           )}
         </button>
-      </p>
-      <div className={isVisible ? 'block' : 'hidden'}>
+      </div>
+      <div className={visibleForm === 'menstrual_history' ? 'block' : 'hidden'}>
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-2 w-full">
-          <div className={`${!isVisible ? 'lg:col-span-4' : 'lg:col-span-2'} flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
+          <div className={`${!visibleForm === 'menstrual_history' ? 'lg:col-span-4' : 'lg:col-span-2'} flex flex-col items-center justify-start gap-3 bg-${selectedTheme}-100 rounded-sm drop-shadow-md p-1`}>
             <label htmlFor="philhealthstatustype" className={`block text-${selectedTheme}-600 font-semibold`}>
               If Patient Menstrual History Applicable:
             </label>

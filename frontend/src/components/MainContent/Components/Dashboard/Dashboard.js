@@ -99,7 +99,7 @@ const Dashboard = () => {
               <>
               <PatientChart title="Patient Frequency" annual_patients={data?.annual_patients} monthly_patients={data?.monthly_patients} daily_patients={data?.daily_patients}/>
               <DonorChart title="Most Frequent Donor" annual_blood={data?.annual_blood}/>
-              <MultiLineChart title="Annual Data Changes" data={data?.annual_deliveries}/>
+              {/* <MultiLineChart title="Annual Data Changes" data={data?.annual_deliveries}/> */}
               </>
             )}
 

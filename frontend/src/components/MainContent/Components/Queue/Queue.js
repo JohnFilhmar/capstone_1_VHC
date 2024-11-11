@@ -203,8 +203,8 @@ const Queue = () => {
               </div>
             </div>
             
-            {displayedData.map(item => (
-              <div className={`hidden md:hidden lg:block w-full h-full col-span-2 row-span-2 bg-${selectedTheme}-50 rounded-lg text-xs md:text-sm lg:text-base drop-shadow-md`}>
+            {displayedData.map((item, index) => (
+              <div key={index} className={`hidden md:hidden lg:block w-full h-full col-span-2 row-span-2 bg-${selectedTheme}-50 rounded-lg text-xs md:text-sm lg:text-base drop-shadow-md`}>
                 <div className={`text-center border-b-[1px] border-${selectedTheme}-800 shadow-md`}>
                   <p className={`flex items-center justify-center gap-2 p-2 text-base md:text-lg lg:text-xl text-${selectedTheme}-600 font-bold`}>
                     <span>{item.charAt(0).toUpperCase() + item.substring(1)}</span>
@@ -278,6 +278,9 @@ const Queue = () => {
                   </div>
                   <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
                     <p>{w["Citizen Gender"]}</p>
+                  </div>
+                  <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
+                    <p>{w["Reason"]}</p>
                   </div>
                 </div>
                 <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(w["Time Arrived"])}</p>
