@@ -42,12 +42,12 @@ const PublicQueue = () => {
   };
   
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div>
           <Header title={ "Queue" } icon={<MdPeople />}/>
         </div>
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div
             className={`grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 place-items-center gap-4 mb-60 md:mb-72 lg:mb-80`}
           >
@@ -176,7 +176,7 @@ const PublicQueue = () => {
                       <p>{w["Citizen Gender"]}</p>
                     </div>
                   </div>
-                  <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">
+                  <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-normal">
                     {getMeridianTime(w["Time Arrived"])}
                   </p>
                 </div>

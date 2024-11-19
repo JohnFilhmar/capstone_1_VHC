@@ -91,7 +91,7 @@ const DatePicker = ({ dateRef, toggleDatePicker }) => {
           </div>
           {errorPrompt && (
             <div className="absolute top-full right-0 mt-8 z-51">
-              <p className={`text-xs border-[1px] border-red-800 text-red-700 font-thin mt-4 p-2 bg-red-50 rounded-lg text-center`}>
+              <p className={`text-xs border-[1px] border-red-800 text-red-700 font-normal mt-4 p-2 bg-red-50 rounded-lg text-center`}>
                 {errorPrompt}
               </p>
             </div>

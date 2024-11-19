@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { colorTheme, notificationMessage } from "../../../../App";
 import { MdClose, MdPerson } from "react-icons/md";
 import useQuery from "../../../../hooks/useQuery";
@@ -146,6 +146,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
   const [menstrualHistory, setMenstrualHistory] = useState({
     menarche: '',
     last_menstrual_date: firstDayOfTheMonth,
+    menstrual_interval: '',
     menstrual_duration: '',
     cycle_length: '',
     pads_per_day: '',
@@ -221,8 +222,45 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     }
   }, [family_id]);
 
+  const formattedData = useMemo(() => {
+    if (searchResults?.data) {
+      return searchResults.data.map(
+        ({
+          history_id,
+          action,
+          action_details,
+          action_datetime,
+          username,
+        }) => {
+          const formattedDatetime =
+            new Date(action_datetime).toLocaleDateString("en-US", {
+              month: "2-digit",
+              day: "2-digit",
+              year: "numeric",
+            }) +
+            " " +
+            new Date(action_datetime)
+              .toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+              .toLowerCase();
+          return {
+            history_id,
+            action,
+            action_details,
+            action_datetime: formattedDatetime,
+            username,
+          };
+        }
+      );
+    }
+    return null;
+  }, [searchResults]);
+
   useEffect(() => {
-    if (searchResults) {
+    if (searchResults?.data) {
       setData(searchResults.data);
       setVitalSigns(prev => ({
         ...prev,
@@ -252,43 +290,9 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
         barangay: receivedData.citizen_barangay,
         phoneNumber: receivedData.citizen_phone_number,
       });
-      const data = () => {
-        return searchResults.data.map(
-          ({
-            history_id,
-            action,
-            action_details,
-            action_datetime,
-            username,
-          }) => {
-            const formattedDatetime =
-              new Date(action_datetime).toLocaleDateString("en-US", {
-                month: "2-digit",
-                day: "2-digit",
-                year: "numeric",
-              }) +
-              " " +
-              new Date(action_datetime)
-                .toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })
-                .toLowerCase();
-            return {
-              history_id,
-              action,
-              action_details,
-              action_datetime: formattedDatetime,
-              username,
-            };
-          }
-        );
-      };
-      setHistory(searchResults.data && data());
-      convertData(searchResults.data && data());
+      setHistory(formattedData);
     }
-  }, [error, searchResults]);
+  }, [searchResults]);
 
   function convertKey(word) {
     const data = word.split("_");
@@ -296,7 +300,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
       (dat) => dat.charAt(0).toUpperCase() + dat.slice(1).toLowerCase()
     );
     return newKey.join(" ");
-  }
+  };
 
   function convertData(data) {
     const newData =
@@ -310,7 +314,8 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
         return newObj;
       });
     return newData;
-  }
+  };
+  const memoizedHistory = useMemo(() => convertData(history), [history]);
 
   function closeAudit() {
     setFormVisibility(false);
@@ -427,6 +432,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
     setMenstrualHistory({
       menarche: '',
       last_menstrual_date: firstDayOfTheMonth,
+      menstrual_interval: '',
       menstrual_duration: '',
       cycle_length: '',
       pads_per_day: '',
@@ -582,14 +588,6 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
       closeAudit();
     }
   }
-
-  // async function handelDeleteRecord() {
-  //   const res = await api.get('/getStaffId');
-  //   if (res?.status === 200) {
-  //     await deleteData('deleteRecord', family_id, { staff_id: res.data.staff_id, dateTime: mysqlTime });
-  //   }
-  //   closeAudit();
-  // };
 
   return (
     <dialog
@@ -1007,7 +1005,7 @@ const RecordAudit = ({ recordAudit, toggle, family_id }) => {
           <div className="m-3 overflow-y-auto min-h-full rounded-lg">
             {!formVisibility ? (
               <DataTable
-                data={convertData(history)}
+                data={memoizedHistory}
                 enAdd={false}
                 enExport={true}
                 enOptions={false}

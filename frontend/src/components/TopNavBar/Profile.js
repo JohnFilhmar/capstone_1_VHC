@@ -64,7 +64,7 @@ const Profile = ({ prof, toggle, toggleOptions, toggleHelp }) => {
             />
             <p className="font-semibold p-1 text-xs md:text-sm lg:text-base capitalize">
               {isLoggedIn ? username : "Guest"}
-              <span className="font-thin">{isLoggedIn && `(${role})`}</span>
+              <span className="font-normal">{isLoggedIn && `(${role})`}</span>
             </p>
           </div>
         </button>

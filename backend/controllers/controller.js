@@ -1,4 +1,5 @@
 const dbModel = require('../models/database_model');
+const jwt = require("jsonwebtoken");
 
 class Controller {
   
@@ -6,6 +7,9 @@ class Controller {
     let connection;
     try {
       connection = await dbModel.getConnection();
+      const authHeader = req.headers["authorization"];
+      const accessToken = authHeader.split(" ")[1];
+      const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
 
             

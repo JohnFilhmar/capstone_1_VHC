@@ -182,12 +182,9 @@ class DashboardController {
           FROM 
             citizen_appointments
           WHERE 
-            status = 'scheduled'
-            AND WEEK(appointed_datetime, 1) = WEEK(CURDATE(), 1)  
-            AND MONTH(appointed_datetime) = MONTH(CURDATE())  
-            AND YEAR(appointed_datetime) = YEAR(CURDATE())  
+            YEAR(appointed_datetime) = YEAR(CURDATE())
           GROUP BY 
-            month
+            MONTHNAME(appointed_datetime)
           UNION ALL
           SELECT 
             MONTHNAME(time_arrived) AS month, 
@@ -195,16 +192,17 @@ class DashboardController {
           FROM 
             citizen_queue
           WHERE 
-            WEEK(time_arrived, 1) = WEEK(CURDATE(), 1)  
-            AND MONTH(time_arrived) = MONTH(CURDATE())  
-            AND YEAR(time_arrived) = YEAR(CURDATE())  
+            YEAR(time_arrived) = YEAR(CURDATE())
           GROUP BY 
-            month
+            MONTHNAME(time_arrived)
         ) AS combined
         GROUP BY 
           month
         ORDER BY 
-          FIELD(month, 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');`;
+          FIELD(
+            month, 
+            'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+        LIMIT 4;`;
       const getMonthlyPatientsResponse = await dbModel.query(
         getMonthlyPatientsQuery
       );
@@ -231,9 +229,7 @@ class DashboardController {
           WEEK(time_arrived, 1) = WEEK(CURDATE(), 1)
           AND YEAR(time_arrived) = YEAR(CURDATE())
         GROUP BY 
-          day_name
-        ORDER BY 
-          FIELD(day_name, 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');  -- Order days by week`;
+          day_name`;
       const getDailyPatientsResponse = await dbModel.query(
         getDailyPatientsQuery
       );
@@ -263,7 +259,8 @@ class DashboardController {
         HAVING 
           case_name IS NOT NULL
         ORDER BY 
-          barangay ASC, cases_count DESC;`;
+          barangay ASC, cases_count DESC
+        LIMIT 5;`;
       const getBarangayCasesRateResponse = await dbModel.query(
         getBarangayCasesRateQuery
       );

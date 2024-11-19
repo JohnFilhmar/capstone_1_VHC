@@ -11,6 +11,7 @@ const messagingSocket = require('./messagingSocket');
 const equipmentSocket = require('./equipmentSocket');
 const userSocket = require('./userSocket');
 const historicalRecordSocket = require('./historicalRecordSocket');
+const notificationSocket = require('./notificationSocket');
 
 function initializeWebSocket(io) {
   
@@ -26,6 +27,7 @@ function initializeWebSocket(io) {
     authenticationSocket(socket);
     messagingSocket(socket);
     equipmentSocket(socket);
+    notificationSocket(socket);
   });
 
   return io;

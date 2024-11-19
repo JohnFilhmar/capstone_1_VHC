@@ -191,7 +191,7 @@ const NewAccountForm = ({ close, children }) => {
           </div>
 
           {isWarningShown && 
-          <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
+          <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-normal p-1 bg-${selectedTheme}-50 rounded-lg text-center`}>
             {warning} <button className="font-bold text-blue-800" onClick={(e) => generateStrongPassword(e)}>Click this to create a strong random password.</button>
           </p>}
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
@@ -7,9 +7,11 @@ import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const app = ReactDOM.createRoot(document.getElementById('app'));
 app.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>
 );
 
 serviceWorkerRegistration.register();

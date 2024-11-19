@@ -3,13 +3,11 @@ import { MdSearch, MdOutlineChevronLeft, MdOutlineChevronRight, MdOutlineKeyboar
 import { TbFileExport } from "react-icons/tb";
 import FormModal from "./FormModal";
 import { colorTheme } from "../../../../App";
-import useIndexedDB from "../../../../hooks/useIndexedDb";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
-const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error }) => {
+const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = false, enSearch = true, enExport = true, isLoading = true, enOptions = true, toggleOption, optionPK, error, exportSheetName, exportFileName }) => {
   const [selectedTheme] = useContext(colorTheme);
-  const { getAllItems } = useIndexedDB();
-  // eslint-disable-next-line no-unused-vars
-  const [token, setToken] = useState(null);
   const [move, setMove] = useState(false);
   const [query, setQuery] = useState('');
   const [CurrentPage, setCurrentPage] = useState(1);
@@ -26,11 +24,6 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
       return acc;
     }, {})
   );
-
-  async function getIdbTokens() {
-    const idb = await getAllItems('tokens');
-    setToken(idb?.accessToken);
-  }
 
   useEffect(() => {
     if (data && !isLoading) {
@@ -53,7 +46,6 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     setCurrentPage(1);
   }
   useEffect(() => {
-    getIdbTokens();
     const handleKeyDown = (event) => {
       if (event.code === 'KeyK' && event.ctrlKey) {
         event.preventDefault();
@@ -68,7 +60,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  
   const sortedRecord = (column, order) => {
     return data?.slice().sort((a, b) => {
       const valA = (a[column] ? a[column].toString().toLowerCase() : '');
@@ -128,18 +120,26 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
   const displayedData = filteredData.slice((CurrentPage - 1) * rowCount, CurrentPage * rowCount);
   
   function handleExport() {
-    console.log(filteredData);
+    const worksheet = XLSX.utils.json_to_sheet(filteredData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, exportSheetName);
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    saveAs(blob, `${exportFileName}.xlsx`);
   }
 
   const Header = ({ top }) => (
     !(data && data.length > 0) ? (
       <>
-      <tr className={`flex flex-row justify-center text-center items-center bg-${selectedTheme}-300 text-xs md:text-sm lg:text-md ${top ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-bl-lg rounded-br-lg'}`}></tr>
+      <tr className={`flex flex-row justify-center text-center items-center bg-${selectedTheme}-300 ${top ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-bl-lg rounded-br-lg'}`}></tr>
       </>
     ) : (
-      <tr className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 text-xs md:text-sm lg:text-md ${top ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-bl-lg rounded-br-lg'}`}>
+      <tr className={`flex flex-row justify-between items-center bg-${selectedTheme}-300 ${top ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-bl-lg rounded-br-lg'}`}>
         {Object.keys(data[0]).map((field, fieldi) => (
-          <th key={fieldi} className="w-full p-2 text-center flex justify-center items-center">
+          <th key={fieldi} className="w-full p-1 md:p-[0.35rem] lg:p-[0.45rem] text-center flex justify-center items-center">
             <button
               onClick={() => handleSorting(field)}
               className="flex flex-row justify-center items-center"
@@ -179,8 +179,8 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
   } else {
     return (
       <>
-        <div className="flex justify-between items-center p-1 overflow-hidden">
-          <div className="flex justify-start items-center gap-1 md:gap-2 lg:gap-3 text-xxs md:text-xs lg:text-sm">
+        <div className="flex justify-between items-center p-1 overflow-hidden text-xxs md:text-xs lg:text-sm">
+          <div className="flex justify-start items-center gap-1 md:gap-2 lg:gap-3">
             {enImport && (
               <button 
                 className={`whitespace-nowrap font-semibold ${!error ? `text-${selectedTheme}-50 bg-${selectedTheme}-600 drop-shadow-md` : `text-${selectedTheme}-600 bg-${selectedTheme}-200 shadow-inner`} rounded-lg p-1 md:p-1 lg:p-2`}
@@ -229,22 +229,22 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
                   placeholder="Search here"
                   value={query}
                   onChange={(e) => searchTable(e)}
-                  className={`w-20 md:w-28 lg:w-36 rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 text-xs md:text-sm lg:text-base p-1`}
+                  className={`w-20 md:w-28 lg:w-36 rounded-md bg-${selectedTheme}-50 text-${selectedTheme}-800 font-semibold border-2 p-1 text-xxs md:text-xs lg:text-sm`}
                 />
               </div>
             </div>
           )}
         </div>
-        <div className="overflow-x-auto drop-shadow-lg">
+        <div className="overflow-x-auto drop-shadow-lg text-xxs md:text-xs lg:text-sm">
           <table 
-            className="font-table table-auto w-full rounded-lg text-sm text-slate-700" 
+            className="font-table table-auto w-full rounded-lg text-slate-700" 
           >
-            <thead className="text-sm font-bold">
+            <thead className="font-bold text-xxs md:text-xs lg:text-sm">
             {data && (
               <Header top={true} />
             )}
             </thead>
-            <tbody className={`divide-y-2 divide-transparent text-xs md:text-sm lg:text-md`}>
+            <tbody className={`divide-y-2 divide-transparent`}>
               {data && data.length > 0 && (
                 <>
                   {displayedData.map((row, rowi) => (
@@ -306,10 +306,10 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
             </tbody>
           </table>
         </div>
-        <div className="flex flex-row justify-between items-center mt-1">
+        <div className="flex flex-row justify-between items-center mt-1 text-xxs md:text-xs lg:text-sm">
           <div className="flex justify-evenly items-center">
             {enExport && (
-              <button onClick={() => handleExport()} className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg text-xs md:text-sm lg:text-base hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
+              <button onClick={() => handleExport()} className={`flex gap-2 p-1 px-3 items-center justify-center bg-${selectedTheme}-200 text-${selectedTheme}-600 font-semibold rounded-lg hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out`}>Export to file<TbFileExport className="size-3 md:size-3 lg:size-4"/></button>
             )}
           </div>
           <div className={`flex flex-row text-md font-semibold p-1 m-1 bg-${selectedTheme}-200 rounded-lg`}>
@@ -319,7 +319,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
             <button disabled={CurrentPage <= 1} onClick={() => setCurrentPage((prev) => prev - 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>
               <MdOutlineChevronLeft />
             </button>
-            <p className="flex text-xs md:text-sm lg:text-base mx-1">
+            <p className="flex mx-1">
               {CurrentPage} <span className="hidden md:block lg:block"> of{Pages}</span>
             </p>
             <button disabled={CurrentPage >= Pages} onClick={() => setCurrentPage((prev) => prev + 1)} className={`text-${selectedTheme}-600 hover:text-${selectedTheme}-700 hover:transition-transform ease-in-out hover:scale-150`}>

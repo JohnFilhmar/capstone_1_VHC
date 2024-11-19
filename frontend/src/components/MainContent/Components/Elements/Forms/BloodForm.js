@@ -348,7 +348,7 @@ const BloodForm = ({ close, children }) => {
           </div>
         </div>
         {changeWarning && (
-          <p className="text-red-800 bg-red-100 p-1 rounded-md font-thin text-xxs md:text-xs lg:text-sm">You changed the blood type value. Continuing will update the citizen's bloodtype.</p>
+          <p className="text-red-800 bg-red-100 p-1 rounded-md font-normal text-xxs md:text-xs lg:text-sm">You changed the blood type value. Continuing will update the citizen's bloodtype.</p>
         )}
         <button
           // disabled={isLoading}

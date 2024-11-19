@@ -7,6 +7,7 @@ const URL =
   config.REACT_APP_PROJECT_STATE === "production"
     ? `${config.REACT_APP_PRODUCTION_BACKEND_BASE_URL}/api`
     : `${config.REACT_APP_DEVELOPMENT_BACKEND_BASE_URL}/api`;
+
 const api = axios.create({
   baseURL: URL,
 });
@@ -47,6 +48,9 @@ api.interceptors.response.use(
     const { getAllItems } = useIndexedDB();
     if (error.response?.status !== 401) {
       const originalRequest = error.config;
+      if (!originalRequest || !originalRequest.url) {
+        return Promise.reject(new Error("Original request is missing or invalid"));
+      }      
       try {
         const tokens = await getAllItems("tokens");
         if (tokens && tokens.accessToken) {

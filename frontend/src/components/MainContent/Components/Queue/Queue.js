@@ -153,12 +153,12 @@ const Queue = () => {
   };
   
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div>
           <Header title={ title } icon={<MdPeople />}/>
         </div>
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex items-center justify-end gap-3 m-1 my-2">
             {role && (role !== 'user') && (
               <button key={0} onClick={() => toggleAttended()} className={`p-[0.15rem] md:p-1 lg:p-[0.35rem] rounded-lg bg-${selectedTheme}-600 text-${selectedTheme}-200 transition-colors text-xs md:text-sm lg:text-base font-semibold px-4 hover:text-${selectedTheme}-300 hover:bg-${selectedTheme}-700 focus:bg-${selectedTheme}-800 focus:text-${selectedTheme}-400 active:bg-${selectedTheme}-300 active:text-${selectedTheme}-600 border-[1px] border-${selectedTheme}-600`}>
@@ -248,7 +248,7 @@ const Queue = () => {
                         <p>{q["Citizen Gender"]}</p>
                       </div>
                     </div>
-                    <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(q.time_arrived)}</p>
+                    <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-normal">{getMeridianTime(q.time_arrived)}</p>
                   </div>
                 )
               } else {
@@ -283,7 +283,7 @@ const Queue = () => {
                     <p>{w["Reason"]}</p>
                   </div>
                 </div>
-                <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-thin">{getMeridianTime(w["Time Arrived"])}</p>
+                <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-normal">{getMeridianTime(w["Time Arrived"])}</p>
               </div>
             )))}
 

@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { colorTheme, notificationMessage } from "../../../App";
 import { MdBugReport } from "react-icons/md";
 import { FiPaperclip } from "react-icons/fi";
@@ -12,17 +12,15 @@ const ReportForm = ({ reportFormRef, toggle }) => {
   const [notifMessage, setNotifMessage] = useContext(notificationMessage);
   const { mysqlTime } = useCurrentTime();
   const [isLoading, setIsLoading] = useState(false);
-  const [payload, setPayload] = useState({
-    reportDetails: "",
-    severity: "",
-    email: "",
-  });
-  
+  const [payload, setPayload] = useState(null);
+  const imageFile = useRef(null);
+  const emailRef = useRef(null);
+
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
     setPayload({
       ...payload,
-      [name]: name === "file" ? files[0] : value,
+      [name]: value,
     });
   };
 
@@ -33,32 +31,37 @@ const ReportForm = ({ reportFormRef, toggle }) => {
       ...payload,
       formType: "Problem Report",
       dateTime: mysqlTime,
+    };
+    const file = imageFile.current?.files[0];
+    if (file) {
+      newPayload.file = file;
     }
     try {
-      const res = await api.post('/sendEmail', newPayload, {
+      const res = await api.post("/sendEmail", newPayload, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
+      if (res?.status === 204) {
+        setPayload((prev) => ({ ...prev, email: "" }));
+        setNotifMessage("Invalid Email, Try again!");
+      }
       if (res?.status === 200) {
-        setIsLoading(false);
-        setNotifMessage(`${res?.data.message}, ID: ${res?.data.messageId}`);
-        console.log(res);
+        setNotifMessage(`${res?.data.message}`);
+        toggleClose(e);
       }
     } catch (error) {
-      console.error(error);
+      setNotifMessage(error?.data?.message);
+      toggleClose(e);
     }
-    toggleClose(e);
-  };
-  
+    setIsLoading(false);
+  }
+
   const toggleClose = (e) => {
     e.preventDefault();
     toggle();
-    setPayload({
-      reportDetails: "",
-      severity: "",
-      file: null,
-    });
+    setPayload(null);
+    imageFile.current.value = "";
   };
 
   //  HANDLE SPAM BY ONLY MAKING THE USER SUBMIT ONLY ONE REPORT FOR THE ADMIN TO ACCEPT FOR THE USER REQUEST TO REFRESH BACK TO 1
@@ -91,39 +94,40 @@ const ReportForm = ({ reportFormRef, toggle }) => {
               Email Address: (optional)
             </label>
             <input
+              ref={emailRef}
               type="email"
               id="email"
               name="email"
-              value={payload.email}
+              value={payload?.email || ""}
               onChange={handleChange}
               placeholder="Enter your valid and working email address. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               maxLength={100}
             />
-            {payload.email && (
-              <p
-                className={`text-xs text-blue-700 font-thin p-1 text-left`}
-              >
-                You will be notified via email if your problem has been resolved. This will take a day or more.
+            {payload?.email && (
+              <p className={`text-xs text-blue-700 font-normal p-1 text-left`}>
+                You will be notified via email if your problem has been
+                resolved. This will take a day or more.
               </p>
             )}
           </div>
           <div className={`p-2`}>
             <label
-              htmlFor="reportDetails"
+              htmlFor="details"
               className={`block mb-2 text-${selectedTheme}-600 font-semibold`}
             >
               Report Details:
             </label>
             <textarea
-              id="reportDetails"
-              name="reportDetails"
-              value={payload.reportDetails}
+              required
+              id="details"
+              name="details"
+              value={payload?.details || ""}
               onChange={handleChange}
-              placeholder="Describe what happened. . . . ."
+              placeholder="Describe what happened and your issue. . . . ."
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               rows={4}
-              maxLength={255}
+              maxLength={1000}
             />
           </div>
           <div className={`p-2`}>
@@ -136,7 +140,7 @@ const ReportForm = ({ reportFormRef, toggle }) => {
             <select
               id="severity"
               name="severity"
-              value={payload.severity}
+              value={payload?.severity || ""}
               onChange={handleChange}
               className="w-full rounded-lg text-xs md:text-sm lg:text-base"
               required
@@ -161,13 +165,13 @@ const ReportForm = ({ reportFormRef, toggle }) => {
               type="file"
               id="file"
               name="file"
-              onChange={handleChange}
+              ref={imageFile}
               className="block w-full rounded-lg text-xs md:text-sm lg:text-base bg-gray-50 border-[1px] border-gray-900 shadow-sm"
               accept="image/*"
             />
           </div>
           <p
-            className={`text-xs text-red-700 font-thin mt-4 p-2 bg-${selectedTheme}-50 rounded-lg text-right`}
+            className={`text-xs text-red-700 font-normal mt-4 p-2 bg-${selectedTheme}-50 rounded-lg text-right`}
           >
             Caution: You can only submit a single report per device. Use your
             report wisely. You can submit a report again after a developer
@@ -175,25 +179,26 @@ const ReportForm = ({ reportFormRef, toggle }) => {
           </p>
           <div className="flex justify-end items-center gap-2 mt-4">
             <button
+              disabled={isLoading}
               onClick={toggleClose}
-              className={`py-2 px-4 hover:shadow-md font-semibold text-${selectedTheme}-600 rounded-lg hover:bg-${selectedTheme}-100 transition-colors duration-200`}
+              className={`py-2 px-4 hover:shadow-md font-semibold ${
+                isLoading
+                  ? `text-${selectedTheme}-100 bg-${selectedTheme}-600`
+                  : `text-${selectedTheme}-600 hover:bg-${selectedTheme}-100`
+              } rounded-lg transition-colors duration-200`}
             >
               Cancel
             </button>
             <button
+              disabled={isLoading}
               type="submit"
               className={`py-2 px-4 hover:shadow-md font-semibold rounded-lg transition-colors duration-200 ${
-                payload.details && payload.severity
+                payload?.details?.length > 0 && payload?.severity !== undefined
                   ? `text-${selectedTheme}-100 bg-${selectedTheme}-600 hover:cursor-pointer shadow-sm`
                   : `shadow-inner text-${selectedTheme}-100 bg-${selectedTheme}-400 hover:cursor-not-allowed`
               }`}
-              disabled={
-                !payload.details && !payload.severity
-              }
             >
-              {isLoading ? (
-                <Spinner />
-              ) : 'Submit Report'}
+              {isLoading ? <Spinner /> : "Submit Report"}
             </button>
           </div>
         </form>

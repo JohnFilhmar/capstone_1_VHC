@@ -31,7 +31,7 @@ const CasesRate = ({ data }) => {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: true,
+      legend: false,
       tooltip: {
         enabled: true,
       },

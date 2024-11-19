@@ -40,9 +40,10 @@ const HistoricalData = () => {
         <div>
           <Header title={title} icon={<MdHistoryEdu />} />
         </div>
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <DataTable
             data={records}
+            enAdd={false}
             modalForm={pathname}
             isLoading={loading}
             toggleOption={toggleOptions}

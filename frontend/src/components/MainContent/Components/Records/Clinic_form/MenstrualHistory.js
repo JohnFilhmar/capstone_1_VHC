@@ -141,7 +141,19 @@ const MenstrualHistory = ({ selectedTheme, gender }) => {
             />
           </div>
         </div>
-        <div className={`grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 w-full gap-2 ${mensApplicable ? 'block' : 'hidden'}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full gap-2 ${mensApplicable ? 'block' : 'hidden'}`}>
+          <div className="p-2">
+            <label htmlFor="menstrual_interval" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Menstrual Interval:</label>
+            <input
+              type="number"
+              id="menstrual_interval"
+              name="menstrual_interval"
+              value={menstrualHistory.menstrual_interval}
+              onChange={(e) => setMenstrualHistory(prev => ({ ...prev, menstrual_interval: e.target.value }))}
+              className="w-full rounded-lg text-xs md:text-sm lg:text-base text-gray-600"
+              disabled={!mensApplicable}
+            />
+          </div>
           <div className="p-2">
             <label htmlFor="menstrual_duration" className={`block mb-2 text-${selectedTheme}-600 font-semibold`}>Menstrual Duration:</label>
             <input

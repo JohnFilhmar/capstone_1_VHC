@@ -13,10 +13,8 @@ import { colorTheme } from "../../../../App";
 import tinycolor from "tinycolor2";
 // import useDropdown from "../Elements/DropdownButton";
 
-const PatientChart = ({ title, annual_patients }) => {
+const TrendingCasesChart = ({ title, monthly_patients }) => {
   const [selectedTheme] = useContext(colorTheme);
-
-  const [periods, setPeriods] = useState({});
   const [labels, setLabels] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [predictedData, setPredictedData] = useState([]);
@@ -41,62 +39,51 @@ const PatientChart = ({ title, annual_patients }) => {
     return predictions;
   }
 
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+  const getMonthNum = (day) => {
+    return monthNames.indexOf(day);
+  };
   useEffect(() => {
-    setPeriods({
-      yearly: (() => {
-        const years = annual_patients?.map((item) => item.year) || [];
-        const requiredYears = 4;
-        if (years.length < requiredYears) {
-          const lastYear = Number(years[0]) - 1;
-          const missingLength = requiredYears - years.length;
-          const missingYears = Array.from(
-            { length: missingLength },
-            (_, index) => {
-              return lastYear - index;
-            }
-          );
-          years.push(...[1, 2].map((i) => Number(years[years.length - 1]) + i));
-          return [...missingYears.sort(), ...years];
-        }
-        return years;
-      })(), // Immediately invoked function expression (IIFE)
-      // monthly: (() => {
-      //   const months = monthly_patients?.map(item => item.month);
-      //   const requiredMonths = 6;
-      //   if (months?.length < requiredMonths) {
-      //     const monthNum = new Date(`2000-${months[0]}-01`);
-      //     const lastMonth = Number(monthNum.getMonth());
-      //     const missingMonthLength = requiredMonths - months.length;
-      //     const missingMonths = Array.from({ length: missingMonthLength }, (_, index) => {
-      //       const newMonth = new Date(`2000-${lastMonth-index}-01`);
-      //       return newMonth.toLocaleString('default', {month: 'long'});
-      //     });
-      //     months.push(...[1,2].map(i => (new Date(`${monthNum + 1}-2000`).toLocaleString('default', {month: 'long'}))));
-      //     const monthSet = [...missingMonths.sort((a,b) => new Date(`${a} 2000`) - new Date(`${b} 2000`)), ...months];
-      //     return monthSet.map(month => month.length > 3 ? month.substring(0, 3) : month);
-      //   }
-      //   return months;
-      // })() || [],
-      // daily: ['Sat', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sun'],
-    });
+    const months =
+      monthly_patients?.map((item) => getMonthNum(item.month)) || [];
+    const requiredMonths = 6;
+    if (months.length < requiredMonths) {
+      const firstMonth = months[0] ?? 0;
+      const missingMonths = [];
+      for (let i = 0; i < requiredMonths; i++) {
+        const day = (firstMonth + i) % 12;
+        missingMonths.push(day);
+      }
+      const result = missingMonths.slice(3).concat(missingMonths.slice(0, 3));
+      for (let i = 0; i < requiredMonths; i++) {
+        result[i] = monthNames[result[i]].substring(0, 3);
+      }
+      setLabels(result);
+    }
     setChartData(() => {
       const patientCounts =
-        annual_patients?.map((patient) => patient.patient_count) || [];
+        monthly_patients?.map((patient) => patient.patient_count) || [];
       const zerosNeeded = 4 - patientCounts?.length;
       const zeroArray = (zerosNeeded && Array(zerosNeeded).fill(0)) || [];
       const paddedData = [...zeroArray, ...patientCounts];
-      setPredictedData([...predictNextValues(paddedData, 2)]);
+      setPredictedData([...predictNextValues(paddedData, 3)]);
       return paddedData;
     });
-  }, [
-      annual_patients, 
-      // monthly_patients, 
-      // daily_patients
-    ]);
-
-  useEffect(() => {
-    setLabels(periods.yearly);
-  }, [periods]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthly_patients]);
 
   ChartJS.register(
     CategoryScale,
@@ -154,28 +141,8 @@ const PatientChart = ({ title, annual_patients }) => {
             ctx.p0.parsed.x >= chartData.length - 1 ? [5, 5] : [],
         },
       },
-      // {
-      //   label: 'Predicted Future Patient Count',
-      //   data: predictedData,
-      //   borderColor: "#000000",
-      //   backgroundColor: getRandomSoftColor(),
-      //   borderWidth: 1,
-      //   borderDash: [5, 5],
-      // }
     ],
   };
-
-  // const { DropdownButton } = useDropdown({
-  //   options: ["Yearly", "Monthly", "Daily"],
-  //   defaultOption: "Yearly",
-  //   onSelect: (selected) => {
-  //     selected === "Yearly"
-  //       ? setLabels(periods.yearly)
-  //       : selected === "Monthly"
-  //       ? setLabels(periods.monthly)
-  //       : setLabels(periods.daily);
-  //   },
-  // });
 
   return (
     <div
@@ -190,4 +157,4 @@ const PatientChart = ({ title, annual_patients }) => {
   );
 };
 
-export default PatientChart;
+export default TrendingCasesChart;

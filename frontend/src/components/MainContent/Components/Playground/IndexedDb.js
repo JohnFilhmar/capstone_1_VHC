@@ -51,12 +51,12 @@ const IndexedDb = () => {
   }
 
   return (
-    <div className="w-full flex flex-col">
+    <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <div>
           <Header title={title} icon={<FaStore />} />
         </div>
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col md:flex-row lg:flex-row justify-between p-4 items-center h-full gap-4">
             <div className={`flex flex-col justify-start items-center bg-${selectedTheme}-200 text-${selectedTheme}-800 font-semibold w-full h-full rounded-md`}>
               <p className={`font-bold text-base md:text-lg lg:text-xl p-3`}>Controller</p>

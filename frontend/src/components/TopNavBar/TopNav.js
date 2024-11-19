@@ -85,7 +85,7 @@ const TopNav = () => {
 
   return (
     <div
-      className={`top-0 left-0 right-0 flex justify-between items-center p-5 bg-${selectedTheme}-200 z-50`}
+      className={`h-fit top-0 left-0 right-0 flex justify-between items-center p-4 bg-${selectedTheme}-200 z-50`}
     >
       <div
         className={`flex justify-center items-center gap-1 text-${selectedTheme}-500`}
@@ -127,7 +127,7 @@ const TopNav = () => {
                 className="relative"
               >
                 <AiFillMessage
-                  className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                  className={`size-5 md:size-6 lg:size-7 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
                 ${jump1 && "animate-jump"}`}
                   onAnimationEnd={() => setJump1(!jump1)}
                 />
@@ -145,7 +145,7 @@ const TopNav = () => {
                 className="relative"
               >
                 <BsBellFill
-                  className={`w-6 h-6 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
+                  className={`size-5 md:size-6 lg:size-7 text-${selectedTheme}-400 hover:text-${selectedTheme}-500 
                 ${jump2 && "animate-jump"}`}
                   onAnimationEnd={() => setJump2(!jump2)}
                 />

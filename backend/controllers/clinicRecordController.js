@@ -282,6 +282,7 @@ class ClinicRecordController {
         const {
           menarche,
           last_menstrual_date,
+          menstrual_interval,
           menstrual_duration,
           cycle_length,
           pads_per_day,
@@ -290,11 +291,12 @@ class ClinicRecordController {
           is_menopause,
         } = menstrual_history;
         const insertMenstrualHistoryQuery =
-          "INSERT INTO `ccr_menstrual_history`(`record_id`, `menarche`, `last_menstrual_date`, `menstrual_duration`, `cycle_length`, `pads_per_day`, `onset_sexual_intercourse`, `birth_control_use`, `birth_control_method`, `is_menopause`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          "INSERT INTO `ccr_menstrual_history`(`record_id`, `menarche`, `last_menstrual_date`, `menstrual_interval`, `menstrual_duration`, `cycle_length`, `pads_per_day`, `onset_sexual_intercourse`, `birth_control_use`, `birth_control_method`, `is_menopause`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         const insertMenstrualHistoryPayload = [
           record_id,
           menarche,
           last_menstrual_date,
+          menstrual_interval,
           menstrual_duration,
           cycle_length,
           pads_per_day,
@@ -558,6 +560,7 @@ class ClinicRecordController {
             prev.philhealth_number.substring(prev.philhealth_number.length - 2)
           : "",
         datetime_issued: convertDate(prev.datetime_issued),
+        original_datetime: prev.datetime_issued,
         birthdate: convertDate(prev.birthdate, false),
       }));
 
@@ -679,6 +682,7 @@ class ClinicRecordController {
           SELECT
             mens.menarche, 
             mens.last_menstrual_date, 
+            mens.menstrual_interval,
             mens.menstrual_duration, 
             mens.cycle_length, 
             mens.pads_per_day, 
@@ -700,7 +704,7 @@ class ClinicRecordController {
         );
         menstrualHistory = mens.map(prev => ({
           ...prev,
-          last_menstrual_date: convertDate(prev.last_menstrual_date),
+          last_menstrual_date: convertDate(prev.last_menstrual_date, false),
           birth_control_use: Boolean(prev.birth_control_use),
           is_menopause: Boolean(prev.is_menopause)
         }))

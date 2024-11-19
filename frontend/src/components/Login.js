@@ -97,7 +97,7 @@ const Login = () => {
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
         <Header title={"Login"} icon={<BiLogInCircle />} />
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col md:flex-row lg:flex-row gap-4 justify-between items-center h-full">
             <form
               onSubmit={handleSubmit}
@@ -154,7 +154,7 @@ const Login = () => {
                 </div> 
               </div>
               {warning && 
-              <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-thin p-1 bg-${selectedTheme}-50 rounded-lg text-center w-[80%]`}>
+              <p className={`text-red-800 text-xs md:text-sm lg:text-sm font-normal p-1 bg-${selectedTheme}-50 rounded-lg text-center w-[80%]`}>
                 {warning}
               </p>}
               <button

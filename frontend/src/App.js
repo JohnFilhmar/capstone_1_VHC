@@ -29,6 +29,7 @@ import { Spinner } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import PublicQueue from "./components/MainContent/Components/Queue/PublicQueue.js";
 import HistoricalData from "./components/MainContent/Components/Records/HistoricalData/HistoricalData.js";
+import InsightsAndPredictions from "./components/MainContent/Components/InsightsAndPredictions/InsightsAndPredictions.js";
 
 export const messaging = createContext();
 export const colorTheme = createContext();
@@ -180,16 +181,16 @@ const App = () => {
         socket.off("targetError");
       };
     }
+    getSetDashboardData();
+    if (location.pathname === '/') {
+      navigate("/home");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, isLoggedIn]);
+  }, [isLoggedIn]);
 
   async function getSetDashboardData() {
     try {
-      const dd = await api.get("getDashBoardData", {
-        headers: { Authorization: `Bearer ${tokens}` },
-        withCredentials: true,
-        secure: true,
-      });
+      const dd = await api.get("getDashBoardData");
       if (dd?.status === 200) {
         localStorage.setItem("dashboardData", JSON.stringify(dd.data.data));
       }
@@ -222,16 +223,17 @@ const App = () => {
         secure: true,
       });
       if (res?.status === 401) {
-        setNotifMessage(res.data.message);
         await clearStore("tokens");
+        setNotifMessage(res.data.message);
+        navigate("/home");
       } else if (res?.status === 200) {
+        if (location.pathname !== "/home") {
+          navigate("/home");
+        }
         await updateItem("tokens", "accessToken", res.data.accessToken);
         setIsLoggedIn(true);
         await getSetDashboardData();
         await getSetMessengerList();
-        if (location.pathname !== "/home") {
-          navigate("/home");
-        }
         setIsLoading(false);
       } else {
         setNotifMessage("Something went wrong checking your session");
@@ -311,16 +313,17 @@ const App = () => {
                 <>
                   <div className="flex h-full">
                     <div
-                      className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}
+                      className={`w-auto bg-${selectedTheme}-300 max-h-full md:max-h-full lg:max-h-full overflow-y-auto drop-shadow-md transition-all`}
                     >
                       <SideMenu />
                     </div>
                     <div
-                      className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
+                      className={`w-full h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
                     >
                       <Routes>
                         <Route path="home" element={<Home />} />
                         <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="insights_and_predictions" element={<InsightsAndPredictions />} />
                         <Route path="analytics" element={<Analytics />} />
                         <Route path="mapping" element={<Mapping />} />
                         <Route path="appointments" element={<Appointments />} />
@@ -347,12 +350,12 @@ const App = () => {
                 <>
                   <div className="flex h-full">
                     <div
-                      className={`w-auto bg-${selectedTheme}-300 max-h-[86vh] md:max-h-full lg:max-h-full overflow-y-auto`}
+                      className={`w-auto bg-${selectedTheme}-300 max-h-full md:max-h-full lg:max-h-full overflow-y-auto drop-shadow-md transition-all`}
                     >
                       <SideMenu />
                     </div>
                     <div
-                      className={`basis-11/12 h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
+                      className={`w-full h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
                     >
                       <Routes>
                         <Route path="home" element={<Home />} />

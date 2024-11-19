@@ -218,7 +218,7 @@ const NewAppointmentForm = ({ close, children }) => {
             <label htmlFor="appointmentdatetime" className='relative text-xs md:text-sm lg:text-base font-semibold'>
               Appointed Date & Time:<span className="text-red-600 font-bold">*</span>
               {errorPrompt && 
-                <p className="absolute top-0 left-0 border-[1px] border-red bg-red-100 rounded-lg p-1 text-red font-thin text-red text-nowrap w-min">{errorPrompt && errorPrompt}</p>
+                <p className="absolute top-0 left-0 border-[1px] border-red bg-red-100 rounded-lg p-1 text-red font-normal text-red text-nowrap w-min">{errorPrompt && errorPrompt}</p>
               }
             </label>
             <input 

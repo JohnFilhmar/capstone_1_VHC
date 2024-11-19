@@ -25,6 +25,13 @@ const AccountOptions = ({ AOref, close }) => {
       search: false,
       options: false,
     },
+    access_historical_data: {
+      access: false,
+      import: false,
+      add_record: false,
+      search: false,
+      options: false,
+    },
     access_pharmacy: {
       access: false,
       import: false,
@@ -47,7 +54,7 @@ const AccountOptions = ({ AOref, close }) => {
       options: false,
     }
   });
-  const [accessibilityOptionsVisibility, setAccessibilityOptionsVisibility] = useState(false);
+  const [accessibilityOptionsVisibility, setAccessibilityOptionsVisibility] = useState(true);
 
   useEffect(() => {
     // set payload to initial accessibility settings from the database
@@ -59,6 +66,7 @@ const AccountOptions = ({ AOref, close }) => {
   };
 
   async function handleClose() {
+    setAccessibilityOptionsVisibility(true);
     setPayload({
       access_appointments: {
         access: false,
@@ -119,7 +127,7 @@ const AccountOptions = ({ AOref, close }) => {
                 name={key}
                 className="rounded-md size-5"
               />
-              <span>{key.substring(0, 1).toUpperCase() + key.substring(1)}</span>
+              <span>{key.replace('_', ' ').replace(/\b\w/g, (match) => match.toUpperCase())}</span>
             </label>
           </div>
         ))}
@@ -143,14 +151,14 @@ const AccountOptions = ({ AOref, close }) => {
         </div>
         <div className="flex flex-col gap-1">
           <button onClick={() => setAccessibilityOptionsVisibility(prev => !prev)} className={`m-2 font-bold rounded-md p-2 bg-${selectedTheme}-800 text-${selectedTheme}-200 hover:bg-${selectedTheme}-700 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-200 active:text-${selectedTheme}-800 active:shadow-inner`}>Edit User Accessibility</button>
-          <div className={`p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 ${accessibilityOptionsVisibility && 'hidden'}`}>
-            <Accessibility name={"Appointments"} access_name={"access_appointments"} />
-            <Accessibility name={"Queue"} access_name={"access_queues"}/>
-            <Accessibility name={"Records"} access_name={"access_records"}/>
-            <Accessibility name={"Pharmacy"} access_name={"access_pharmacy"}/>
-            <Accessibility name={"Equipments"} access_name={"access_equipments"}/>
-            <Accessibility name={"Blood Units"} access_name={"access_blood"}/>
-            <div className="col-span-1 md:col-span2 lg:col-span-3 self-end justify-self-end">
+            <div className={`p-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 ${accessibilityOptionsVisibility && 'hidden'}`}>
+              <Accessibility name={"Appointments"} access_name={"access_appointments"} />
+              <Accessibility name={"Queue"} access_name={"access_queues"}/>
+              <Accessibility name={"Records"} access_name={"access_records"}/>
+              <Accessibility name={"Pharmacy"} access_name={"access_pharmacy"}/>
+              <Accessibility name={"Equipments"} access_name={"access_equipments"}/>
+              <Accessibility name={"Blood Units"} access_name={"access_blood"}/>
+              <div className="col-span-1 md:col-span2 lg:col-span-3 self-end justify-self-end">
               <button onClick={() => handleSubmit()} className={`font-bold rounded-md p-2 bg-${selectedTheme}-800 text-${selectedTheme}-200 hover:bg-${selectedTheme}-700 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-200 active:text-${selectedTheme}-800 active:shadow-inner`}>Apply Options</button>
             </div>
           </div>

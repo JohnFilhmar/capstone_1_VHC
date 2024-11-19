@@ -124,7 +124,6 @@ const AddToQueue = ({ ATref, ATonClick }) => {
                 // onKeyDown={handleCitizenSearch}
                 className={`w-full text-xs md:text-sm lg:text-base grow p-2 rounded-lg bg-${selectedTheme}-50 border-transparent focus:ring-0 focus:border-transparent`}
                 autoComplete="off"
-                list="nameResults"
                 placeholder="Type your name then press ENTER to search the records"
               />
               {suggestions && suggestions.length > 0 && (

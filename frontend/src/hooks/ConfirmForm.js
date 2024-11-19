@@ -16,7 +16,7 @@ const ConfirmForm = ({ confirmRef, message, onConfirm, confirmMessage, onCancel,
         </div>
         <div className="flex flex-col">
           <p className="p-2 font-bold text-sm md:text-base lg:text-lg">{message}</p>
-          <p className="p-2 font-thin">Choose an option whether to proceed or close the dialog to cancel.</p>
+          <p className="p-2 font-normal">Choose an option whether to proceed or close the dialog to cancel.</p>
         </div>
         <div className="flex gap-2 justify-end">
           <Tooltip content={confirmMessage} animation="duration-500">

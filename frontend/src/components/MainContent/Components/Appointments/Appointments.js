@@ -224,7 +224,7 @@ const Appointments = () => {
         <div onClick={() => socket.emit("updateAppointment")}>
           <Header title={title} icon={<IoCalendar />} />
         </div>
-        <div className="min-h-[70vh] md:min-h-[75vh] lg:min-h-[80vh] h-[70vh] md:h-[75vh] lg:h-[80vh] overflow-y-auto scroll-smooth p-2 mt-2">
+        <div className="min-h-[70vh] md:min-h-[80vh] lg:min-h-[90vh] h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-y-auto scroll-smooth p-2 mt-2">
           <div className="flex flex-col justify-start gap-3">
             <div
               className={`flex flex-col bg-${selectedTheme}-50 rounded-md drop-shadow-md text-xs md:text-sm lg:text-base w-full h-auto`}
@@ -319,7 +319,7 @@ const Appointments = () => {
                           return (
                             <p
                               key={i}
-                              className={`px-1 bg-${selectedTheme}-800 text-${selectedTheme}-200 rounded-md text-xxs md:text-sm lg:text-base font-thin text-nowrap mb-1`}
+                              className={`px-1 bg-${selectedTheme}-800 text-${selectedTheme}-200 rounded-md text-xxs md:text-sm lg:text-base font-normal text-nowrap mb-1`}
                             >
                               {date === currentDate &&
                                 `${time} - ${app["Full Name"]}`}
