@@ -3,10 +3,12 @@ import useQuery from "../../../../../hooks/useQuery";
 import { colorTheme, notificationMessage } from "../../../../../App";
 import { Checkbox, Spinner } from "flowbite-react";
 import { socket } from "../../../../../socket";
+import useCurrentTime from "../../../../../hooks/useCurrentTime";
 
 const EquipmentForm = ( { close, children } ) => {
   const [selectedTheme] = useContext(colorTheme);
   const [notifMessage] = useContext(notificationMessage);
+  const {mysqlTime} = useCurrentTime();
 
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
   const [payload, setPayload] = useState(null);
@@ -23,7 +25,11 @@ const EquipmentForm = ( { close, children } ) => {
   
   async function handleSubmit(e) {
     e.preventDefault();
-    await addData('/addEquipment', payload);
+    const newPayload = {
+      ...payload,
+      dateTime: mysqlTime
+    }
+    await addData('/addEquipment', newPayload);
     if (!dontCloseUponSubmission) close();
     setPayload(null);
   };

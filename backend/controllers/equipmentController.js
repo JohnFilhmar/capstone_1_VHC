@@ -131,12 +131,6 @@ class Controller {
     let connection;
     try {
       connection = await dbModel.getConnection();
-
-      const addEquipmentQuery = `
-        INSERT INTO equipments
-          (equipment_name, equipment_type, status, location, purchase_date, maintenance_date, next_maintenance, equipment_condition, serial_number, notes)
-        VALUES
-          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       const {
         equipmentname,
         equipmenttype,
@@ -148,7 +142,14 @@ class Controller {
         condition,
         serialnumber,
         notes,
+        dateTime
       } = req.body;
+
+      const addEquipmentQuery = `
+        INSERT INTO equipments
+          (equipment_name, equipment_type, status, location, purchase_date, maintenance_date, next_maintenance, equipment_condition, serial_number, notes)
+        VALUES
+          (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
       const addEquipmentPayload = [
         equipmentname,
         equipmenttype,
@@ -161,6 +162,17 @@ class Controller {
         serialnumber,
         notes,
       ];
+      
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        staff_id,
+        `added ${equipmentname} to the inventory`,
+        `added an equipment at ${dateTime}`,
+        null,
+        dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
+      
       const response = await dbModel.query(
         addEquipmentQuery,
         addEquipmentPayload

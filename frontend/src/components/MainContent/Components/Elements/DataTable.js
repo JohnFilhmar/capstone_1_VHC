@@ -12,7 +12,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
   const [query, setQuery] = useState('');
   const [CurrentPage, setCurrentPage] = useState(1);
   const [Pages, setPages] = useState(0);
-  const [rowCount, setRowCount] = useState(15);
+  const [rowCount, setRowCount] = useState(10);
   const [sortedData, setSortedData] = useState([]);
   const inputRef = useRef(null);
   const formModalRef = useRef(null);

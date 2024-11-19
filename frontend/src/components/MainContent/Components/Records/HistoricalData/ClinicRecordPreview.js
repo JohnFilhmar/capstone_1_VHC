@@ -8,7 +8,6 @@ import { saveAs } from "file-saver";
 
 const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
   const [selectedTheme] = useContext(colorTheme);
-  // eslint-disable-next-line no-unused-vars
   const { searchResults, isLoading, error, searchData } = useQuery();
   const [data, setData] = useState(null);
   const [isPatientInfoVisible, setIsPatientVisible] = useState(true);
@@ -66,6 +65,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
     setIsPregnancyHistoryVisible(false);
     setIsDiagnosisVisible(false);
     setIsPrescriptionsVisible(false);
+    setData(null);
     toggle();
   }
 
@@ -106,7 +106,6 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
       const past_medical_history = data[0].past_medical_history[0];
       const family_medical_history = data[0].family_medical_history[0];
       const physical_examination = { ...skin[0], ...heent[0] };
-      console.log(physical_examination);
       const menstrual_history = data[0].menstrual_history[0];
       const pregnancy_history = data[0].pregnancy_history[0];
       function convertKey(word) {
@@ -297,8 +296,8 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
           : "_",
       };
       const menstrualHistory = {
-        mens_no: !(menstrual_history.menarche) ? "✓" : "_",
-        mens_yes: menstrual_history.menarche ? "✓" : "_",
+        mens_no: !(menstrual_history?.menarche) ? "✓" : "_",
+        mens_yes: menstrual_history?.menarche ? "✓" : "_",
         menarche: menstrual_history?.menarche ? menstrual_history.menarche : 'n/a',
         date_of_last_period: menstrual_history?.last_menstrual_date || 'n/a',
         duration: menstrual_history?.menstrual_duration || 'n/a',
@@ -388,16 +387,29 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
         </div>
         <div className="flex flex-col gap-3 h-full min-h-full overflow-y-auto">
           <div className="flex justify-between items-center p-1 md:p-2 lg:p-3">
-            {!data ? (
-              <></>
+            {isLoading || !data ? (
+              <div className="flex flex-col gap-2 w-full animate-pulse px-1">
+                <div className={`self-start p-2 px-10 bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`bg-${selectedTheme}-800 w-full py-[1px]`}></div>
+                <div className={`self-end p-2 px-20 bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`bg-${selectedTheme}-800 w-full py-[1px]`}></div>
+                <div className={`self-end p-2 px-20 py-10 bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-2 w-full py-52 bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+                <div className={`p-4 w-full bg-${selectedTheme}-800 rounded-md`}> </div>
+              </div>
             ) : (
               data?.map((val, i) => (
                 <div
                   key={i}
-                  className="flex flex-col justify-start items-start gap-2 w-full h-auto"
+                  className="flex flex-col justify-start items-start gap-2 w-full h-auto px-1"
                 >
                   <div
-                    className={`self-start justify-self-start border-b-4 border-${selectedTheme}-800 pb-2 w-full`}
+                    className={`self-start justify-self-start w-full`}
                   >
                     <button
                       onClick={() => generateDocxFromTemplate()}
@@ -407,16 +419,18 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                     </button>
                   </div>
                   <div
-                    className={`self-end justify-self-end border-b-4 border-${selectedTheme}-800 pb-2 w-full`}
+                    className={`self-end justify-self-end pb-2 w-full`}
                   >
+                    <div className={`bg-${selectedTheme}-800 w-full py-[1px] my-1`}></div>
                     <p className="text-sm md:text-base lg:text-lg text-end grow w-full font-semibold">
                       Family Number: 
                       <span
-                        className={`text-sm md:text-base lg:text-lg font-bold p-1 grow w-full pb-[0.15rem] border-b-[1px] border-gray-800`}
+                        className={`text-sm md:text-base lg:text-lg font-bold p-1 grow w-full pb-[0.15rem]`}
                       >
                         {val.patient_info[0].family_number}
                       </span>
                     </p>
+                    <div className={`bg-${selectedTheme}-800 w-full py-[1px] my-1`}></div>
                   </div>
                   <div
                     className={`self-end justify-self-end flex flex-col gap-1 justify-start items-start w-44 md:w-52 lg:w-60`}
@@ -450,7 +464,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Patient Info:
                       </p>
@@ -625,7 +639,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Vital Signs:
                       </p>
@@ -671,7 +685,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Philhealth Info:
                       </p>
@@ -723,7 +737,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Complaint and History:
                       </p>
@@ -762,7 +776,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Medical History:
                       </p>
@@ -829,7 +843,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                   >
                     <div className="flex justify-between items-center p-2">
                       <p
-                        className={`text-xl text-${selectedTheme}-800 font-bold`}
+                        className={`text-lg text-${selectedTheme}-800 font-bold`}
                       >
                         Physical Examination:
                       </p>
@@ -897,7 +911,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                     >
                       <div className="flex justify-between items-center p-2">
                         <p
-                          className={`text-xl text-${selectedTheme}-800 font-bold`}
+                          className={`text-lg text-${selectedTheme}-800 font-bold`}
                         >
                           Menstrual History:
                         </p>
@@ -953,7 +967,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                     >
                       <div className="flex justify-between items-center p-2">
                         <p
-                          className={`text-xl text-${selectedTheme}-800 font-bold`}
+                          className={`text-lg text-${selectedTheme}-800 font-bold`}
                         >
                           Pregnancy History:
                         </p>
@@ -1009,7 +1023,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                     >
                       <div className="flex justify-between items-center p-2">
                         <p
-                          className={`text-xl text-${selectedTheme}-800 font-bold`}
+                          className={`text-lg text-${selectedTheme}-800 font-bold`}
                         >
                           Diagnosis:
                         </p>
@@ -1089,7 +1103,7 @@ const ClinicRecordPreview = ({ toggle, recordPrevRef, record_id }) => {
                     >
                       <div className="flex justify-between items-center p-2">
                         <p
-                          className={`text-xl text-${selectedTheme}-800 font-bold`}
+                          className={`text-lg text-${selectedTheme}-800 font-bold`}
                         >
                           Prescriptions:
                         </p>

@@ -4,7 +4,7 @@ import Header from "../../Header";
 import DataTable from "../Elements/DataTable";
 import useSocket from "../../../../hooks/useSocket";
 import useQuery from "../../../../hooks/useQuery";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import EquipmentOptions from "./EquipmentOptions";
 
 const Equipments = () => {
