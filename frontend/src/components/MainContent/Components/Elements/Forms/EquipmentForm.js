@@ -7,7 +7,7 @@ import useCurrentTime from "../../../../../hooks/useCurrentTime";
 
 const EquipmentForm = ( { close, children } ) => {
   const [selectedTheme] = useContext(colorTheme);
-  const [notifMessage] = useContext(notificationMessage);
+  const [notifMessage, setNotifMessage] = useContext(notificationMessage);
   const {mysqlTime} = useCurrentTime();
 
   const [dontCloseUponSubmission, setDontCloseUponSubmission] = useState(false);
@@ -30,13 +30,17 @@ const EquipmentForm = ( { close, children } ) => {
       dateTime: mysqlTime
     }
     await addData('/addEquipment', newPayload);
-    if (!dontCloseUponSubmission) close();
-    setPayload(null);
   };
 
   useEffect(() => {
+    if (response?.status === 409) {
+      setNotifMessage(response?.message);
+      setPayload(prev => ({ ...prev, equipmentname: '', serialnumber: '' }));
+    }
     if (response?.status === 200) {
       socket.emit('newEquipmentSocket', response.id);
+      if (!dontCloseUponSubmission) close();
+      setPayload(null);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response]);

@@ -12,7 +12,7 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
   const [query, setQuery] = useState('');
   const [CurrentPage, setCurrentPage] = useState(1);
   const [Pages, setPages] = useState(0);
-  const [rowCount, setRowCount] = useState(10);
+  const [rowCount, setRowCount] = useState(13);
   const [sortedData, setSortedData] = useState([]);
   const inputRef = useRef(null);
   const formModalRef = useRef(null);
@@ -201,11 +201,11 @@ const DataTable = ({ data, importTableName, modalForm, enAdd = true, enImport = 
             )}
             <div className={`flex items-center gap-1 rounded-md bg-${selectedTheme}-200 p-1 md:p-1 lg:p-2 drop-shadow-md`}>
               <p className={`block text-${selectedTheme}-800 font-bold`}>Rows</p>
-              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && ++prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => (prev > 0 && prev < 20) ? ++prev : prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
                 <MdKeyboardArrowUp />
               </button>
               <p className={`text-${selectedTheme}-800 font-bold`}>{rowCount}</p>
-              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => prev > 3 && --prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
+              <button disabled={data?.length === 0} onClick={() => setRowCount(prev => (prev > 1 && prev < 21) ? --prev : prev)} className={`flex items-center rounded-sm bg-${selectedTheme}-800 text-${selectedTheme}-200 drop-shadow-md border-0 p-0 md:p-1 lg:p-1`}>
                 <MdKeyboardArrowUp className="rotate-180" />
               </button>
             </div>

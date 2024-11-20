@@ -4,17 +4,42 @@ import useCurrentTime from "../../../../hooks/useCurrentTime";
 import { colorTheme } from "../../../../App";
 import useQuery from "../../../../hooks/useQuery";
 import { Spinner } from "flowbite-react";
+import { socket } from "../../../../socket";
 
-const DetailsAndBorrow = ({ selectedEquipment, equipmentId, handleClose }) => {
+const DetailsAndBorrow = ({ selectedEquipment, equipmentId, handleClose, isBorrowFormVisible, isDetailsShown, setIsDetailsShown, setIsReturnVisible, isReturnVisible, toggleBorrowReturn, equipmentInUses }) => {
   const [selectedTheme] = useContext(colorTheme);
   const { mysqlTime } = useCurrentTime();
-  const { response, isLoading, error: queryError , postData } = useQuery();
-  const [isDetailsShown, setIsDetailsShown] = useState(false);
-  const [isBorrowFormVisible, setIsBorrowFormVisible] = useState(false);
+  const { response, isLoading, error: queryError , postData, editData } = useQuery();
   const [borrower, setBorrower] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [payload, setPayload] = useState(null);
-
+  const [searchReturnsQuery, setSearchReturnsQuery] = useState('');
+  const [filteredEquipmentInUses, setFilteredEquipmentInUses] = useState(null);
+  
+  useEffect(() => {
+    if (equipmentInUses) {
+      setFilteredEquipmentInUses(equipmentInUses);
+    }
+  }, [equipmentInUses]);
+  
+  function handleSearch(e) {
+    const userInput = e.target.value.toLowerCase();
+    setSearchReturnsQuery(userInput);
+    if (userInput.length > 2 && equipmentInUses) {
+      setFilteredEquipmentInUses(prev => 
+        prev.filter(item => 
+          Object.values(item).some(value => 
+            value?.toString().toLowerCase().includes(userInput)
+          )
+        )
+      );
+    } else {
+      if (equipmentInUses) {
+        setFilteredEquipmentInUses(equipmentInUses);
+      }
+    }
+  };
+  
   function handleBorrowerChange(e) {
     const userInput = e.target.value;
     setBorrower(userInput);
@@ -75,11 +100,15 @@ const DetailsAndBorrow = ({ selectedEquipment, equipmentId, handleClose }) => {
       await postData("borrowEquipment", newPayload);
       setBorrower('');
       setPayload(null);
-      setIsBorrowFormVisible(false);
-      setIsDetailsShown(false);
       setSuggestions([]);
       handleClose();
     }
+  }
+
+  async function handleReturn(id, borrower) {
+    await editData('updateEquipmentStatus', id, {dateTime: mysqlTime, equipmentId: equipmentId, borrower: borrower });
+    socket.emit('updateEquipmentHistory', id);
+    if (filteredEquipmentInUses.length === 1 && isReturnVisible) setIsReturnVisible(false);
   }
 
   return (
@@ -141,24 +170,48 @@ const DetailsAndBorrow = ({ selectedEquipment, equipmentId, handleClose }) => {
               ))}
           </div>
         </div>
-        <button
-          onClick={() => setIsBorrowFormVisible((prev) => !prev)}
-          className={`self-end transition-colors p-2 bg-${selectedTheme}-${
-            isBorrowFormVisible ? "200" : "800"
-          } hover:bg-${selectedTheme}-${
-            isBorrowFormVisible ? "100" : "700"
-          } active:bg-${selectedTheme}-${
-            isBorrowFormVisible ? "300" : "900"
-          } text-${selectedTheme}-${
-            isBorrowFormVisible ? "800" : "200"
-          } hover:text-${selectedTheme}-${
-            isBorrowFormVisible ? "700" : "100"
-          } active:text-${selectedTheme}-${
-            isBorrowFormVisible ? "900" : "300"
-          } drop-shadow-md hover:shadow-inner rounded-md font-semibold`}
-        >
-          Borrow Equipment
-        </button>
+        <div className="self-end flex gap-2 justify-between items-center">
+          <button
+            disabled={isLoading}
+            onClick={() => toggleBorrowReturn(true)}
+            className={`self-end transition-colors p-2 bg-${selectedTheme}-${
+              isBorrowFormVisible ? "200" : "800"
+            } hover:bg-${selectedTheme}-${
+              isBorrowFormVisible ? "100" : "700"
+            } active:bg-${selectedTheme}-${
+              isBorrowFormVisible ? "300" : "900"
+            } text-${selectedTheme}-${
+              isBorrowFormVisible ? "800" : "200"
+            } hover:text-${selectedTheme}-${
+              isBorrowFormVisible ? "700" : "100"
+            } active:text-${selectedTheme}-${
+              isBorrowFormVisible ? "900" : "300"
+            } drop-shadow-md hover:shadow-inner rounded-md font-semibold`}
+          >
+            Borrow Equipment
+          </button>
+          {equipmentInUses?.length > 0 && (
+            <button
+              disabled={isLoading}
+              onClick={() => toggleBorrowReturn(false)}
+              className={`self-end transition-colors p-2 bg-${selectedTheme}-${
+                isReturnVisible ? "200" : "800"
+              } hover:bg-${selectedTheme}-${
+                isReturnVisible ? "100" : "700"
+              } active:bg-${selectedTheme}-${
+                isReturnVisible ? "300" : "900"
+              } text-${selectedTheme}-${
+                isReturnVisible ? "800" : "200"
+              } hover:text-${selectedTheme}-${
+                isReturnVisible ? "700" : "100"
+              } active:text-${selectedTheme}-${
+                isReturnVisible ? "900" : "300"
+              } drop-shadow-md hover:shadow-inner rounded-md font-semibold`}
+            >
+              Return Product
+            </button>
+          )}
+        </div>
         {isBorrowFormVisible && (
           <>
             <p
@@ -257,6 +310,24 @@ const DetailsAndBorrow = ({ selectedEquipment, equipmentId, handleClose }) => {
             >
               {queryError ? queryError : isLoading ? <Spinner /> : 'Submit Form'}
             </button>
+          </>
+        )}
+        {isReturnVisible && (
+          <>
+          <div className="justify-self-end self-end p-2 flex gap-1 items-center">
+            <label htmlFor="searchReturns" className={`font-semibold text-${selectedTheme}-800`}>Search:</label>
+            <input type="text" name="searchReturns" id="searchReturns" placeholder="Search..." className={`bg-${selectedTheme}-100 font-medium text-xxs md:text-xs lg:text-sm rounded-md p-1`} value={searchReturnsQuery} onChange={handleSearch}/>
+          </div>
+          <div className="flex flex-wrap gap-2 items-center justify-start w-full h-auto">
+            {filteredEquipmentInUses?.length > 0 && filteredEquipmentInUses.map((val, i) => (
+              <div key={i} className={`basis-full md:basis-52 lg:basis-80 h-full flex flex-col gap-2 p-2 shadow-md hover:shadow-inner transition-all rounded-md border-[1px] border-${selectedTheme}-600 bg-${selectedTheme}-200`}>
+                <p className={`text-${selectedTheme}-800 font-semibold text-ellipsis`}>Borrower: <span className={`text-xs md:text-sm lg:text-sm`}>{val.borrower}</span></p>
+                <p className={`text-${selectedTheme}-800 font-semibold text-ellipsis`}>Lender: <span className={`text-xs md:text-sm lg:text-sm`}>{val.lender}</span></p>
+                <p className={`text-${selectedTheme}-800 font-semibold`}>Borrowed at: <span className={`underline text-xs md:text-sm lg:text-sm`}>{val.borrowed_at}</span></p>
+                <button disabled={isLoading} onClick={() => handleReturn(val.id, val.borrower)} className={`self-end justify-self-end p-1 font-semibold text-${selectedTheme}-200 bg-${selectedTheme}-800 shadow-md hover:shadow-inner hover:bg-${selectedTheme}-700 hover:text-${selectedTheme}-100 active:text-${selectedTheme}-300 active:bg-${selectedTheme}-900 transition-colors rounded-md`}>Return Equipment</button>
+              </div>
+            ))}
+          </div>
           </>
         )}
       </div>

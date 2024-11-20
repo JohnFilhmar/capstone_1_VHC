@@ -70,7 +70,7 @@ const useQuery = () => {
     }
   };
 
-  const editData = async (route, id, payload) => {
+  const editData = async (route, id, payload = {}) => {
     try {
       setIsLoading(true);
       const response = await api.post(`${route}/${id}`, payload);

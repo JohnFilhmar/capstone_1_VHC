@@ -57,6 +57,7 @@ protectedRoute.get('/getEquipments', equipmentController.getEquipments);
 protectedRoute.post('/addEquipment', equipmentController.addEquipment);
 protectedRoute.get('/getEquipmentHistory/:id', equipmentController.getEquipmentHistory);
 protectedRoute.post('/borrowEquipment', equipmentController.borrowEquipment);
+protectedRoute.post('/updateEquipmentStatus/:id', equipmentController.updateEquipmentStatus);
 
 // BLOOD DONORS
 protectedRoute.get('/getBlood', bloodController.getBlood);
