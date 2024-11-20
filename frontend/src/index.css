@@ -72,3 +72,19 @@
 .tag-input-wrapper:focus-within {
   border-color: #000;
 }
+
+@layer utilities {
+  @keyframes marquee {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-200%);
+    }
+  }
+  .animate-marquee {
+    animation: marquee var(--duration, 10s) linear infinite;
+    display: flex;
+    width: calc(200%);
+  }
+}

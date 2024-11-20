@@ -1,6 +1,6 @@
 import { Chart as ChartJS, CategoryScale, LinearScale, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { colorTheme } from '../../../../../App';
 
 const BarangayPopulationChart = ({data}) => {

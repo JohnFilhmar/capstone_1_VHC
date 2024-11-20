@@ -12,7 +12,7 @@ const InsightsAndPredictions = () => {
   const location = useLocation();
   const pathname = location.pathname.slice(1);
   const title = (pathname.charAt(0).toUpperCase() + pathname.slice(1)).split('_').map(word => word[0].toUpperCase() + word.slice(1)).join(' ')
-  const { response, isLoading, error, fetchData } = useQuery();
+  const { response, isLoading, fetchData } = useQuery();
   const [selectedTheme] = useContext(colorTheme);
   const [isChartsOpen, setIsChartsOpen] = useState(true);
   const [barangayPopulations, setBarangayPopulations] = useState(null);
@@ -30,6 +30,7 @@ const InsightsAndPredictions = () => {
     }
   }, [response]);
   
+  
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex flex-col p-2 mb-4 mx-2 md:mx-3 lg:mx-4 mt-4">
@@ -44,9 +45,9 @@ const InsightsAndPredictions = () => {
                 <div className="flex gap-1">
                   <IoIosPeople className={`size-5 md:size-6 lg:size-7 text-${selectedTheme}-800`}/>
                   <p
-                    className={`font-bold text-sm md:text-base lg:text-lg text-${selectedTheme}-800`}
+                    className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800`}
                   >
-                    Recorded Population Per Barangay
+                    Recorded Population
                   </p>
                 </div>
                 <button
@@ -69,10 +70,18 @@ const InsightsAndPredictions = () => {
                 </button>
               </div>
               {isChartsOpen && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1 md:gap-3 lg:gap-5">
-                  {barangayPopulations.map((dat, i) => (
-                    <BarangayPopulationChart data={dat} key={i}/>
-                  ))}
+                <div className="relative overflow-hidden">
+                  <div
+                    className="flex flex-nowrap animate-marquee"
+                    style={{ "--duration": "28s" }}
+                  >
+                    {barangayPopulations?.map((dat, i) => (
+                      <BarangayPopulationChart data={dat} key={i}/>
+                    ))}
+                    {barangayPopulations?.map((dat, i) => (
+                      <BarangayPopulationChart data={dat} key={`clone-${i}`}/>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
