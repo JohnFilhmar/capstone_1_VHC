@@ -5,6 +5,7 @@ const emailController = require("../controllers/emailController");
 const unprotectedRoute = express.Router();
 const multer = require('multer');
 const queueController = require("../controllers/queueController");
+const insightsController = require("../controllers/insightsController");
 
 const upload = multer();
 // EMAIL SENDER
@@ -20,5 +21,8 @@ unprotectedRoute.get('/getQueue', queueController.getQueue);
 
 // DASHBOARD
 unprotectedRoute.get("/getDashBoardData", dashboardController.getDashboardData);
+
+// INSIGHTS
+unprotectedRoute.get("/getBarangaysPopulation", insightsController.getBarangaysPopulation);
 
 module.exports = unprotectedRoute;
