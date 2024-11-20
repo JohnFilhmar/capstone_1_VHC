@@ -4,14 +4,17 @@ import { RiUserSettingsFill } from "react-icons/ri";
 import { colorTheme } from "../../../../App";
 import DataTable from "../Elements/DataTable";
 import useQuery from "../../../../hooks/useQuery";
+import useCurrentTime from "../../../../hooks/useCurrentTime";
+import { Spinner } from "flowbite-react";
 
 const AccountOptions = ({ AOref, close, id, payload, setPayload }) => {
   const [accessibilityOptionsVisibility, setAccessibilityOptionsVisibility] = useState(true);
-  const { response, editData } = useQuery();
+  const { editData, isLoading } = useQuery();
+  const {mysqlTime} = useCurrentTime();
 
   async function handleSubmit() {
     if (id) {
-      await editData("updateAccessibilities", id, payload);
+      await editData("updateAccessibilities", id, {payload: payload, dateTime: mysqlTime});
     }
   };
 
@@ -88,7 +91,7 @@ const AccountOptions = ({ AOref, close, id, payload, setPayload }) => {
               <Accessibility name={"Equipments"} access_name={"access_equipments"}/>
               <Accessibility name={"Blood Units"} access_name={"access_blood"}/>
               <div className="col-span-1 md:col-span2 lg:col-span-3 self-end justify-self-end">
-              <button onClick={() => handleSubmit()} className={`font-bold rounded-md p-2 bg-${selectedTheme}-800 text-${selectedTheme}-200 hover:bg-${selectedTheme}-700 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-200 active:text-${selectedTheme}-800 active:shadow-inner`}>Apply Options</button>
+              <button disabled={isLoading} onClick={() => handleSubmit()} className={`font-bold rounded-md p-2 bg-${selectedTheme}-800 text-${selectedTheme}-200 hover:bg-${selectedTheme}-700 hover:text-${selectedTheme}-100 active:bg-${selectedTheme}-200 active:text-${selectedTheme}-800 active:shadow-inner`}>{isLoading ? <Spinner /> : 'Apply Options'}</button>
             </div>
           </div>
         </div>

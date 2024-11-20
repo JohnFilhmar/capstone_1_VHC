@@ -301,6 +301,7 @@ const App = () => {
             value={[selectedTheme, setSelectedTheme, colors]}
           >
             <isLoggedInContext.Provider value={[isLoggedIn]}>
+            <accessibilityContext.Provider value={[userAccessibilities]}>
               <messaging.Provider
                 value={{
                   tokens,
@@ -331,30 +332,28 @@ const App = () => {
                     <div
                       className={`w-full h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
                     >
-                      <accessibilityContext.Provider value={[userAccessibilities]}>
-                        <Routes>
-                          <Route path="home" element={<Home />} />
-                          <Route path="dashboard" element={<Dashboard />} />
-                          <Route path="insights_and_predictions" element={<InsightsAndPredictions />} />
-                          <Route path="analytics" element={<Analytics />} />
-                          <Route path="mapping" element={<Mapping />} />
-                          <Route path="appointments" element={<Appointments />} />
-                          <Route path="queue" element={<Queue />} />
-                          <Route path="records" element={<Records />} />
-                          <Route path="historical_data" element={<HistoricalData />} />
-                          <Route path="pharmacy" element={<Pharmacy />} />
-                          <Route path="equipments" element={<Equipments />} />
-                          <Route path="blood_unit" element={<BloodUnit />} />
-                          <Route path="accounts" element={<Accounts />} />
-                          <Route
-                            path="playground-jwt"
-                            element={<JsonWebToken />}
-                          />
-                          <Route path="indexed-db" element={<IndexedDb />} />
-                          <Route path="problems" element={<Problems />} />
-                          <Route path="*" element={<Notfound />} />
-                        </Routes>
-                      </accessibilityContext.Provider>
+                      <Routes>
+                        <Route path="home" element={<Home />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="insights_and_predictions" element={<InsightsAndPredictions />} />
+                        <Route path="analytics" element={<Analytics />} />
+                        <Route path="mapping" element={<Mapping />} />
+                        <Route path="appointments" element={<Appointments />} />
+                        <Route path="queue" element={<Queue />} />
+                        <Route path="records" element={<Records />} />
+                        <Route path="historical_data" element={<HistoricalData />} />
+                        <Route path="pharmacy" element={<Pharmacy />} />
+                        <Route path="equipments" element={<Equipments />} />
+                        <Route path="blood_unit" element={<BloodUnit />} />
+                        <Route path="accounts" element={<Accounts />} />
+                        <Route
+                          path="playground-jwt"
+                          element={<JsonWebToken />}
+                        />
+                        <Route path="indexed-db" element={<IndexedDb />} />
+                        <Route path="problems" element={<Problems />} />
+                        <Route path="*" element={<Notfound />} />
+                      </Routes>
                     </div>
                   </div>
                 </>
@@ -383,6 +382,7 @@ const App = () => {
                   </div>
                 </>
               )}
+            </accessibilityContext.Provider>
             </isLoggedInContext.Provider>
           </colorTheme.Provider>
         </notificationMessage.Provider>

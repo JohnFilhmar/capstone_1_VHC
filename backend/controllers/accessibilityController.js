@@ -511,9 +511,18 @@ class Controller {
       }
 
       for (const query of updateQueries) {
-        console.log(query);
         await dbModel.query(query);
       }
+      
+      const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
+      const staffHistoryPayload = [
+        decoded.user_id,
+        `updated another user's accessibility`,
+        `updated another user's accessibility`,
+        null,
+        req.body.dateTime
+      ];
+      await dbModel.query(insertStaffHistoryQuery, staffHistoryPayload);
 
       return res.status(200).json({
         status: 200,

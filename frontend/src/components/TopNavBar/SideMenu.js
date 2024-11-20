@@ -3,7 +3,7 @@ import { MdHome, MdSpaceDashboard, MdFolder, MdAnalytics, MdLocalPharmacy, MdPeo
 import { FaCode, FaMapMarkedAlt, FaStethoscope, FaStore, FaUsers } from "react-icons/fa";
 import { BiSolidDonateBlood, BiSolidLogInCircle } from "react-icons/bi";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { colorTheme, isLoggedInContext } from "../../App";
+import { accessibilityContext, colorTheme, isLoggedInContext } from "../../App";
 import { IoCalendar } from "react-icons/io5";
 import { jwtDecode } from "jwt-decode";
 import { GoReport } from "react-icons/go";
@@ -58,6 +58,7 @@ const Menu = ({ path, Icon, label, isMinimized }) => {
 };
 
 const SideMenu = () => {
+  const [userAccessibilities] = useContext(accessibilityContext);
   const [isDevMenuOpen, setIsDevMenuOpen] = useState(false);
   const [isDashboardListOpen, setIsDashboardListOpen] = useState(false);
   const location = useLocation();
@@ -115,8 +116,12 @@ const SideMenu = () => {
             </>
           )}
         </div>
-        <Menu path="appointments" Icon={IoCalendar} label={!isMinimized && 'Appointments'} isMinimized={isMinimized}/>
-        <Menu path="queue" Icon={MdPeople} label={!isMinimized && 'Queues'} isMinimized={isMinimized}/>
+        {Boolean(userAccessibilities.access_appointments.access) && (
+          <Menu path="appointments" Icon={IoCalendar} label={!isMinimized && 'Appointments'} isMinimized={isMinimized}/>
+        )}
+        {Boolean(userAccessibilities.access_queue.access) && (
+          <Menu path="queue" Icon={MdPeople} label={!isMinimized && 'Queues'} isMinimized={isMinimized}/>
+        )}
         <Menu path="records" Icon={MdFolder} label={!isMinimized && 'Records'} isMinimized={isMinimized}/>
         <Menu path="historical_data" Icon={MdHistoryEdu} label={!isMinimized && 'Historical Data'} isMinimized={isMinimized}/>
         <Menu path="pharmacy" Icon={MdLocalPharmacy} label={!isMinimized && 'Pharmacy'} isMinimized={isMinimized}/>
