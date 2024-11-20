@@ -7,7 +7,7 @@ import useQuery from "../../../../hooks/useQuery";
 import { useContext, useEffect, useRef, useState } from "react";
 import { IoCalendar } from "react-icons/io5";
 import quotes from "../../../../health_quotes.json";
-import { colorTheme, isLoggedInContext } from "../../../../App";
+import { accessibilityContext, colorTheme, isLoggedInContext } from "../../../../App";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import { socket } from "../../../../socket";
 
@@ -27,6 +27,7 @@ const Home = () => {
   const getLastDayOfMonth = (year, month) => new Date(year, month + 1, 0).getDate();
   const [announcements, setAnnouncements] = useState([]);
   const [announcementDay, setAnnouncementDay] = useState(new Date());
+  const [userAccessibilities] = useContext(accessibilityContext);
 
   const [payload, setPayload] = useState(null)
 
@@ -287,7 +288,7 @@ const Home = () => {
                   <p className="text-base self-end justify-self-end">{String(new Date(announcementDay).toLocaleDateString('en-US', {day: "numeric", weekday: "long"})).split(' ')[1]}</p>
                 </div>
               </div>
-              {isLoggedIn && (
+              {isLoggedIn && Boolean(userAccessibilities.access_announcements.add_announcements) && (
               <form onSubmit={handleSubmit} className={`flex flex-wrap justify-start items-center gap-2 px-2 w-full border-b-[1px] border-${selectedTheme}-800 pb-1`}>
                 <input 
                   type="text" 
@@ -337,15 +338,17 @@ const Home = () => {
                     <p className={`mb-1 text-sm capitalize`}>{val.title}</p>
                     <p className={`text-xxs`}>{val.details}</p>
                   </div>
-                  <button 
-                    onClick={async () => {
-                      await deleteData("deleteAnnouncement", val.announcement_id);
-                      socket.emit("deleteAnnouncement", val.announcement_id);
-                    }}
-                    className={`self-center ml-auto text-${selectedTheme}-800 hover:text-${selectedTheme}-700 active:${selectedTheme}-200`}
-                  >
-                    <FaTrash />
-                  </button>
+                  {Boolean(userAccessibilities.access_announcements.delete_announcements) && (
+                    <button 
+                      onClick={async () => {
+                        await deleteData("deleteAnnouncement", val.announcement_id);
+                        socket.emit("deleteAnnouncement", val.announcement_id);
+                      }}
+                      className={`self-center ml-auto text-${selectedTheme}-800 hover:text-${selectedTheme}-700 active:${selectedTheme}-200`}
+                    >
+                      <FaTrash />
+                    </button>
+                  )}
                 </div>
               )) : (
                 <div className="flex flex-col min-w-full min-h-full items-center justify-center">

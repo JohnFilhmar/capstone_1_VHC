@@ -21,6 +21,7 @@ import FeedbackForm from "./Help/FeedbackForm";
 import PopupNotification from "./Notifications/PopupNotification";
 import Newchat from "./Messaging/Newchat";
 import useCurrentTime from "../../hooks/useCurrentTime";
+import { socket } from "../../socket";
 
 const TopNav = () => {
   const [selectedTheme] = useContext(colorTheme);
@@ -69,6 +70,19 @@ const TopNav = () => {
       });
     }
   };
+
+  useEffect(() => {
+    socket.on("broadcastNotification", (data) => {
+      console.log(data);
+    });
+    socket.on("broadcastNotificationError", (err) => {
+      console.error(`Notification socket error: ${err}`);
+    });
+    return () => {
+      socket.off("broadcastNotification");
+      socket.off("broadcastNotificationError");
+    }
+  }, []);
 
   useEffect(() => {
     if (notifMessage) {

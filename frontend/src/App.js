@@ -19,7 +19,6 @@ import JsonWebToken from "./components/MainContent/Components/Playground/JsonWeb
 import Problems from "./components/MainContent/Components/Playground/Problems.js";
 import IndexedDb from "./components/MainContent/Components/Playground/IndexedDb.js";
 import Login from "./components/Login.js";
-// import Register from "./components/Register.js";
 
 import api from "./axios.js";
 import useIndexedDB from "./hooks/useIndexedDb.js";
@@ -35,12 +34,14 @@ export const messaging = createContext();
 export const colorTheme = createContext();
 export const notificationMessage = createContext();
 export const isLoggedInContext = createContext();
+export const accessibilityContext = createContext();
 
 const App = () => {
   const [selectedTheme, setSelectedTheme] = useState(
     localStorage.getItem("theme")
   );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userAccessibilities, setUserAccessibilities] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPageFullyLoaded, setIsPageFullyLoaded] = useState(false);
 
@@ -181,13 +182,22 @@ const App = () => {
         socket.off("targetError");
       };
     }
-    getSetDashboardData();
     if (location.pathname === '/') {
       navigate("/home");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoggedIn]);
 
+  async function getAccessibilities() {
+    try {
+      const dd = await api.get("getAccessibilities");
+      if (dd?.status === 200) {
+        setUserAccessibilities(dd.data.accessibilities);
+      }
+    } catch (error) {
+      console.error(`Something have gone wrong:`, error);
+    }
+  }
   async function getSetDashboardData() {
     try {
       const dd = await api.get("getDashBoardData");
@@ -232,6 +242,7 @@ const App = () => {
         }
         await updateItem("tokens", "accessToken", res.data.accessToken);
         setIsLoggedIn(true);
+        await getAccessibilities();
         await getSetDashboardData();
         await getSetMessengerList();
         setIsLoading(false);
@@ -320,28 +331,30 @@ const App = () => {
                     <div
                       className={`w-full h-auto bg-${selectedTheme}-100 overflow-y-hidden`}
                     >
-                      <Routes>
-                        <Route path="home" element={<Home />} />
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="insights_and_predictions" element={<InsightsAndPredictions />} />
-                        <Route path="analytics" element={<Analytics />} />
-                        <Route path="mapping" element={<Mapping />} />
-                        <Route path="appointments" element={<Appointments />} />
-                        <Route path="queue" element={<Queue />} />
-                        <Route path="records" element={<Records />} />
-                        <Route path="historical_data" element={<HistoricalData />} />
-                        <Route path="pharmacy" element={<Pharmacy />} />
-                        <Route path="equipments" element={<Equipments />} />
-                        <Route path="blood_unit" element={<BloodUnit />} />
-                        <Route path="accounts" element={<Accounts />} />
-                        <Route
-                          path="playground-jwt"
-                          element={<JsonWebToken />}
-                        />
-                        <Route path="indexed-db" element={<IndexedDb />} />
-                        <Route path="problems" element={<Problems />} />
-                        <Route path="*" element={<Notfound />} />
-                      </Routes>
+                      <accessibilityContext.Provider value={[userAccessibilities]}>
+                        <Routes>
+                          <Route path="home" element={<Home />} />
+                          <Route path="dashboard" element={<Dashboard />} />
+                          <Route path="insights_and_predictions" element={<InsightsAndPredictions />} />
+                          <Route path="analytics" element={<Analytics />} />
+                          <Route path="mapping" element={<Mapping />} />
+                          <Route path="appointments" element={<Appointments />} />
+                          <Route path="queue" element={<Queue />} />
+                          <Route path="records" element={<Records />} />
+                          <Route path="historical_data" element={<HistoricalData />} />
+                          <Route path="pharmacy" element={<Pharmacy />} />
+                          <Route path="equipments" element={<Equipments />} />
+                          <Route path="blood_unit" element={<BloodUnit />} />
+                          <Route path="accounts" element={<Accounts />} />
+                          <Route
+                            path="playground-jwt"
+                            element={<JsonWebToken />}
+                          />
+                          <Route path="indexed-db" element={<IndexedDb />} />
+                          <Route path="problems" element={<Problems />} />
+                          <Route path="*" element={<Notfound />} />
+                        </Routes>
+                      </accessibilityContext.Provider>
                     </div>
                   </div>
                 </>

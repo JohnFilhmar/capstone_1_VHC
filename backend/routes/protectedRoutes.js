@@ -10,6 +10,7 @@ const bloodController = require('../controllers/bloodController');
 const messageController = require('../controllers/messageController');
 const equipmentController = require('../controllers/equipmentController');
 const announcementController = require('../controllers/announcementController');
+const accessibilityController = require('../controllers/accessibilityController');
 
 // USER AUTHENTICATION/REGISTRATION
 protectedRoute.get('/getStaffId', staffController.getStaffId);
@@ -17,6 +18,11 @@ protectedRoute.get('/getStaff', staffController.getStaff);
 protectedRoute.post('/addStaff', staffController.addStaff);
 protectedRoute.post('/logoutUser', staffController.logoutUser);
 protectedRoute.get('/verifyToken', staffController.verifyAccessToken);
+
+// ACCESSIBILITIES
+protectedRoute.get('/getAccessibilities', accessibilityController.getAccessibilities);
+protectedRoute.get('/searchAccessibilities/:id', accessibilityController.searchAccessibilities);
+protectedRoute.post('/updateAccessibilities/:id', accessibilityController.updateAccessibilities);
 
 // RECORDS
 protectedRoute.post('/handleFileUploadRecords', recordController.handleFileUploadRecords);

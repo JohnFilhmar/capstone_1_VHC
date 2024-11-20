@@ -1,8 +1,16 @@
 const dbModel = require('../models/database_model');
 
 module.exports = function(socket) {
-  socket.on('broadcastNotification', async (data) => {
-    socket.emit('newNotification', data);
-    socket.broadcast.emit('newNotification', data);
-  });
+  setInterval(async () => {
+    let connection;
+    try {
+      connection = await dbModel.getConnection();
+      const response = await dbModel.query('SELECT * FROM announcements');
+      socket.broadcast.emit("broadcastNotification", response);
+    } catch (error) {
+      socket.emit('broadcastNotificationError', error.message);
+    } finally {
+      dbModel.releaseConnection(connection);
+    }
+  }, 60000);
 };
