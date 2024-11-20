@@ -286,7 +286,7 @@ class Controller {
       const historyPayload = [
         family_number,
         `returned an equipment`,
-        `returned an equipment from ${decoded.user_id} at ${String(convertDate(req.body.dateTime))}`,
+        `returned an equipment from ${decoded.username}`,
         decoded.user_id,
         req.body.dateTime
       ];
@@ -295,8 +295,8 @@ class Controller {
       const insertStaffHistoryQuery = 'INSERT INTO `medicalstaff_history` (`staff_id`, `action`, `action_details`, `citizen_family_id`, `action_datetime`) VALUES (?, ?, ?, ?, ?)';
       const staffHistoryPayload = [
         decoded.user_id,
-        'created an equipment borrow form',
-        `filled up a borrow form for ${family_number}`,
+        'received a borrowed equipment',
+        `received a borrowed equipment from ${req.body.borrower}`,
         family_number,
         req.body.dateTime
       ];

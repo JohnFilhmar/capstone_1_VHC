@@ -42,8 +42,8 @@ const InsightsAndPredictions = () => {
               className={`flex flex-col gap-1 p-2 w-full shadow-md rounded-md`}
             >
               <div className={`flex justify-between items-center w-full`}>
-                <div className="flex gap-1">
-                  <IoIosPeople className={`size-5 md:size-6 lg:size-7 text-${selectedTheme}-800`}/>
+                <div className="flex items-center gap-1">
+                  <IoIosPeople className={`w-7 h-7 text-${selectedTheme}-800`}/>
                   <p
                     className={`font-bold text-base md:text-lg lg:text-xl text-${selectedTheme}-800`}
                   >

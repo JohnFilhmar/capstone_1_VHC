@@ -46,7 +46,7 @@ const Menu = ({ path, Icon, label, isMinimized }) => {
         }`}
         onAnimationEnd={handleClick}
       >
-        <Icon className={`size-5 md:size-5 lg:size-6`} />
+        <Icon className={`size-4 md:size-5 lg:size-6`} />
         {!isMinimized && (
         <p className={`col-span-2 hidden md:block lg:block`} onAnimationEnd={handleClick}>
           {label}
@@ -83,7 +83,7 @@ const SideMenu = () => {
   return (
     <div className={`flex flex-col bg-${selectedTheme}-300 text-${selectedTheme}-800 font-semibold leading-tight tracking-tight text-nowrap overflow-y-auto overflow-x-hidden`}>
       <button onClick={() => setIsMinimized(prev => !prev)} className={`hidden md:block lg:block self-start justify-self-start m-1 md:m-2 lg:m-2 p-2 gap-1 rounded-lg transition-colors hover:text-${selectedTheme}-600 hover:bg-${selectedTheme}-50 hover:drop-shadow-md first-line duration-300 ease-linear`}>
-        <GiHamburgerMenu className="size-5 md:size-5 lg:size-6"/> 
+        <GiHamburgerMenu className="size-4 md:size-5 lg:size-6"/> 
       </button>
       {isLoggedIn ? (
         <>
@@ -93,14 +93,14 @@ const SideMenu = () => {
             isDashboardListOpen || loc === '/dashboard' ? `bg-${selectedTheme}-50 drop-shadow-xl` : `bg-transparent`
           }`}>
             <div className={!isMinimized ? `grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-1` : 'flex flex-col items-center justify-between gap-[0.10rem]'}>
-              <MdSpaceDashboard className={`size-5 md:size-5 lg:size-6`} onClick={() => navigate('/dashboard')} />
+              <MdSpaceDashboard className={`size-4 md:size-5 lg:size-6`} onClick={() => navigate('/dashboard')} />
               {!isMinimized && (
               <p onClick={() => navigate('/dashboard')} className={`col-span-1 md:col-span-2 lg:col-span-2 hidden md:block lg:block`}>
                 Dashboard
               </p>
               )}
               <button 
-                className={`${isDashboardListOpen ? 'rotate-180' : ''} size-5 md:size-5 lg:size-6 ${!isMinimized && 'md:ml-2 lg:ml-2'}`} 
+                className={`${isDashboardListOpen ? 'rotate-180' : ''} size-4 md:size-5 lg:size-6 ${!isMinimized && 'md:ml-2 lg:ml-2'}`} 
                 onClick={() => setIsDashboardListOpen(prev => !prev)}
               >
                 <MdKeyboardArrowDown className="w-full h-full"/>
@@ -132,13 +132,13 @@ const SideMenu = () => {
               isDevMenuOpen || loc === '/playground-jwt' || loc === '/playground-socket' ? `bg-${selectedTheme}-50 drop-shadow-xl` : `bg-transparent`
             }`}>
               <div className={!isMinimized ? `grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-1` : 'flex flex-col items-center justify-between gap-[0.10rem]'}>
-                <FaCode className={`size-5 md:size-5 lg:size-6`} />
+                <FaCode className={`size-4 md:size-5 lg:size-6`} />
                 {!isMinimized && (
                 <p className={`col-span-1 md:col-span-2 lg:col-span-2 hidden md:block lg:block`}>
                   Developer
                 </p>
                 )}
-                <MdKeyboardArrowDown className={`${isDevMenuOpen && 'rotate-180'} size-5 md:size-5 lg:size-6 hidden md:block lg:block ${!isMinimized && 'md:ml-2 lg:ml-2'}`} />
+                <MdKeyboardArrowDown className={`${isDevMenuOpen && 'rotate-180'} size-4 md:size-5 lg:size-6 hidden md:block lg:block ${!isMinimized && 'md:ml-2 lg:ml-2'}`} />
               </div>
             </button>
             {isDevMenuOpen && (

@@ -9,6 +9,7 @@ const clinicRecordController = require('../controllers/clinicRecordController');
 const bloodController = require('../controllers/bloodController');
 const messageController = require('../controllers/messageController');
 const equipmentController = require('../controllers/equipmentController');
+const announcementController = require('../controllers/announcementController');
 
 // USER AUTHENTICATION/REGISTRATION
 protectedRoute.get('/getStaffId', staffController.getStaffId);
@@ -74,5 +75,9 @@ protectedRoute.post('/searchUsername', messageController.searchUsername);
 protectedRoute.get('/getChatUsernames', messageController.getChatUsernames);
 protectedRoute.post('/updateMessageToRead/:id', messageController.updateMessageToRead);
 protectedRoute.get('/getConversation/:id', messageController.getConversation);
+
+// ANNOUNCEMENTS
+protectedRoute.post('/addAnnouncement', announcementController.addAnnouncement);
+protectedRoute.post('/deleteAnnouncement/:id', announcementController.deleteAnnouncement);
 
 module.exports = protectedRoute;

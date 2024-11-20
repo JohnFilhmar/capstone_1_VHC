@@ -6,6 +6,7 @@ const unprotectedRoute = express.Router();
 const multer = require('multer');
 const queueController = require("../controllers/queueController");
 const insightsController = require("../controllers/insightsController");
+const homeController = require("../controllers/homeController");
 
 const upload = multer();
 // EMAIL SENDER
@@ -18,6 +19,9 @@ unprotectedRoute.post("/verifyEmail/:token", authController.verifyEmail);
 
 // QUEUE
 unprotectedRoute.get('/getQueue', queueController.getQueue);
+
+// HOME
+unprotectedRoute.get("/getHomeData", homeController.getHomeData);
 
 // DASHBOARD
 unprotectedRoute.get("/getDashBoardData", dashboardController.getDashboardData);

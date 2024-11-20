@@ -229,7 +229,8 @@ class DashboardController {
           WEEK(time_arrived, 1) = WEEK(CURDATE(), 1)
           AND YEAR(time_arrived) = YEAR(CURDATE())
         GROUP BY 
-          day_name`;
+          day_name
+        LIMIT 3`;
       const getDailyPatientsResponse = await dbModel.query(
         getDailyPatientsQuery
       );

@@ -230,32 +230,6 @@ const Queue = () => {
               </div>
             ))}
             
-            {/* {queue && queue.length > 0 && queue.map((q, i) => {
-              if (q.patient_status_history === 'emergency') {
-                return (
-                  <div key={i} className={`relative w-full md:w-full lg:grow flex flex-col h-auto bg-red-300 animate-pulse rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base`}>
-                    <div className={`text-center border-b-[1px] border-red-800 shadow-md`}>
-                      <p className={`flex items-center justify-center gap-2 text-${selectedTheme}-600 font-bold text-base md:text-lg lg:text-xl`}>NO.{q["Queue Number"]}<IoMdAlert /></p>
-                    </div>
-                    <div className="flex flex-col gap-2 p-2 my-3">
-                      <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p className="truncate">{q["Citizen Fullname"]}</p>
-                      </div>
-                      <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p>{q["Citizen Barangay"]}</p>
-                      </div>  
-                      <div className={`flex justify-start items-center gap-2 text-${selectedTheme}-800 font-semibold`}>
-                        <p>{q["Citizen Gender"]}</p>
-                      </div>
-                    </div>
-                    <p className="absolute bottom-0 right-0 p-1 text-xs md:text-sm lg:text-base font-normal">{getMeridianTime(q.time_arrived)}</p>
-                  </div>
-                )
-              } else {
-                return null;
-              }
-            })} */}
-            
             {waiting.length === 0 ? (
               <div className={`relative w-full md:w-full lg:grow flex flex-col col-span-2 md:col-span-4 lg:col-span-6 h-auto bg-red-100 rounded-lg drop-shadow-md text-xs md:text-sm lg:text-base animate-pulse`}>
                 <div className="flex flex-col gap-2 p-2 my-3">

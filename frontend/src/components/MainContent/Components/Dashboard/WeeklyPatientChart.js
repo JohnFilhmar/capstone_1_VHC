@@ -73,7 +73,10 @@ const WeeklyPatientChart = ({ title, weekly_patients }) => {
       const patientCounts =
         weekly_patients?.map((patient) => patient.patient_count) || [];
       const zerosNeeded = 3 - patientCounts?.length;
-      const zeroArray = (zerosNeeded && Array(zerosNeeded).fill(0)) || [];
+      let zeroArray = [];
+      if (zerosNeeded > 0) {
+        zeroArray = (zerosNeeded && Array(zerosNeeded).fill(0)) || [];
+      }
       const paddedData = [...zeroArray, ...patientCounts];
       setPredictedData([...predictNextValues(paddedData, 3)]);
       return paddedData;

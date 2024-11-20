@@ -12,6 +12,7 @@ const equipmentSocket = require('./equipmentSocket');
 const userSocket = require('./userSocket');
 const historicalRecordSocket = require('./historicalRecordSocket');
 const notificationSocket = require('./notificationSocket');
+const announcementSocket = require('./announcementSocket');
 
 function initializeWebSocket(io) {
   
@@ -28,6 +29,7 @@ function initializeWebSocket(io) {
     messagingSocket(socket);
     equipmentSocket(socket);
     notificationSocket(socket);
+    announcementSocket(socket);
   });
 
   return io;
